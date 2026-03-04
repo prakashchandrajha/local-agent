@@ -1,3 +1,3 @@
-const someIs=()=>{
-    console.dog("some is called");
+const someIs = () => {
+  console.log("some is called");
 }
