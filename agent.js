@@ -1,33 +1,30 @@
 const axios = require("axios");
 const readline = require("readline-sync");
-const { readFile, writeFile } = require("./tools/file");
+const { readFile, writeFile, listFiles } = require("./tools/file");
 
 const OLLAMA_URL = "http://localhost:11434/api/generate";
 const MODEL = "qwen3:8b"; // main brain
 
 const SYSTEM_PROMPT = `
-You are a coding agent.
+You are a coding agent with access to file system tools.
 
-If the user asks to:
-- read a file
-- create a file
-- modify code
+When the user asks to list files, show directory contents, or see what files are present, use:
 
-Respond ONLY in one of these formats.
+TOOL: list_files
 
-For reading a file:
+When the user asks to read a file, view a file, or get file contents, use:
 
 TOOL: read_file
-PATH: path/to/file.js
+PATH: file.js
 
-For writing a file:
+When the user asks to write a file, create a file, or save content, use:
 
 TOOL: write_file
-PATH: path/to/file.js
+PATH: file.js
 CONTENT:
-<full file content here>
+<full file content>
 
-If no tool is needed, answer normally.
+Respond ONLY with these tool formats when dealing with file operations. Do NOT mention terminal commands or external tools. If the user asks about file operations, ALWAYS use the available tools.
 `;
 
 async function askLLM(prompt) {
@@ -48,7 +45,10 @@ async function run() {
 
     const result = await askLLM(userInput);
 
-    if (result.includes("TOOL: read_file")) {
+    if (result.includes("TOOL: list_files")) {
+      const files = listFiles();
+      console.log("\n📂 Files in current directory:\n", files);
+    } else if (result.includes("TOOL: read_file")) {
       const pathMatch = result.match(/PATH:\s*(.*)/);
       if (pathMatch) {
         const filePath = pathMatch[1].trim();
