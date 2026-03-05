@@ -5,6 +5,7 @@ const readline = require("readline-sync");
 const { readFile, writeFile, listFiles } = require("./tools/file");
 const memory = require("./tools/memory");
 const scanner = require("./tools/scanner");
+const knowledge = require("./tools/knowledge");
 const fs = require("fs");
 const path = require("path");
 
@@ -126,6 +127,30 @@ CRITICAL RULES:
   }
 
   return enhanced;
+};
+
+// ─────────────────────────────────────────────────────────────
+// KNOWLEDGE CONTEXT BUILDER
+// Injects relevant knowledge from the knowledge base
+// ─────────────────────────────────────────────────────────────
+const buildKnowledgeContext = (userInput, activeFile = null) => {
+  try {
+    // Build search query from user input and active file context
+    let searchQuery = userInput;
+    if (activeFile) {
+      searchQuery += ` ${activeFile}`;
+    }
+    
+    const knowledgeContext = knowledge.getKnowledgeContext(searchQuery);
+    if (knowledgeContext) {
+      console.log("🧠 Retrieved relevant knowledge from knowledge base");
+    }
+    
+    return knowledgeContext;
+  } catch (err) {
+    if (DEBUG) console.error("Knowledge context error:", err.message);
+    return "";
+  }
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -498,7 +523,7 @@ const run = async () => {
   const SYSTEM_PROMPT = buildSystemPrompt(readmeContent, agentDocsContent);
 
   console.log("🤖 Agent ready!");
-  console.log("   Commands: 'exit' · 'history' · 'clear' · 'memory' · 'scan'\n");
+  console.log("   Commands: 'exit' · 'history' · 'clear' · 'memory' · 'knowledge' · 'scan'\n");
 
   // Initialize project context on startup
   initializeProjectContext();
@@ -554,6 +579,18 @@ const run = async () => {
       continue;
     }
 
+    if (userInput.toLowerCase() === "knowledge") {
+      const stats = knowledge.getStats();
+      console.log("\n🧠 Knowledge Base Statistics:");
+      console.log("─".repeat(40));
+      console.log(`Total files: ${stats.totalFiles}`);
+      console.log(`Total chunks: ${stats.totalChunks}`);
+      console.log(`Total keywords: ${stats.totalKeywords}`);
+      console.log("File types:", stats.fileTypes);
+      console.log("─".repeat(40) + "\n");
+      continue;
+    }
+
     if (userInput.toLowerCase() === "scan") {
       console.log("\n🔄 Refreshing project context...");
       const confirm = readline.keyInYN("Perform full rescan? (recommended after major changes)");
@@ -584,6 +621,14 @@ const run = async () => {
 
     // Build enhanced system prompt with memory context if working on a file
     let enhancedPrompt = SYSTEM_PROMPT;
+    
+    // Add knowledge context first (most relevant for current problem)
+    const knowledgeContext = buildKnowledgeContext(userInput, activeFile);
+    if (knowledgeContext) {
+      enhancedPrompt += knowledgeContext;
+    }
+    
+    // Add memory context for past fixes
     if (USE_MEMORY && activeFile) {
       const memoryContext = buildMemoryContext(activeFile);
       if (memoryContext) {

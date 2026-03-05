@@ -1,0 +1,44 @@
+ARCHITECTURE GUIDELINES
+======================
+
+PROJECT STRUCTURE
+-----------------
+- Separate concerns into different layers (presentation, business logic, data)
+- Use dependency injection to reduce coupling
+- Keep configuration separate from business logic
+- Use environment variables for sensitive data
+
+MODULE DESIGN
+------------
+- Each module should have a single responsibility
+- Modules should be loosely coupled
+- Use interfaces to define contracts between modules
+- Avoid circular dependencies
+
+ERROR HANDLING
+-------------
+- Use consistent error handling patterns
+- Log errors with context information
+- Provide meaningful error messages to users
+- Fail fast and fail explicitly
+
+PERFORMANCE CONSIDERATIONS
+--------------------------
+- Cache frequently accessed data
+- Use lazy loading for expensive operations
+- Optimize database queries
+- Monitor and profile performance bottlenecks
+
+SECURITY BEST PRACTICES
+-----------------------
+- Validate all input data
+- Use parameterized queries for database operations
+- Implement proper authentication and authorization
+- Keep dependencies updated
+
+TESTING STRATEGY
+----------------
+- Write unit tests for business logic
+- Use integration tests for module interactions
+- Test error conditions and edge cases
+- Aim for high code coverage in critical areas

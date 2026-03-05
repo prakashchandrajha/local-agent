@@ -1,16 +1,18 @@
 {
-  "agent.js": "93ce6d51921a8403cb0ac5c2c3a5cc7f",
-  "calculator.js": "15d06093e120d560af314e71832e95a5",
+  "agent.js": "eb32892aaccf14af87fb6fb1c5108e97",
+  "calculator.js": "d416a87014ade7b3654935de33f317d0",
   "config/index.js": "5aebb0611254eec906a8f1f2ece84f3a",
   "demojango.js": "255ef9e685a74eb4596dd4d4e1487d6b",
   "filename.js": "e7ec6b508309895338bcddc5ac8cb61c",
-  "src/agent.js": "4610bed8c8cdfda1f51fdeccd304565d",
-  "src/parsers/tool-parser.js": "6f6854ac585cfe14ffbd58cc8105abbb",
+  "src/agent.js": "c52b4db768e43dfee3d116da488343ea",
+  "src/parsers/tool-parser.js": "42615a99c116941d997334d5fef91ed6",
   "src/services/llm.js": "a8d22feb540853fabf56a3c5e161f00c",
   "src/utils/logger.js": "627841c054866ef9ca8d7ea047fbea81",
   "testing/test_all.js": "8b07eadfb79717d87bf23feca46fc6ce",
+  "testing/test_knowledge.js": "771ccdf2cfe372e9914161a0690d44bf",
   "testing/test_scanner.js": "3af78351bc63087417333c6cdb95215b",
   "tools/file.js": "1b4930babb4cf635243c7ad271f5a0b8",
+  "tools/knowledge.js": "5ca2c2e1e71fe57858ebad95609f9c52",
   "tools/memory.js": "41b10dd672a1276b7fec497d668cb567",
   "tools/scanner.js": "d6e970df0a30bc7a520e6943339fb168"
 }
