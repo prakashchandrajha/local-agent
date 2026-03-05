@@ -63,7 +63,7 @@ See `MEMORY_USAGE.md` for detailed usage instructions.
 
 ## How to Customize This File
 
-You can change any of the sections above to match your preferences. The agent reads this file fresh on every run, so your changes take effect immediately — no restart needed.
+You can change any of the sections above to match your preferences. The agent reads this file fresh on every run, so your changes take effect immediately — no restart needed
 
 **Tips:**
 - Be specific. "Use 2-space indentation" works better than "format nicely."
