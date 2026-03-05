@@ -1,7 +1,9 @@
 {
   "files": [
     "agent.js",
+    "calculator.js",
     "config/index.js",
+    "filename.js",
     "src/agent.js",
     "src/parsers/tool-parser.js",
     "src/services/llm.js",
@@ -14,7 +16,9 @@
   ],
   "recentlyModified": [
     "agent.js",
+    "calculator.js",
     "config/index.js",
+    "filename.js",
     "src/agent.js",
     "src/parsers/tool-parser.js",
     "src/services/llm.js",
@@ -25,33 +29,13 @@
     "tools/memory.js",
     "tools/scanner.js"
   ],
-  "imports": {
-    "agent.js": [
-      "tools/file.js",
-      "tools/memory.js",
-      "tools/scanner.js"
-    ],
-    "src/agent.js": [
-      "config.js",
-      "src/utils/logger.js",
-      "src/services/llm.js",
-      "src/parsers/tool-parser.js",
-      "tools/file.js",
-      "tools/memory.js",
-      "tools/scanner.js"
-    ],
-    "testing/test_all.js": [
-      "tools/memory.js",
-      "tools/scanner.js"
-    ],
-    "testing/test_scanner.js": [
-      "testing/tools/scanner.js"
-    ]
-  },
+  "imports": {},
   "languages": {
     "js": [
       "agent.js",
+      "calculator.js",
       "config/index.js",
+      "filename.js",
       "src/agent.js",
       "src/parsers/tool-parser.js",
       "src/services/llm.js",
@@ -64,154 +48,15 @@
     ]
   },
   "structures": {
-    "agent.js": {
+    "calculator.js": {
       "functions": [
-        "rememberTurn",
-        "formatHistory",
-        "loadReadme",
-        "loadAgentDocs",
-        "buildSystemPrompt",
-        "buildMemoryContext",
-        "cleanCodeFences",
-        "extractFilename",
-        "parseToolBlocks",
-        "callLLM",
-        "initializeProjectContext",
-        "injectProjectContext",
-        "runAgentLoop",
-        "isSolved",
-        "isFollowUp",
-        "run"
+        "add",
+        "subtract"
       ],
       "classes": [],
-      "exports": []
-    },
-    "config/index.js": {
-      "functions": [
-        "getConfig"
-      ],
-      "classes": [
-        "Config"
-      ],
-      "exports": []
-    },
-    "src/agent.js": {
-      "functions": [],
-      "classes": [
-        "Agent"
-      ],
-      "exports": []
-    },
-    "src/parsers/tool-parser.js": {
-      "functions": [],
-      "classes": [
-        "ToolParser"
-      ],
-      "exports": []
-    },
-    "src/services/llm.js": {
-      "functions": [],
-      "classes": [
-        "LLMService"
-      ],
-      "exports": []
-    },
-    "src/utils/logger.js": {
-      "functions": [
-        "getLogger"
-      ],
-      "classes": [
-        "Logger"
-      ],
-      "exports": []
-    },
-    "testing/test_all.js": {
-      "functions": [
-        "testFunction",
-        "testFunction",
-        "name",
-        "calculate",
-        "calculate",
-        "test",
-        "test",
-        "assert"
-      ],
-      "classes": [],
-      "exports": [
-        "export memory"
-      ]
-    },
-    "testing/test_scanner.js": {
-      "functions": [
-        "assert"
-      ],
-      "classes": [],
-      "exports": []
-    },
-    "tools/file.js": {
-      "functions": [
-        "readFile",
-        "writeFile",
-        "listFiles"
-      ],
-      "classes": [],
-      "exports": []
-    },
-    "tools/memory.js": {
-      "functions": [
-        "name",
-        "generateDiff",
-        "hashEntry",
-        "normalizeTags",
-        "loadIndex",
-        "saveIndex",
-        "updateIndex",
-        "loadMemory",
-        "appendEntry",
-        "rewriteMemory",
-        "addFix",
-        "findRelevantFixes",
-        "getEntryById",
-        "updateEntry",
-        "deleteEntry",
-        "getStats",
-        "exportMemory",
-        "importMemory",
-        "searchByCode",
-        "autoRecordChange",
-        "getContextSuggestions"
-      ],
-      "classes": [],
-      "exports": [
-        "export to",
-        "export memory"
-      ]
-    },
-    "tools/scanner.js": {
-      "functions": [
-        "and",
-        "walk",
-        "generateFileHash",
-        "loadFileHashes",
-        "saveFileHashes",
-        "detectChanges",
-        "extractImports",
-        "extractStructures",
-        "walkDirectory",
-        "scanProject",
-        "loadProjectMap",
-        "quickRefresh",
-        "scanFiles",
-        "getDependents",
-        "getFileStructures",
-        "buildContextInjection"
-      ],
-      "classes": [
-        "names"
-      ],
       "exports": []
     }
   },
-  "lastScan": "2026-03-05T14:35:32.972Z",
-  "scanDuration": 6
+  "lastScan": "2026-03-05T14:41:54.744Z",
+  "scanDuration": 3
 }

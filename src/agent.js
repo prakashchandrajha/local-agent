@@ -244,6 +244,8 @@ class Agent {
             console.log(`\n📖 Read: ${op.path}\n`);
             readResults.push({ path: op.path, content });
             allSummaries.push(`Read: ${op.path}`);
+            // Update contextFile to the file that was read
+            contextFile = op.path;
           }
           break;
 
@@ -277,7 +279,7 @@ class Agent {
         summaries: allSummaries, 
         activeFile: contextFile,
         fileContent: readResults.map(r => `FILE: ${r.path}\n---\n${r.content}\n---`).join("\n\n"),
-        contextFile: readResults[0]?.path || contextFile
+        contextFile: contextFile
       };
     }
 
@@ -545,14 +547,14 @@ CRITICAL RULES:
     }
 
     try {
-      const stats = memory.getStatistics();
+      const stats = memory.getStats();
       console.log(`
 📝 Memory Statistics:
   Total entries: ${stats.totalEntries}
-  Files tracked: ${stats.filesTracked}
-  Tags used: ${stats.tagsUsed}
-  Memory file size: ${stats.memoryFileSize}
-  Index size: ${stats.indexSize}
+  Unique files: ${stats.uniqueFiles}
+  Unique functions: ${stats.uniqueFunctions}
+  Change types: ${Object.keys(stats.byType).join(', ')}
+  Top tags: ${stats.topTags.map(t => `${t.tag}(${t.count})`).slice(0, 5).join(', ')}
       `);
     } catch (err) {
       this.logger.error("Failed to get memory stats", { error: err.message });
