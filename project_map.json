@@ -1,0 +1,35 @@
+{
+  "files": [
+    "agent.js",
+    "calculator.js",
+    "demodemo.js",
+    "test_scanner.js",
+    "tools/file.js",
+    "tools/memory.js",
+    "tools/scanner.js"
+  ],
+  "recentlyModified": [
+    "agent.js",
+    "calculator.js",
+    "demodemo.js",
+    "test_scanner.js",
+    "tools/file.js",
+    "tools/memory.js",
+    "tools/scanner.js"
+  ],
+  "imports": {},
+  "languages": {
+    "js": [
+      "agent.js",
+      "calculator.js",
+      "demodemo.js",
+      "test_scanner.js",
+      "tools/file.js",
+      "tools/memory.js",
+      "tools/scanner.js"
+    ]
+  },
+  "structures": {},
+  "lastScan": "2026-03-05T13:41:30.938Z",
+  "scanDuration": 19
+}

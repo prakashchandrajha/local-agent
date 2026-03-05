@@ -1,0 +1,19 @@
+Sure, here is how you can implement this using Python and its built-in modules:
+
+import os
+from typing import List
+
+def write_file(filename: str, content: str) -> None:
+    with open(filename, 'w') as file:
+        file.write(content)
+
+def read_file(filename: str) -> str:
+    if not os.path.exists(filename):
+        raise FileNotFoundError("The specified file does not exist.")
+    
+    with open(filename, 'r') as file:
+        return file.read()
+
+In this code, `write_file` function is used to write content into a file and `read_file` function is used to read the content of a file. The functions are generic in nature and can be used for any type of files like text files, CSV files etc. 
+
+Please replace 'filename' with your actual filename and 'content' with the string you want to write into the file. You can also use `read_file` function by replacing 'filename' with your actual filename. The functions will return the content of the file if it exists, otherwise they will raise a FileNotFoundError.

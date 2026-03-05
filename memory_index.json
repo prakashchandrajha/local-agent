@@ -1,0 +1,51 @@
+{
+  "byFile": {
+    "demodemo.js": [
+      "d1faf2a501761eedf140819c046c548b",
+      "c23fc52a2703a5b4cf97674e42e50949"
+    ],
+    "output.txt": [
+      "145e2ccca2c7c092eb5795ba8876d1c5"
+    ]
+  },
+  "byFunction": {
+    "addition": [
+      "d1faf2a501761eedf140819c046c548b",
+      "c23fc52a2703a5b4cf97674e42e50949"
+    ],
+    "is": [
+      "145e2ccca2c7c092eb5795ba8876d1c5"
+    ]
+  },
+  "byTag": {
+    "js": [
+      "d1faf2a501761eedf140819c046c548b",
+      "c23fc52a2703a5b4cf97674e42e50949"
+    ],
+    "bug_fix": [
+      "d1faf2a501761eedf140819c046c548b",
+      "c23fc52a2703a5b4cf97674e42e50949",
+      "145e2ccca2c7c092eb5795ba8876d1c5"
+    ],
+    "txt": [
+      "145e2ccca2c7c092eb5795ba8876d1c5"
+    ]
+  },
+  "byHash": {
+    "d1faf2a501761eedf140819c046c548b": {
+      "file": "demodemo.js",
+      "function": "addition",
+      "timestamp": "2026-03-05T13:24:17.110Z"
+    },
+    "c23fc52a2703a5b4cf97674e42e50949": {
+      "file": "demodemo.js",
+      "function": "addition",
+      "timestamp": "2026-03-05T13:25:17.236Z"
+    },
+    "145e2ccca2c7c092eb5795ba8876d1c5": {
+      "file": "output.txt",
+      "function": "is",
+      "timestamp": "2026-03-05T13:38:42.546Z"
+    }
+  }
+}

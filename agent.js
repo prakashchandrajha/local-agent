@@ -4,6 +4,7 @@ const axios = require("axios");
 const readline = require("readline-sync");
 const { readFile, writeFile, listFiles } = require("./tools/file");
 const memory = require("./tools/memory");
+const scanner = require("./tools/scanner");
 const fs = require("fs");
 const path = require("path");
 
@@ -279,6 +280,34 @@ const callLLM = async (prompt, systemPrompt) => {
 // ─────────────────────────────────────────────────────────────
 const MAX_AGENT_TURNS = 4;
 
+// Project context (loaded on startup)
+let projectMap = null;
+
+/**
+ * Initialize project context on startup
+ */
+const initializeProjectContext = () => {
+  try {
+    console.log("🔄 Loading project context...");
+    projectMap = scanner.loadProjectMap();
+    console.log(`   📁 ${projectMap.files.length} files indexed`);
+    if (projectMap.recentlyModified.length > 0) {
+      console.log(`   🕐 ${projectMap.recentlyModified.length} recently modified`);
+    }
+  } catch (err) {
+    console.error("⚠️  Failed to load project context:", err.message);
+    projectMap = null;
+  }
+};
+
+/**
+ * Inject project context into system prompt for relevant files
+ */
+const injectProjectContext = (file) => {
+  if (!projectMap) return "";
+  return scanner.buildContextInjection(file, projectMap);
+};
+
 const runAgentLoop = async (userInput, systemPrompt, contextFile = null) => {
   const allSummaries = [];
 
@@ -442,7 +471,10 @@ const run = async () => {
   const SYSTEM_PROMPT = buildSystemPrompt(readmeContent);
 
   console.log("🤖 Agent ready!");
-  console.log("   Commands: 'exit' · 'history' · 'clear' · 'memory'\n");
+  console.log("   Commands: 'exit' · 'history' · 'clear' · 'memory' · 'scan'\n");
+
+  // Initialize project context on startup
+  initializeProjectContext();
 
   let activeFile = null; // currently focused file across turns
 
@@ -495,6 +527,22 @@ const run = async () => {
       continue;
     }
 
+    if (userInput.toLowerCase() === "scan") {
+      console.log("\n🔄 Refreshing project context...");
+      const confirm = readline.keyInYN("Perform full rescan? (recommended after major changes)");
+      if (confirm) {
+        projectMap = scanner.scanProject(scanner.PROJECT_ROOT, false);
+      } else {
+        const quickConfirm = readline.keyInYN("Perform quick refresh (changed files only)?");
+        if (quickConfirm) {
+          projectMap = scanner.quickRefresh();
+        } else {
+          console.log("⏭️  Scan cancelled.");
+        }
+      }
+      continue;
+    }
+
     // User confirms problem is solved → release active file
     if (activeFile && isSolved(userInput)) {
       console.log(`\n✨ Great! Finished working on ${activeFile}.\n`);
@@ -513,6 +561,14 @@ const run = async () => {
       const memoryContext = buildMemoryContext(activeFile);
       if (memoryContext) {
         enhancedPrompt += memoryContext;
+      }
+    }
+    
+    // Inject project context for multi-file awareness
+    if (activeFile && projectMap) {
+      const projectContext = injectProjectContext(activeFile);
+      if (projectContext) {
+        enhancedPrompt += `\n\n${projectContext}`;
       }
     }
 
