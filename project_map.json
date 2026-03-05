@@ -1,20 +1,16 @@
 {
   "files": [
     "agent.js",
-    "calculator.js",
-    "demodemo.js",
-    "test_scanner.js",
-    "tests/test_all.js",
+    "testing/test_all.js",
+    "testing/test_scanner.js",
     "tools/file.js",
     "tools/memory.js",
     "tools/scanner.js"
   ],
   "recentlyModified": [
     "agent.js",
-    "calculator.js",
-    "demodemo.js",
-    "test_scanner.js",
-    "tests/test_all.js",
+    "testing/test_all.js",
+    "testing/test_scanner.js",
     "tools/file.js",
     "tools/memory.js",
     "tools/scanner.js"
@@ -25,21 +21,19 @@
       "tools/memory.js",
       "tools/scanner.js"
     ],
-    "test_scanner.js": [
-      "tools/scanner.js"
-    ],
-    "tests/test_all.js": [
+    "testing/test_all.js": [
       "tools/memory.js",
       "tools/scanner.js"
+    ],
+    "testing/test_scanner.js": [
+      "testing/tools/scanner.js"
     ]
   },
   "languages": {
     "js": [
       "agent.js",
-      "calculator.js",
-      "demodemo.js",
-      "test_scanner.js",
-      "tests/test_all.js",
+      "testing/test_all.js",
+      "testing/test_scanner.js",
       "tools/file.js",
       "tools/memory.js",
       "tools/scanner.js"
@@ -51,6 +45,7 @@
         "rememberTurn",
         "formatHistory",
         "loadReadme",
+        "loadAgentDocs",
         "buildSystemPrompt",
         "buildMemoryContext",
         "cleanCodeFences",
@@ -67,31 +62,7 @@
       "classes": [],
       "exports": []
     },
-    "calculator.js": {
-      "functions": [
-        "add",
-        "subtract",
-        "multiply",
-        "divide"
-      ],
-      "classes": [],
-      "exports": []
-    },
-    "demodemo.js": {
-      "functions": [
-        "addition"
-      ],
-      "classes": [],
-      "exports": []
-    },
-    "test_scanner.js": {
-      "functions": [
-        "assert"
-      ],
-      "classes": [],
-      "exports": []
-    },
-    "tests/test_all.js": {
+    "testing/test_all.js": {
       "functions": [
         "testFunction",
         "testFunction",
@@ -106,6 +77,13 @@
       "exports": [
         "export memory"
       ]
+    },
+    "testing/test_scanner.js": {
+      "functions": [
+        "assert"
+      ],
+      "classes": [],
+      "exports": []
     },
     "tools/file.js": {
       "functions": [
@@ -171,6 +149,6 @@
       "exports": []
     }
   },
-  "lastScan": "2026-03-05T13:48:53.393Z",
+  "lastScan": "2026-03-05T14:20:10.268Z",
   "scanDuration": 3
 }

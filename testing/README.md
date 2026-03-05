@@ -7,11 +7,11 @@ Comprehensive tests for **Persistent Fix Memory** and **Project Context Scanner*
 ## 📋 Quick Start
 
 ```bash
-# Run all tests
-node tests/test_all.js
+# Run all tests (from project root)
+node testing/test_all.js
 
 # Run individual test files
-node test_scanner.js
+node testing/test_scanner.js
 ```
 
 ---

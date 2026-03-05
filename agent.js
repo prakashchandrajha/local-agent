@@ -56,9 +56,25 @@ const loadReadme = () => {
 };
 
 // ─────────────────────────────────────────────────────────────
+// DOCUMENTATION LOADER
+// Loads agent-specific documentation to enhance system prompt
+// ─────────────────────────────────────────────────────────────
+const loadAgentDocs = () => {
+  const docsPath = path.join(process.cwd(), "docs", "for-agent", "AGENT_GUIDE.md");
+  try {
+    if (fs.existsSync(docsPath)) {
+      const content = fs.readFileSync(docsPath, "utf8");
+      console.log("📚 Loaded agent documentation from docs/for-agent/AGENT_GUIDE.md\n");
+      return content;
+    }
+  } catch (_) {}
+  return null;
+};
+
+// ─────────────────────────────────────────────────────────────
 // SYSTEM PROMPT BUILDER
 // ─────────────────────────────────────────────────────────────
-const buildSystemPrompt = (readmeContent) => {
+const buildSystemPrompt = (readmeContent, agentDocsContent) => {
   const base = `
 You are an expert coding assistant with file operation capabilities.
 You have memory of the entire conversation — use it to understand "that file", "add to it", "fix it", etc.
@@ -97,9 +113,19 @@ CRITICAL RULES:
 7. Do NOT add any text outside of tool blocks.
 `.trim();
 
-  return readmeContent
-    ? base + `\n\n─────────────────────────────────────────\nCUSTOM INSTRUCTIONS (README.md):\n${readmeContent}\n─────────────────────────────────────────`
-    : base;
+  let enhanced = base;
+
+  // Add README instructions
+  if (readmeContent) {
+    enhanced += `\n\n─────────────────────────────────────────\nCUSTOM INSTRUCTIONS (README.md):\n${readmeContent}\n─────────────────────────────────────────`;
+  }
+
+  // Add agent documentation (capabilities, tools, workflows)
+  if (agentDocsContent) {
+    enhanced += `\n\n─────────────────────────────────────────\nAGENT CAPABILITIES & TOOLS (docs/for-agent/AGENT_GUIDE.md):\n${agentDocsContent}\n─────────────────────────────────────────`;
+  }
+
+  return enhanced;
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -468,7 +494,8 @@ const isFollowUp = (input) =>
 // ─────────────────────────────────────────────────────────────
 const run = async () => {
   const readmeContent = loadReadme();
-  const SYSTEM_PROMPT = buildSystemPrompt(readmeContent);
+  const agentDocsContent = loadAgentDocs();
+  const SYSTEM_PROMPT = buildSystemPrompt(readmeContent, agentDocsContent);
 
   console.log("🤖 Agent ready!");
   console.log("   Commands: 'exit' · 'history' · 'clear' · 'memory' · 'scan'\n");
