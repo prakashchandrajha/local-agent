@@ -1,12 +1,14 @@
 {
   "name": "local-agent",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "AI-powered coding assistant with file operations and persistent memory",
+  "main": "src/agent.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/agent.js",
+    "dev": "NODE_ENV=development node src/agent.js",
+    "test": "node testing/test_all.js"
   },
-  "keywords": [],
+  "keywords": ["ai", "coding-assistant", "llm", "automation"],
   "author": "",
   "license": "ISC",
   "dependencies": {

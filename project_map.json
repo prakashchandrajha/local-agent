@@ -1,6 +1,11 @@
 {
   "files": [
     "agent.js",
+    "config/index.js",
+    "src/agent.js",
+    "src/parsers/tool-parser.js",
+    "src/services/llm.js",
+    "src/utils/logger.js",
     "testing/test_all.js",
     "testing/test_scanner.js",
     "tools/file.js",
@@ -9,6 +14,11 @@
   ],
   "recentlyModified": [
     "agent.js",
+    "config/index.js",
+    "src/agent.js",
+    "src/parsers/tool-parser.js",
+    "src/services/llm.js",
+    "src/utils/logger.js",
     "testing/test_all.js",
     "testing/test_scanner.js",
     "tools/file.js",
@@ -17,6 +27,15 @@
   ],
   "imports": {
     "agent.js": [
+      "tools/file.js",
+      "tools/memory.js",
+      "tools/scanner.js"
+    ],
+    "src/agent.js": [
+      "config.js",
+      "src/utils/logger.js",
+      "src/services/llm.js",
+      "src/parsers/tool-parser.js",
       "tools/file.js",
       "tools/memory.js",
       "tools/scanner.js"
@@ -32,6 +51,11 @@
   "languages": {
     "js": [
       "agent.js",
+      "config/index.js",
+      "src/agent.js",
+      "src/parsers/tool-parser.js",
+      "src/services/llm.js",
+      "src/utils/logger.js",
       "testing/test_all.js",
       "testing/test_scanner.js",
       "tools/file.js",
@@ -60,6 +84,45 @@
         "run"
       ],
       "classes": [],
+      "exports": []
+    },
+    "config/index.js": {
+      "functions": [
+        "getConfig"
+      ],
+      "classes": [
+        "Config"
+      ],
+      "exports": []
+    },
+    "src/agent.js": {
+      "functions": [],
+      "classes": [
+        "Agent"
+      ],
+      "exports": []
+    },
+    "src/parsers/tool-parser.js": {
+      "functions": [],
+      "classes": [
+        "ToolParser"
+      ],
+      "exports": []
+    },
+    "src/services/llm.js": {
+      "functions": [],
+      "classes": [
+        "LLMService"
+      ],
+      "exports": []
+    },
+    "src/utils/logger.js": {
+      "functions": [
+        "getLogger"
+      ],
+      "classes": [
+        "Logger"
+      ],
       "exports": []
     },
     "testing/test_all.js": {
@@ -149,6 +212,6 @@
       "exports": []
     }
   },
-  "lastScan": "2026-03-05T14:20:10.268Z",
-  "scanDuration": 3
+  "lastScan": "2026-03-05T14:35:32.972Z",
+  "scanDuration": 6
 }

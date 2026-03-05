@@ -1,5 +1,10 @@
 {
   "agent.js": "93ce6d51921a8403cb0ac5c2c3a5cc7f",
+  "config/index.js": "5aebb0611254eec906a8f1f2ece84f3a",
+  "src/agent.js": "4610bed8c8cdfda1f51fdeccd304565d",
+  "src/parsers/tool-parser.js": "6f6854ac585cfe14ffbd58cc8105abbb",
+  "src/services/llm.js": "a8d22feb540853fabf56a3c5e161f00c",
+  "src/utils/logger.js": "627841c054866ef9ca8d7ea047fbea81",
   "testing/test_all.js": "8b07eadfb79717d87bf23feca46fc6ce",
   "testing/test_scanner.js": "3af78351bc63087417333c6cdb95215b",
   "tools/file.js": "1b4930babb4cf635243c7ad271f5a0b8",
