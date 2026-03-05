@@ -43,6 +43,24 @@ Write your custom instructions below — they will be injected directly into the
 
 ---
 
+## Persistent Memory
+
+This agent has **Persistent Memory** enabled via `tools/memory.js`. It automatically:
+- Records every code fix with before/after diffs
+- Retrieves relevant past fixes when working on similar files
+- Tags fixes by file type and change category for easy lookup
+
+**Commands:**
+- `memory` - View statistics about recorded fixes
+
+**Storage:**
+- Memory entries: `persistent_memory.jsonl`
+- Index: `memory_index.json`
+
+See `MEMORY_USAGE.md` for detailed usage instructions.
+
+---
+
 ## How to Customize This File
 
 You can change any of the sections above to match your preferences. The agent reads this file fresh on every run, so your changes take effect immediately — no restart needed.

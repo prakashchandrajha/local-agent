@@ -3,6 +3,7 @@
 const axios = require("axios");
 const readline = require("readline-sync");
 const { readFile, writeFile, listFiles } = require("./tools/file");
+const memory = require("./tools/memory");
 const fs = require("fs");
 const path = require("path");
 
@@ -14,6 +15,7 @@ const MODEL = "deepseek-coder:6.7b";
 const MAX_RETRIES = 3;          // retry attempts on bad LLM output
 const MAX_HISTORY = 20;         // max conversation turns to keep in memory
 const DEBUG = false;            // set true to see raw LLM responses
+const USE_MEMORY = true;        // enable persistent memory
 
 // ─────────────────────────────────────────────────────────────
 // CONVERSATION MEMORY
@@ -97,6 +99,36 @@ CRITICAL RULES:
   return readmeContent
     ? base + `\n\n─────────────────────────────────────────\nCUSTOM INSTRUCTIONS (README.md):\n${readmeContent}\n─────────────────────────────────────────`
     : base;
+};
+
+// ─────────────────────────────────────────────────────────────
+// MEMORY CONTEXT BUILDER
+// Shows relevant past fixes when working on a file
+// ─────────────────────────────────────────────────────────────
+const buildMemoryContext = (file) => {
+  if (!USE_MEMORY) return "";
+  
+  try {
+    const suggestions = memory.getContextSuggestions(file);
+    if (suggestions.length === 0) return "";
+    
+    let context = "\n\n📚 RELEVANT PAST FIXES:\n";
+    suggestions.forEach((s, i) => {
+      context += `\n[${i + 1}] ${s.function} in ${s.file}:\n`;
+      context += `    ${s.description}\n`;
+      context += `    Tags: ${s.tags.join(', ')}\n`;
+      if (s.diff) {
+        context += `    Before: ${s.diff.before.substring(0, 100)}${s.diff.before.length > 100 ? '...' : ''}\n`;
+        context += `    After: ${s.diff.after.substring(0, 100)}${s.diff.after.length > 100 ? '...' : ''}\n`;
+      }
+    });
+    context += "\n";
+    
+    return context;
+  } catch (err) {
+    if (DEBUG) console.error("Memory context error:", err.message);
+    return "";
+  }
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -295,6 +327,13 @@ const runAgentLoop = async (userInput, systemPrompt, contextFile = null) => {
 
       } else if (op.tool === "write_file") {
         const fullPath = path.join(process.cwd(), op.path);
+        let oldContent = null;
+        
+        // Read old content for memory recording
+        if (USE_MEMORY && fs.existsSync(fullPath)) {
+          oldContent = fs.readFileSync(fullPath, "utf8");
+        }
+        
         if (fs.existsSync(fullPath)) {
           const confirm = readline.keyInYN(`\n⚠️  ${op.path} already exists. Overwrite?`);
           if (!confirm) {
@@ -308,10 +347,26 @@ const runAgentLoop = async (userInput, systemPrompt, contextFile = null) => {
         writeResults.push(op.path);
         lastWrittenFile = op.path;
         allSummaries.push(`Created/updated: ${op.path}`);
+        
+        // Record change in memory
+        if (USE_MEMORY && oldContent && oldContent !== op.content) {
+          try {
+            memory.autoRecordChange(op.path, oldContent, op.content, "Agent-applied fix");
+          } catch (err) {
+            if (DEBUG) console.error("Memory recording error:", err.message);
+          }
+        }
 
       } else if (op.tool === "_raw_code") {
         const filename = extractFilename(userInput) || contextFile || "output.txt";
         const fullPath = path.join(process.cwd(), filename);
+        let oldContent = null;
+        
+        // Read old content for memory recording
+        if (USE_MEMORY && fs.existsSync(fullPath)) {
+          oldContent = fs.readFileSync(fullPath, "utf8");
+        }
+        
         if (fs.existsSync(fullPath)) {
           const confirm = readline.keyInYN(`\n⚠️  ${filename} already exists. Overwrite?`);
           if (!confirm) { console.log(`⏭️  Skipped ${filename}`); continue; }
@@ -321,6 +376,15 @@ const runAgentLoop = async (userInput, systemPrompt, contextFile = null) => {
         writeResults.push(filename);
         lastWrittenFile = filename;
         allSummaries.push(`Created: ${filename}`);
+        
+        // Record change in memory
+        if (USE_MEMORY && oldContent && oldContent !== op.content) {
+          try {
+            memory.autoRecordChange(filename, oldContent, op.content, "Agent-applied fix");
+          } catch (err) {
+            if (DEBUG) console.error("Memory recording error:", err.message);
+          }
+        }
       }
     }
 
@@ -378,7 +442,7 @@ const run = async () => {
   const SYSTEM_PROMPT = buildSystemPrompt(readmeContent);
 
   console.log("🤖 Agent ready!");
-  console.log("   Commands: 'exit' · 'history' · 'clear'\n");
+  console.log("   Commands: 'exit' · 'history' · 'clear' · 'memory'\n");
 
   let activeFile = null; // currently focused file across turns
 
@@ -414,6 +478,23 @@ const run = async () => {
       continue;
     }
 
+    if (userInput.toLowerCase() === "memory") {
+      if (USE_MEMORY) {
+        const stats = memory.getStats();
+        console.log("\n📊 Persistent Memory Statistics:");
+        console.log("─".repeat(40));
+        console.log(`Total entries: ${stats.totalEntries}`);
+        console.log(`Unique files: ${stats.uniqueFiles}`);
+        console.log(`Unique functions: ${stats.uniqueFunctions}`);
+        console.log(`By type:`, JSON.stringify(stats.byType));
+        console.log(`Top tags: ${stats.topTags.map(t => t.tag).join(", ") || "none"}`);
+        console.log("─".repeat(40) + "\n");
+      } else {
+        console.log("\n⚠️  Persistent memory is disabled.\n");
+      }
+      continue;
+    }
+
     // User confirms problem is solved → release active file
     if (activeFile && isSolved(userInput)) {
       console.log(`\n✨ Great! Finished working on ${activeFile}.\n`);
@@ -426,10 +507,19 @@ const run = async () => {
     console.log("\n🤔 Thinking...");
     rememberTurn("user", userInput);
 
+    // Build enhanced system prompt with memory context if working on a file
+    let enhancedPrompt = SYSTEM_PROMPT;
+    if (USE_MEMORY && activeFile) {
+      const memoryContext = buildMemoryContext(activeFile);
+      if (memoryContext) {
+        enhancedPrompt += memoryContext;
+      }
+    }
+
     // Pass activeFile as context so agent doesn't need to re-read on follow-ups
     const { summaries, activeFile: updatedFile } = await runAgentLoop(
       userInput,
-      SYSTEM_PROMPT,
+      enhancedPrompt,
       isFollowUp(userInput) ? activeFile : null
     );
 
