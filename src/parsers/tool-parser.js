@@ -22,29 +22,33 @@ class ToolParser {
     const seenFiles = new Set(); // prevent duplicate reads/writes for same file
 
     try {
-      // Single-pass: find each TOOL: marker in order and parse the block after it
-      const toolMarkerRegex = /^TOOL:\s*(\w+)/gm;
-      let marker;
-
-      while ((marker = toolMarkerRegex.exec(response)) !== null) {
-        const tool = marker[1].toLowerCase();
-        const afterMarker = response.slice(marker.index + marker[0].length);
-
-        const operation = this._parseToolBlock(tool, afterMarker, seenFiles);
-        if (operation) {
-          operations.push(operation);
-        }
+      // First try the standard parsing approach
+      const standardOps = this._parseStandardToolBlocks(response, seenFiles);
+      if (standardOps.length > 0) {
+        this.logger.debug("Parsed using standard method", { 
+          operationCount: standardOps.length,
+          operations: standardOps.map(op => ({ tool: op.tool, path: op.path }))
+        });
+        return standardOps;
       }
 
-      // Fallback: if nothing parsed, check if raw response looks like code
-      if (operations.length === 0) {
-        const fallbackOp = this._parseRawCode(response);
-        if (fallbackOp) {
-          operations.push(fallbackOp);
-        }
+      // If standard parsing fails, try mixed content extraction
+      const mixedOps = this._parseMixedContentToolBlocks(response, seenFiles);
+      if (mixedOps.length > 0) {
+        this.logger.debug("Parsed using mixed content method", { 
+          operationCount: mixedOps.length,
+          operations: mixedOps.map(op => ({ tool: op.tool, path: op.path }))
+        });
+        return mixedOps;
       }
 
-      this.logger.debug("Parsed tool blocks", { 
+      // Fallback: check if raw response looks like code
+      const fallbackOp = this._parseRawCode(response);
+      if (fallbackOp) {
+        operations.push(fallbackOp);
+      }
+
+      this.logger.debug("Final operations parsed", { 
         operationCount: operations.length,
         operations: operations.map(op => ({ tool: op.tool, path: op.path }))
       });
@@ -54,6 +58,44 @@ class ToolParser {
         error: err.message,
         responsePreview: response.substring(0, 200)
       });
+    }
+
+    return operations;
+  }
+
+  /**
+   * Parses standard tool blocks (original method)
+   */
+  _parseStandardToolBlocks(response, seenFiles) {
+    const operations = [];
+    const toolMarkerRegex = /^TOOL:\s*(\w+)/gm;
+    let marker;
+
+    while ((marker = toolMarkerRegex.exec(response)) !== null) {
+      const tool = marker[1].toLowerCase();
+      const afterMarker = response.slice(marker.index + marker[0].length);
+
+      const operation = this._parseToolBlock(tool, afterMarker, seenFiles);
+      if (operation) {
+        operations.push(operation);
+      }
+    }
+
+    return operations;
+  }
+
+  /**
+   * Parses tool blocks from mixed content (LLM responses with explanations)
+   */
+  _parseMixedContentToolBlocks(response, seenFiles) {
+    const operations = [];
+    const toolBlocks = this._extractToolBlocksFromMixedContent(response);
+
+    for (const block of toolBlocks) {
+      const operation = this._parseToolBlock(block.tool, block.content, seenFiles);
+      if (operation) {
+        operations.push(operation);
+      }
     }
 
     return operations;
@@ -84,6 +126,61 @@ class ToolParser {
         this.logger.warn("Unknown tool type", { tool });
         return null;
     }
+  }
+
+  /**
+   * Extracts tool blocks from mixed content (LLM responses with explanations)
+   * @param {string} content - Content that may contain tool blocks
+   * @returns {Array} - Array of extracted tool blocks
+   */
+  _extractToolBlocksFromMixedContent(content) {
+    const toolBlocks = [];
+    
+    // Find all TOOL: markers and their content up to the next TOOL: or end
+    const toolRegex = /TOOL:\s*(\w+)\s*([\s\S]*?)(?=TOOL:\s*\w+|$)/g;
+    let match;
+    
+    while ((match = toolRegex.exec(content)) !== null) {
+      const toolName = match[1].trim();
+      let toolContent = match[2].trim();
+      
+      // Remove any trailing explanatory text after tool blocks
+      if (toolName === 'write_file') {
+        const contentEndMatch = toolContent.match(/([\s\S]*?END_CONTENT)/);
+        if (contentEndMatch) {
+          toolContent = contentEndMatch[1];
+        } else {
+          // If no END_CONTENT, try to extract up to the next logical break
+          const lines = toolContent.split('\n');
+          let contentLines = [];
+          let inContent = false;
+          
+          for (const line of lines) {
+            if (line.trim().startsWith('CONTENT:')) {
+              inContent = true;
+              continue;
+            }
+            if (inContent && (line.trim().startsWith('END_CONTENT') || line.match(/^\s*TOOL:/))) {
+              break;
+            }
+            if (inContent) {
+              contentLines.push(line);
+            }
+          }
+          
+          if (contentLines.length > 0) {
+            toolContent = 'CONTENT:\n' + contentLines.join('\n');
+          }
+        }
+      }
+      
+      toolBlocks.push({
+        tool: toolName,
+        content: toolContent
+      });
+    }
+    
+    return toolBlocks;
   }
 
   /**
@@ -123,9 +220,10 @@ class ToolParser {
    * @returns {Object|null} - Read file operation or null
    */
   _parseReadFileBlock(content, seenFiles) {
-    const pathMatch = content.match(/^\s*\nPATH:\s*([^\n]+)/i);
+    // More lenient pattern - allow various whitespace and formatting
+    const pathMatch = content.match(/PATH:\s*([^\n\s]+)/i);
     if (!pathMatch) {
-      this.logger.warn("Invalid read_file block - missing PATH");
+      this.logger.warn("Invalid read_file block - missing PATH", { contentPreview: content.substring(0, 100) });
       return null;
     }
 
@@ -156,11 +254,14 @@ class ToolParser {
    * @returns {Object|null} - Write file operation or null
    */
   _parseWriteFileBlock(content, seenFiles) {
-    const pathMatch = content.match(/^\s*\nPATH:\s*([^\n]+)/i);
-    const contentMatch = content.match(/\nCONTENT:\s*\n([\s\S]*?)(?:\nEND_CONTENT|(?=\nTOOL:)|$)/i);
+    // More lenient patterns - allow various whitespace and formatting
+    const pathMatch = content.match(/PATH:\s*([^\n\s]+)/i);
+    const contentMatch = content.match(/CONTENT:\s*\n([\s\S]*?)(?:\nEND_CONTENT|(?=\nTOOL:)|$)/i);
     
     if (!pathMatch || !contentMatch) {
-      this.logger.warn("Invalid write_file block - missing PATH or CONTENT");
+      this.logger.warn("Invalid write_file block - missing PATH or CONTENT", { 
+        contentPreview: content.substring(0, 100) 
+      });
       return null;
     }
 
@@ -175,6 +276,18 @@ class ToolParser {
     seenFiles.add(fileKey);
 
     const cleanedContent = this._cleanCodeFences(contentMatch[1].trim());
+    
+    // Check for placeholder content in conversions
+    if (cleanedContent.includes("<complete working code>") || 
+        cleanedContent.includes("complete working code") ||
+        cleanedContent.length < 20) {
+      this.logger.warn("Detected placeholder content in write operation", { 
+        filePath, 
+        contentPreview: cleanedContent.substring(0, 100) 
+      });
+      // Return null to skip this operation and force retry
+      return null;
+    }
     
     return { 
       tool: "write_file", 
@@ -245,6 +358,9 @@ class ToolParser {
       /(?:create|make|write|save|generate|fix|read|open|show)\s+(?:a\s+)?(?:file\s+)?(?:called\s+)?["']?([\w\-\.]+\.[\w]+)["']?/i,
       /(?:file|filename)\s+(?:called\s+)?["']?([\w\-\.]+\.[\w]+)["']?/i,
       /["']?([\w\-\.]+\.[\w]+)["']?\s+file/i,
+      // File type conversion patterns
+      /(?:change|convert)\s+([\w\-\.]+)\.(?:md|js|py|html|css|txt|json)\s+(?:to\s+)?(?:js|javascript|python|py|html|css|markdown|md)/i,
+      /(?:change|convert)\s+(?:type\s+of\s+)?([\w\-\.]+\.[\w]+)\s+(?:to\s+)?(?:js|javascript|python|py|html|css|markdown|md)/i,
     ];
 
     for (const pattern of patterns) {

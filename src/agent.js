@@ -210,6 +210,10 @@ class Agent {
       if (result.fileContent) {
         currentPrompt = this._buildRetryPrompt(userInput, result.fileContent);
         contextFile = result.contextFile;
+      } else if (this._isConversionRequest(userInput) && attempt < this.config.get("llm.maxRetries")) {
+        // Special handling for failed conversions
+        this.logger.warn("Conversion attempt failed, retrying with explicit instructions", { attempt });
+        currentPrompt = this._buildConversionRetryPrompt(userInput, contextFile);
       }
     }
 
@@ -363,6 +367,8 @@ class Agent {
 You are an expert coding assistant with file operation capabilities.
 You have memory of the entire conversation — use it to understand "that file", "add to it", "fix it", etc.
 
+🚨 CRITICAL: ALWAYS use EXACT tool format - NO explanations, NO conversational text outside tool blocks!
+
 TOOL FORMAT — respond using ONLY these blocks, nothing else:
 
 Just talk to the user (suggestions, explanations, questions):
@@ -387,14 +393,32 @@ END_CONTENT
 
 For tasks that involve multiple files, stack blocks one after another.
 
+FILE TYPE CONVERSION EXAMPLE:
+User: "change demojango.md to js type"
+Agent should:
+1. TOOL: read_file PATH: demojango.md
+2. (After reading the content) TOOL: write_file PATH: demojango.js CONTENT: 
+   // Actual converted JavaScript code here
+   function add(x, y) { return x + y; }
+   // ... rest of conversion
+END_CONTENT
+
+WARNING: NEVER use placeholders like "<complete working code>" in conversions!
+
 CRITICAL RULES:
 1. If the user says "check X" or "review X" or "tell me how to improve X" → read the file first, then respond with TOOL: chat listing your suggestions. Do NOT write the file unless the user says to.
 2. If the user says "improve X", "fix X", "make it better" → read the file first, then write the improved version.
-3. NEVER write a file without reading it first, unless it is a brand new file.
-4. NEVER read files that were not mentioned. Only read files the user explicitly named.
-5. Each file must appear ONCE only — never write the same file twice.
-6. Always include 100% complete code in CONTENT — never truncate or use placeholders.
-7. Do NOT add any text outside of tool blocks.
+3. If the user says "change X to js/python/md/etc" or "convert X to [language]" or "change type of X" → 
+   - First: read the original file to understand its content
+   - Then: ACTUALLY CONVERT the code/content to the new language (Python → JavaScript, Markdown → HTML, etc.)
+   - Finally: write the converted content to a NEW file with the correct extension
+   - IMPORTANT: You must provide REAL converted code, not placeholders like "<complete working code>"
+4. NEVER write a file without reading it first, unless it is a brand new file.
+5. NEVER read files that were not mentioned. Only read files the user explicitly named.
+6. Each file must appear ONCE only — never write the same file twice.
+7. Always include 100% complete code in CONTENT — never truncate or use placeholders.
+8. Do NOT add any text outside of tool blocks.
+9. For file type conversions: ALWAYS change the file extension to match the new type (e.g., .md → .js, .py → .js, etc.).
 `.trim();
 
     let enhanced = base;
@@ -622,6 +646,39 @@ CRITICAL RULES:
       this.activeFile = null;
       console.log("🎉 Great! Marked as solved.\n");
     }
+  }
+
+  /**
+   * Checks if user input is a file conversion request
+   */
+  _isConversionRequest(input) {
+    const conversionPatterns = [
+      /change.*to.*js|javascript/i,
+      /convert.*to.*js|javascript/i,
+      /change.*type.*to/i,
+      /convert.*type.*to/i
+    ];
+    return conversionPatterns.some(pattern => pattern.test(input));
+  }
+
+  /**
+   * Builds retry prompt specifically for file conversions
+   */
+  _buildConversionRetryPrompt(originalRequest, contextFile) {
+    return (
+      `Your previous conversion attempt failed or used placeholder content.\n\n` +
+      `Original request: "${originalRequest}"\n\n` +
+      `CRITICAL: You MUST:\n` +
+      `1. Read the original file content first\n` +
+      `2. ACTUALLY CONVERT the code to the target language\n` +
+      `3. Write REAL converted code, NEVER placeholders like "<complete working code>"\n` +
+      `4. Use the correct file extension for the new file\n\n` +
+      `Example: If converting Python to JavaScript, convert:\n` +
+      `def add(a, b): return a + b\n` +
+      `To:\n` +
+      `function add(a, b) { return a + b; }\n\n` +
+      `Now complete the conversion properly.`
+    );
   }
 
   /**
