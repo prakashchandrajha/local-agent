@@ -4,6 +4,7 @@
     "calculator.js",
     "demodemo.js",
     "test_scanner.js",
+    "tests/test_all.js",
     "tools/file.js",
     "tools/memory.js",
     "tools/scanner.js"
@@ -13,23 +14,163 @@
     "calculator.js",
     "demodemo.js",
     "test_scanner.js",
+    "tests/test_all.js",
     "tools/file.js",
     "tools/memory.js",
     "tools/scanner.js"
   ],
-  "imports": {},
+  "imports": {
+    "agent.js": [
+      "tools/file.js",
+      "tools/memory.js",
+      "tools/scanner.js"
+    ],
+    "test_scanner.js": [
+      "tools/scanner.js"
+    ],
+    "tests/test_all.js": [
+      "tools/memory.js",
+      "tools/scanner.js"
+    ]
+  },
   "languages": {
     "js": [
       "agent.js",
       "calculator.js",
       "demodemo.js",
       "test_scanner.js",
+      "tests/test_all.js",
       "tools/file.js",
       "tools/memory.js",
       "tools/scanner.js"
     ]
   },
-  "structures": {},
-  "lastScan": "2026-03-05T13:41:30.938Z",
-  "scanDuration": 19
+  "structures": {
+    "agent.js": {
+      "functions": [
+        "rememberTurn",
+        "formatHistory",
+        "loadReadme",
+        "buildSystemPrompt",
+        "buildMemoryContext",
+        "cleanCodeFences",
+        "extractFilename",
+        "parseToolBlocks",
+        "callLLM",
+        "initializeProjectContext",
+        "injectProjectContext",
+        "runAgentLoop",
+        "isSolved",
+        "isFollowUp",
+        "run"
+      ],
+      "classes": [],
+      "exports": []
+    },
+    "calculator.js": {
+      "functions": [
+        "add",
+        "subtract",
+        "multiply",
+        "divide"
+      ],
+      "classes": [],
+      "exports": []
+    },
+    "demodemo.js": {
+      "functions": [
+        "addition"
+      ],
+      "classes": [],
+      "exports": []
+    },
+    "test_scanner.js": {
+      "functions": [
+        "assert"
+      ],
+      "classes": [],
+      "exports": []
+    },
+    "tests/test_all.js": {
+      "functions": [
+        "testFunction",
+        "testFunction",
+        "name",
+        "calculate",
+        "calculate",
+        "test",
+        "test",
+        "assert"
+      ],
+      "classes": [],
+      "exports": [
+        "export memory"
+      ]
+    },
+    "tools/file.js": {
+      "functions": [
+        "readFile",
+        "writeFile",
+        "listFiles"
+      ],
+      "classes": [],
+      "exports": []
+    },
+    "tools/memory.js": {
+      "functions": [
+        "name",
+        "generateDiff",
+        "hashEntry",
+        "normalizeTags",
+        "loadIndex",
+        "saveIndex",
+        "updateIndex",
+        "loadMemory",
+        "appendEntry",
+        "rewriteMemory",
+        "addFix",
+        "findRelevantFixes",
+        "getEntryById",
+        "updateEntry",
+        "deleteEntry",
+        "getStats",
+        "exportMemory",
+        "importMemory",
+        "searchByCode",
+        "autoRecordChange",
+        "getContextSuggestions"
+      ],
+      "classes": [],
+      "exports": [
+        "export to",
+        "export memory"
+      ]
+    },
+    "tools/scanner.js": {
+      "functions": [
+        "and",
+        "walk",
+        "generateFileHash",
+        "loadFileHashes",
+        "saveFileHashes",
+        "detectChanges",
+        "extractImports",
+        "extractStructures",
+        "walkDirectory",
+        "scanProject",
+        "loadProjectMap",
+        "quickRefresh",
+        "scanFiles",
+        "getDependents",
+        "getFileStructures",
+        "buildContextInjection"
+      ],
+      "classes": [
+        "names"
+      ],
+      "exports": []
+    }
+  },
+  "lastScan": "2026-03-05T13:48:53.393Z",
+  "scanDuration": 3
 }

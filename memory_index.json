@@ -6,6 +6,29 @@
     ],
     "output.txt": [
       "145e2ccca2c7c092eb5795ba8876d1c5"
+    ],
+    "test_file.js": [
+      "a2ad0730f810f4de9751e9e717c81c97",
+      "d0faa0b4154856e47c85ab21d559159d",
+      "15fd7d70b68c835e9c3b16c9de913862"
+    ],
+    "auto_test.js": [
+      "679a655de8dfbe85bf9934a4b39689d6",
+      "8f09a6ed3a0050284b67d07a88b48b10",
+      "6b9e75f70c63ec264cf347ab69c2facc"
+    ],
+    "imported_file.js": [
+      "31b258d14f00c9b6226c71061a976a1d"
+    ],
+    "integration_test.js": [
+      "19671ea50290e3d183b86c66c1b95902",
+      "59ad1477156e10baf1f17c16edb64b06",
+      "b4f07491ac6ac2d17b48a34fa278a04a"
+    ],
+    "workflow_test.js": [
+      "ba76b34a7d73665a40e372916b1873b1",
+      "399698c2941b3a34d0c329be98736ef8",
+      "01b69b3d815e91efd19a500c881843cc"
     ]
   },
   "byFunction": {
@@ -15,20 +38,76 @@
     ],
     "is": [
       "145e2ccca2c7c092eb5795ba8876d1c5"
+    ],
+    "testFunction": [
+      "a2ad0730f810f4de9751e9e717c81c97",
+      "d0faa0b4154856e47c85ab21d559159d",
+      "15fd7d70b68c835e9c3b16c9de913862"
+    ],
+    "calculate": [
+      "679a655de8dfbe85bf9934a4b39689d6",
+      "8f09a6ed3a0050284b67d07a88b48b10",
+      "6b9e75f70c63ec264cf347ab69c2facc"
+    ],
+    "importedFunc": [
+      "31b258d14f00c9b6226c71061a976a1d"
+    ],
+    "test": [
+      "19671ea50290e3d183b86c66c1b95902",
+      "59ad1477156e10baf1f17c16edb64b06",
+      "b4f07491ac6ac2d17b48a34fa278a04a"
+    ],
+    "workflowFunc": [
+      "ba76b34a7d73665a40e372916b1873b1",
+      "399698c2941b3a34d0c329be98736ef8",
+      "01b69b3d815e91efd19a500c881843cc"
     ]
   },
   "byTag": {
     "js": [
       "d1faf2a501761eedf140819c046c548b",
-      "c23fc52a2703a5b4cf97674e42e50949"
+      "c23fc52a2703a5b4cf97674e42e50949",
+      "679a655de8dfbe85bf9934a4b39689d6",
+      "19671ea50290e3d183b86c66c1b95902",
+      "8f09a6ed3a0050284b67d07a88b48b10",
+      "59ad1477156e10baf1f17c16edb64b06",
+      "6b9e75f70c63ec264cf347ab69c2facc",
+      "b4f07491ac6ac2d17b48a34fa278a04a"
     ],
     "bug_fix": [
       "d1faf2a501761eedf140819c046c548b",
       "c23fc52a2703a5b4cf97674e42e50949",
-      "145e2ccca2c7c092eb5795ba8876d1c5"
+      "145e2ccca2c7c092eb5795ba8876d1c5",
+      "19671ea50290e3d183b86c66c1b95902",
+      "59ad1477156e10baf1f17c16edb64b06",
+      "b4f07491ac6ac2d17b48a34fa278a04a"
     ],
     "txt": [
       "145e2ccca2c7c092eb5795ba8876d1c5"
+    ],
+    "test": [
+      "31b258d14f00c9b6226c71061a976a1d",
+      "a2ad0730f810f4de9751e9e717c81c97",
+      "d0faa0b4154856e47c85ab21d559159d",
+      "15fd7d70b68c835e9c3b16c9de913862"
+    ],
+    "bugfix": [
+      "a2ad0730f810f4de9751e9e717c81c97",
+      "d0faa0b4154856e47c85ab21d559159d",
+      "15fd7d70b68c835e9c3b16c9de913862"
+    ],
+    "critical": [
+      "a2ad0730f810f4de9751e9e717c81c97",
+      "d0faa0b4154856e47c85ab21d559159d",
+      "15fd7d70b68c835e9c3b16c9de913862"
+    ],
+    "import": [
+      "31b258d14f00c9b6226c71061a976a1d"
+    ],
+    "workflow": [
+      "ba76b34a7d73665a40e372916b1873b1",
+      "399698c2941b3a34d0c329be98736ef8",
+      "01b69b3d815e91efd19a500c881843cc"
     ]
   },
   "byHash": {
@@ -46,6 +125,71 @@
       "file": "output.txt",
       "function": "is",
       "timestamp": "2026-03-05T13:38:42.546Z"
+    },
+    "679a655de8dfbe85bf9934a4b39689d6": {
+      "file": "auto_test.js",
+      "function": "calculate",
+      "timestamp": "2026-03-05T13:48:20.023Z"
+    },
+    "31b258d14f00c9b6226c71061a976a1d": {
+      "file": "imported_file.js",
+      "function": "importedFunc",
+      "timestamp": "2026-03-05T13:48:20.025Z"
+    },
+    "19671ea50290e3d183b86c66c1b95902": {
+      "file": "integration_test.js",
+      "function": "test",
+      "timestamp": "2026-03-05T13:48:20.049Z"
+    },
+    "ba76b34a7d73665a40e372916b1873b1": {
+      "file": "workflow_test.js",
+      "function": "workflowFunc",
+      "timestamp": "2026-03-05T13:48:20.050Z"
+    },
+    "a2ad0730f810f4de9751e9e717c81c97": {
+      "file": "test_file.js",
+      "function": "testFunction",
+      "timestamp": "2026-03-05T13:48:32.096Z"
+    },
+    "8f09a6ed3a0050284b67d07a88b48b10": {
+      "file": "auto_test.js",
+      "function": "calculate",
+      "timestamp": "2026-03-05T13:48:32.114Z"
+    },
+    "59ad1477156e10baf1f17c16edb64b06": {
+      "file": "integration_test.js",
+      "function": "test",
+      "timestamp": "2026-03-05T13:48:32.132Z"
+    },
+    "399698c2941b3a34d0c329be98736ef8": {
+      "file": "workflow_test.js",
+      "function": "workflowFunc",
+      "timestamp": "2026-03-05T13:48:32.133Z"
+    },
+    "d0faa0b4154856e47c85ab21d559159d": {
+      "file": "test_file.js",
+      "function": "testFunction",
+      "timestamp": "2026-03-05T13:48:53.367Z"
+    },
+    "15fd7d70b68c835e9c3b16c9de913862": {
+      "file": "test_file.js",
+      "function": "testFunction",
+      "timestamp": "2026-03-05T13:48:19.999Z"
+    },
+    "6b9e75f70c63ec264cf347ab69c2facc": {
+      "file": "auto_test.js",
+      "function": "calculate",
+      "timestamp": "2026-03-05T13:48:53.376Z"
+    },
+    "b4f07491ac6ac2d17b48a34fa278a04a": {
+      "file": "integration_test.js",
+      "function": "test",
+      "timestamp": "2026-03-05T13:48:53.394Z"
+    },
+    "01b69b3d815e91efd19a500c881843cc": {
+      "file": "workflow_test.js",
+      "function": "workflowFunc",
+      "timestamp": "2026-03-05T13:48:53.395Z"
     }
   }
 }
