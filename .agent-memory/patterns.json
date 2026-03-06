@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "key": "js::/home/vvd/local-agent/path/to/demo.js:5\n    multiply: (a, b)",
+    "lang": "js",
+    "errorSnippet": "/home/vvd/local-agent/path/to/demo.js:5\n    multiply: (a, b) => a * b,<｜begin▁of▁sentence｜>,\n                           ",
+    "count": 1,
+    "firstSeen": "2026-03-06T17:13:49.448Z",
+    "lastSeen": "2026-03-06T17:13:49.448Z"
+  }
+]

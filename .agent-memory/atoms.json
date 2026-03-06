@@ -9,7 +9,7 @@
     "fact": "Always wrap await calls in try/catch. Unhandled promise rejections crash Node.js.",
     "id": "seed-0",
     "source": "built-in",
-    "useCount": 9,
+    "useCount": 13,
     "createdAt": "2026-03-06T10:54:29.971Z"
   },
   {
@@ -22,7 +22,7 @@
     "fact": "Use optional chaining (?.) and nullish coalescing (??) to safely access nested properties.",
     "id": "seed-1",
     "source": "built-in",
-    "useCount": 8,
+    "useCount": 9,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -35,7 +35,7 @@
     "fact": "In Node.js ESM, use import/export. In CommonJS, use require/module.exports. Never mix them in the same file.",
     "id": "seed-2",
     "source": "built-in",
-    "useCount": 11,
+    "useCount": 15,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -48,7 +48,7 @@
     "fact": "CORS errors: add cors() middleware BEFORE route definitions. Set origin, methods, credentials explicitly.",
     "id": "seed-3",
     "source": "built-in",
-    "useCount": 3,
+    "useCount": 4,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -61,7 +61,7 @@
     "fact": "JWT secrets must be long random strings (32+ chars). Always verify token on every protected route. Store in httpOnly cookies, not localStorage.",
     "id": "seed-4",
     "source": "built-in",
-    "useCount": 1,
+    "useCount": 5,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -74,7 +74,7 @@
     "fact": "Load .env with require('dotenv').config() as the very FIRST line in entry point. Never commit .env to git.",
     "id": "seed-5",
     "source": "built-in",
-    "useCount": 4,
+    "useCount": 8,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -152,7 +152,7 @@
     "fact": "Relative imports (from .module import X) only work inside packages. Add __init__.py to make a directory a package.",
     "id": "seed-11",
     "source": "built-in",
-    "useCount": 0,
+    "useCount": 3,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -411,7 +411,7 @@
     "fact": "Copy package.json and install dependencies BEFORE copying source code. This caches the node_modules layer and speeds up rebuilds.",
     "id": "seed-31",
     "source": "built-in",
-    "useCount": 1,
+    "useCount": 4,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
