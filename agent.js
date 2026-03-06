@@ -7,7 +7,7 @@ const memory = require("./tools/memory");
 const scanner = require("./tools/scanner");
 const knowledge = require("./tools/knowledge");
 const { planTask, needsPlanning, formatPlan } = require("./tools/simple_planner");
-const reviewer = require("./tools/reviewer");
+const { reviewCode, needsReview, formatReview } = require("./tools/critic");
 const fs = require("fs");
 const path = require("path");
 
@@ -454,6 +454,47 @@ const runAgentLoop = async (userInput, systemPrompt, contextFile = null) => {
         lastWrittenFile = op.path;
         allSummaries.push(`Created/updated: ${op.path}`);
         
+        // STEP 2: CRITIC REVIEW - Check and improve code quality
+        if (needsReview(op.content)) {
+          console.log("🔍 Critic reviewing code quality...");
+          try {
+            const review = await reviewCode(userInput, op.content, `File: ${op.path}`);
+            
+            if (review.issues && review.issues.length > 0) {
+              console.log(formatReview(review));
+              
+              // If critic provided improved code, use it
+              if (review.improved_code && review.improved_code !== op.content) {
+                console.log("🔧 Applying critic improvements...");
+                writeFile(op.path, review.improved_code);
+                
+                // Record the improvement
+                if (USE_MEMORY) {
+                  try {
+                    memory.addFix(
+                      op.path,
+                      "critic_review",
+                      `Critic improvement: ${review.issues.join(", ")}`,
+                      op.content,
+                      review.improved_code,
+                      "improvement",
+                      ["critic", "auto_improvement"]
+                    );
+                  } catch (err) {
+                    if (DEBUG) console.error("Memory recording error:", err.message);
+                  }
+                }
+                
+                console.log("✅ Code improved by critic");
+              }
+            } else {
+              console.log("✅ Code passed critic review");
+            }
+          } catch (err) {
+            console.log("⚠️  Critic review failed");
+          }
+        }
+        
         // Record change in memory
         if (USE_MEMORY && oldContent && oldContent !== op.content) {
           try {
@@ -482,6 +523,47 @@ const runAgentLoop = async (userInput, systemPrompt, contextFile = null) => {
         writeResults.push(filename);
         lastWrittenFile = filename;
         allSummaries.push(`Created: ${filename}`);
+        
+        // STEP 2: CRITIC REVIEW - Check and improve code quality
+        if (needsReview(op.content)) {
+          console.log("🔍 Critic reviewing code quality...");
+          try {
+            const review = await reviewCode(userInput, op.content, `File: ${filename}`);
+            
+            if (review.issues && review.issues.length > 0) {
+              console.log(formatReview(review));
+              
+              // If critic provided improved code, use it
+              if (review.improved_code && review.improved_code !== op.content) {
+                console.log("🔧 Applying critic improvements...");
+                writeFile(filename, review.improved_code);
+                
+                // Record the improvement
+                if (USE_MEMORY) {
+                  try {
+                    memory.addFix(
+                      filename,
+                      "critic_review",
+                      `Critic improvement: ${review.issues.join(", ")}`,
+                      op.content,
+                      review.improved_code,
+                      "improvement",
+                      ["critic", "auto_improvement"]
+                    );
+                  } catch (err) {
+                    if (DEBUG) console.error("Memory recording error:", err.message);
+                  }
+                }
+                
+                console.log("✅ Code improved by critic");
+              }
+            } else {
+              console.log("✅ Code passed critic review");
+            }
+          } catch (err) {
+            console.log("⚠️  Critic review failed");
+          }
+        }
         
         // Record change in memory
         if (USE_MEMORY && oldContent && oldContent !== op.content) {
