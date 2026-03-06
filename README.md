@@ -29,7 +29,7 @@ Write your custom instructions below — they will be injected directly into the
 
 - When generating code, include a short `// Usage:` comment at the top of the file showing how to run it.
 - When fixing a file, fix ALL issues found — do not stop at the first error.
-- Never use placeholder comments like `// TODO` or `// add logic here` in generated code; always include real, working code.
+- Never use placeholder comments like `// TODO` or `// add logic here` in generated code; always include real, working code
 
 ## Project Context
 
