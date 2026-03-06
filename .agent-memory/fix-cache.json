@@ -2,5 +2,9 @@
   "/home/vvd/local-agent/swarm_demo.js:9 syntaxerror: unexpected end of input at wrapsafe (node:interna": {
     "fixCode": "const fs = require('fs');\nfunction main() {\n  const data = \"hello world\";\n  console.log(data); // Fixed typo in variable name and missing close bracket\n  if (true) {\n    console.log(\"missing bracket\");\n  }\n}\nmain();",
     "ts": 1772829533367
+  },
+  "/home/vvd/local-agent/demo.js:3 b) => a * b, ^ syntaxerror: unexpected token ')' at wrapsafe (node:i": {
+    "fixCode": "const Calculator = {\n    add: (a, b) => a + b,\n    subtract: (a, b) => a - b,\n    multiply: (a, b) => a * b,\n    divide: (a, b) => b !== 0 ? a / b : 'Error! Division by zero is not allowed.',\n};\n\nconsole.log(Calculator.add(5, 3)); // Outputs: 8\nconsole.log(Calculator.subtract(5, 3)); // Outputs: 2\nconsole.log(Calculator.multiply(5, 3)); // Outputs: 15\nconsole.log(Calculator.divide(6, 3)); // Outputs: 2\nconsole.log(Calculator.divide(6, 0)); // Outputs: 'Error! Division by zero is not allowed.'",
+    "ts": 1772832868818
   }
 }

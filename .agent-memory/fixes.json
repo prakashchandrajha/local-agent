@@ -44,5 +44,19 @@
     ],
     "description": "fix demoncdc.js",
     "stepContext": ""
+  },
+  {
+    "id": 1772832868821,
+    "timestamp": "2026-03-06T21:34:28.821Z",
+    "file": "demo.js",
+    "lang": "js",
+    "errorType": "auto-fix",
+    "keywords": [
+      "swarm",
+      "simple",
+      "attempts"
+    ],
+    "description": "ERE: swarm:simple (1 attempts)",
+    "stepContext": ""
   }
 ]

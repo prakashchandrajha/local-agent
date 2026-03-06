@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2026-03-06T21:23:07.951Z",
+  "scannedAt": "2026-03-06T21:33:30.157Z",
   "totalFiles": 69,
   "byExtension": {
     ".md": [
@@ -158,15 +158,15 @@
     "tools/sandbox.js"
   ],
   "recentFiles": [
+    "core/swarm.js",
+    "demo.js",
     "package-lock.json",
     "test_complex_python.py",
-    "core/swarm.js",
     "core/incremental-test.js",
     "tools/sandbox.js",
     "core/ere.js",
     "output.txt",
     "src/demoncdc.js",
-    "src/agent.js",
-    "agent.js"
+    "src/agent.js"
   ]
 }

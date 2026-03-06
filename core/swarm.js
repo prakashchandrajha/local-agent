@@ -221,9 +221,9 @@ const evaluateVariant = async (sbId, filePath, type, weights, originalCode) => {
   return { 
     type, 
     score, 
-    success: runResult.success, 
+    success: testRes.success, 
     similarity,
-    output: runResult.output.slice(0, 100) 
+    output: testRes.output.slice(0, 100) 
   };
 };
 

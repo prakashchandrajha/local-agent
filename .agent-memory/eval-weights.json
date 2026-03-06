@@ -1,6 +1,6 @@
 {
   "testPass": 100,
-  "security": 15,
+  "security": 10,
   "perf": 10,
-  "cleanup": 10
+  "cleanup": 15
 }

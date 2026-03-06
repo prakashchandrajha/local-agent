@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "indexedAt": "2026-03-06T21:23:07.980Z",
+  "indexedAt": "2026-03-06T21:33:30.181Z",
   "totalFiles": 66,
   "files": {
     "README.md": {
@@ -600,7 +600,7 @@
         "fs"
       ],
       "lineCount": 358,
-      "mtime": 1772831855924
+      "mtime": 1772832801504
     },
     "demo.js": {
       "role": "other",
@@ -610,8 +610,8 @@
       "exports": [],
       "imports": [],
       "externalDeps": [],
-      "lineCount": 12,
-      "mtime": 1772829122536
+      "lineCount": 11,
+      "mtime": 1772832615432
     },
     "demojs.js": {
       "role": "other",

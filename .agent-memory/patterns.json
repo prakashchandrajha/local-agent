@@ -14,5 +14,13 @@
     "count": 2,
     "firstSeen": "2026-03-06T21:06:32.635Z",
     "lastSeen": "2026-03-06T21:07:15.928Z"
+  },
+  {
+    "key": "js::/home/vvd/local-agent/demo.js:3\n   b) => a * b,\n    ^\n\nsynta",
+    "lang": "js",
+    "errorSnippet": "/home/vvd/local-agent/demo.js:3\n   b) => a * b,\n    ^\n\nSyntaxError: Unexpected token ')'\n    at wrapSafe (node:internal/",
+    "count": 2,
+    "firstSeen": "2026-03-06T21:32:23.775Z",
+    "lastSeen": "2026-03-06T21:33:53.471Z"
   }
 ]

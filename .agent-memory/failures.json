@@ -11,5 +11,18 @@
     "seenCount": 1,
     "firstSeen": "2026-03-06T20:38:53.368Z",
     "lastSeen": "2026-03-06T20:38:53.368Z"
+  },
+  {
+    "id": "fis-1772832868820",
+    "key": "home vvd local-agent demo.js:3 b) => a * b, ^ syntaxerror: unexpected token ) at function.executeuserentrypoint [as runmain] (node:internal modules ru",
+    "lang": "js",
+    "file": "demo.js",
+    "errorText": "/home/vvd/local-agent/demo.js:3\n   b) => a * b,\n    ^\n\nSyntaxError: Unexpected token ')'\n    at wrapSafe (node:internal/modules/cjs/loader:1638:18)\n    at Module._compile (node:internal/modules/cjs/loader:1680:20)\n    at Object..js (node:internal/modules/cjs/loader:1839:10)\n    at Module.load (node:",
+    "cause": "/home/vvd/local-agent/demo.js:3",
+    "fix": "Swarm winner: simple",
+    "codeAfter": "const Calculator = {\n    add: (a, b) => a + b,\n    subtract: (a, b) => a - b,\n    multiply: (a, b) => a * b,\n    divide: (a, b) => b !== 0 ? a / b : 'Error! Division by zero is not allowed.',\n};\n\nconsole.log(Calculator.add(5, 3)); // Outputs: 8\nconsole.log(Calculator.subtract(5, 3)); // Outputs: 2\nconsole.log(Calculator.multiply(5, 3)); // Outputs: 15\nconsole.log(Calculator.divide(6, 3)); // Outpu",
+    "seenCount": 1,
+    "firstSeen": "2026-03-06T21:34:28.820Z",
+    "lastSeen": "2026-03-06T21:34:28.820Z"
   }
 ]
