@@ -32,5 +32,11 @@
   "./demo.js": {
     "imports": [],
     "updatedAt": "2026-03-06T17:18:51.643Z"
+  },
+  "path/to/DEMOVEMO.js": {
+    "imports": [],
+    "exports": [],
+    "role": "module",
+    "updatedAt": "2026-03-06T19:02:52.168Z"
   }
 }

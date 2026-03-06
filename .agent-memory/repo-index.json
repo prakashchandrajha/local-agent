@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "indexedAt": "2026-03-06T18:33:46.748Z",
-  "totalFiles": 47,
+  "indexedAt": "2026-03-06T19:02:04.675Z",
+  "totalFiles": 50,
   "files": {
     "README.md": {
       "role": "other",
@@ -78,6 +78,7 @@
         "./core/clc",
         "./core/repo-indexer",
         "./core/cce",
+        "./core/ere",
         "./browser/search"
       ],
       "externalDeps": [
@@ -86,8 +87,8 @@
         "|def",
         "|require|return|if"
       ],
-      "lineCount": 728,
-      "mtime": 1772821171804
+      "lineCount": 715,
+      "mtime": 1772823615673
     },
     "agents/architect.js": {
       "role": "other",
@@ -365,6 +366,57 @@
       "lineCount": 65,
       "mtime": 1772821129615
     },
+    "core/ere.js": {
+      "role": "other",
+      "description": "EXECUTION & RECOVERY ENGINE (ERE)",
+      "functions": [
+        "tryQuickFix",
+        "extractErrorLine",
+        "buildErrorOnlyPrompt",
+        "loadFixCache",
+        "saveFixCache",
+        "sorted",
+        "getCachedFix",
+        "cacheFix",
+        "displayEREStats"
+      ],
+      "signatures": [
+        "tryQuickFix(errorOutput, filePath)",
+        "extractErrorLine(errorOutput)",
+        "buildErrorOnlyPrompt(filePath, errorOutput, fileContent)",
+        "loadFixCache()",
+        "saveFixCache(cache)",
+        "sorted(keys.sort((a, b)",
+        "getCachedFix(errorFingerprint)",
+        "cacheFix(errorFingerprint, fixCode)",
+        "displayEREStats()"
+      ],
+      "exports": [
+        "executeAndRecover",
+        "tryQuickFix",
+        "buildErrorOnlyPrompt",
+        "extractErrorLine",
+        "displayEREStats",
+        "runTargeted",
+        "getCachedFix",
+        "cacheFix",
+        "QUICK_FIX_PATTERNS"
+      ],
+      "imports": [
+        "../tools/file",
+        "../llm/client",
+        "../memory/fis",
+        "../browser/search",
+        "../memory/knowledge-store"
+      ],
+      "externalDeps": [
+        "fs",
+        "path",
+        "child_process"
+      ],
+      "lineCount": 597,
+      "mtime": 1772823561902
+    },
     "core/planner.js": {
       "role": "other",
       "description": "Decomposes complex requests into ordered, focused steps.",
@@ -466,6 +518,17 @@
       ],
       "lineCount": 200,
       "mtime": 1772792926000
+    },
+    "demo.js": {
+      "role": "other",
+      "description": "demo module",
+      "functions": [],
+      "signatures": [],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 12,
+      "mtime": 1772823333289
     },
     "docs/for-agent/AGENT_GUIDE.md": {
       "role": "other",
@@ -1080,6 +1143,38 @@
       ],
       "lineCount": 189,
       "mtime": 1772821981164
+    },
+    "tests/test-ere.js": {
+      "role": "test",
+      "description": "Tests the Execution & Recovery Engine",
+      "functions": [
+        "assert",
+        "npmMatch",
+        "pyMatch",
+        "portMatch",
+        "dirMatch",
+        "permMatch",
+        "sampleCode"
+      ],
+      "signatures": [
+        "assert(condition, name)",
+        "npmMatch(QUICK_FIX_PATTERNS.find((p)",
+        "pyMatch(QUICK_FIX_PATTERNS.find((p)",
+        "portMatch(QUICK_FIX_PATTERNS.find((p)",
+        "dirMatch(QUICK_FIX_PATTERNS.find((p)",
+        "permMatch(QUICK_FIX_PATTERNS.find((p)",
+        "sampleCode(Array.from({ length: 50 }, (_, i)"
+      ],
+      "exports": [],
+      "imports": [
+        "../core/ere"
+      ],
+      "externalDeps": [
+        "path",
+        "fs"
+      ],
+      "lineCount": 152,
+      "mtime": 1772823655599
     },
     "todo-api/package-lock.json": {
       "role": "other",

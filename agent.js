@@ -50,6 +50,9 @@ const { buildCompressedContext, logBudget }                    = require("./core
 const { buildIndex }                                           = require("./core/repo-indexer");
 const { getCompressedContext, logCCEStats, displayCCEInfo }    = require("./core/cce");
 
+// ── Execution & Recovery Engine ──────────────────────────────
+const { executeAndRecover, displayEREStats }                   = require("./core/ere");
+
 // ── Browser ──────────────────────────────────────────────────
 const { searchForFix, crystallizeSolution, isOnline }         = require("./browser/search");
 
@@ -569,38 +572,20 @@ const runAgentLoop = async (userInput, readmeContent, contextFile = null) => {
     }
 
     if (t.runError) {
-      fixAttempts++;
-      const { path: errFile, output: errOut, lang } = t.runError;
-      const known = fis.buildFISBlock(errOut, lang);
+      // ── ERE: Unified execution + recovery pipeline ──
+      const { path: errFile, lang } = t.runError;
+      console.log(`\n⚡ ERE: Auto-recovering ${errFile}...`);
+      const ereResult = await executeAndRecover(errFile, lang);
 
-      if (fixAttempts <= MAX_FIX_ATTEMPTS) {
-        console.log(`\n🔧 Auto-fix attempt ${fixAttempts}/${MAX_FIX_ATTEMPTS}...`);
-        const content = readFile(errFile);
-        const atoms   = kstore.buildAtomBlock(errOut, lang);
-        currentPrompt =
-          `${errFile} failed:\n\`\`\`\n${errOut}\n\`\`\`\n\n` +
-          (known  ? `${known}\n\n` : "") +
-          (atoms  ? `${atoms}\n\n` : "") +
-          `File:\n---\n${content}\n---\nFix ALL errors.`;
-        continue;
+      if (ereResult.success) {
+        allWritten.push(errFile);
+        lastFile = errFile;
+        memory.recordFix({ file: errFile, lang, errorType: "auto-fix", description: `ERE: ${ereResult.fixSource} (${ereResult.attempts} attempts)` });
+        console.log(`   ✅ ERE recovered via ${ereResult.fixSource} in ${ereResult.attempts} attempt(s)`);
+      } else {
+        console.log(`   💀 ERE: Could not recover. Error: ${ereResult.error?.split("\n")[0]?.slice(0, 80)}`);
       }
-
-      console.log("\n🌐 Searching web...");
-      if (await isOnline()) {
-        const web = await searchForFix(errOut, lang);
-        if (web.found) {
-          currentPrompt =
-            `Persistent error in ${errFile}:\n\`\`\`\n${errOut}\n\`\`\`\n\n` +
-            `${web.context}\n\nFile:\n---\n${readFile(errFile)}\n---\nFix using web context.`;
-          const wt = await runAgentTurn(currentPrompt, readmeContent, errFile, errOut);
-          if (wt.written.length) {
-            allWritten.push(...wt.written); lastFile = wt.written[wt.written.length - 1];
-            fis.recordFailure({ lang, file: errFile, errorText: errOut, fix: web.snippets?.[0]?.code || "", cause: "web-sourced" });
-            crystallizeSolution({ lang, query: errOut.slice(0, 60), solution: web.snippets?.[0]?.code || "", source: "web" });
-          }
-        }
-      } else { console.log("   ⚠️  Offline.\n"); }
-      return { summaries: [`${fixAttempts} fix attempts`], activeFile: lastFile };
+      return { summaries: [`ERE: ${ereResult.fixSource} (${ereResult.attempts} attempts)`], activeFile: lastFile };
     }
 
     if (t.read.length) {
@@ -633,13 +618,14 @@ const run = async () => {
   const projectContext = memory.buildProjectBlock();
 
   console.log("╔════════════════════════════════════════════════════════════╗");
-  console.log("║  🚀  SUPERCHARGED LOCAL CODING AGENT  v5                  ║");
+  console.log("║  🚀  SUPERCHARGED LOCAL CODING AGENT  v6                  ║");
   console.log("║  CEO · Architect · Coders · Integrator · QA · Optimizer   ║");
   console.log("║  + Context Compression Engine (CCE)                       ║");
+  console.log("║  + Execution & Recovery Engine (ERE)                      ║");
   console.log(`║  Model: ${MODEL.padEnd(52)}║`);
   console.log(`║  Review:${ENABLE_REVIEW?"ON ":"OFF"} Speculative:${ENABLE_SPECULATIVE?"ON ":"OFF"} QA:${ENABLE_QA?"ON ":"OFF"} Optimize:${ENABLE_OPTIMIZE?"ON ":"OFF"}        ║`);
   console.log("╚════════════════════════════════════════════════════════════╝");
-  console.log("\n  exit · history · clear · memory · atoms · trace · scan · fis · index · cce\n");
+  console.log("\n  exit · history · clear · memory · atoms · trace · scan · fis · index · cce · ere\n");
 
   let activeFile = null;
 
@@ -653,6 +639,7 @@ const run = async () => {
     if (lo === "scan")    { const m = memory.buildProjectMap(); console.log(`\n✅ ${m.totalFiles} files mapped\n`); continue; }
     if (lo === "index")   { const r = buildIndex(true); console.log(`\n✅ ${r.totalFiles} files indexed (${r.updated} updated)\n`); continue; }
     if (lo === "cce")     { displayCCEInfo(); continue; }
+    if (lo === "ere")     { displayEREStats(); continue; }
 
     if (lo === "history") {
       history.forEach((t, i) => console.log(`[${String(i+1).padStart(2)}] ${t.role==="user"?"You  ":"Agent"}: ${t.content.slice(0, 80)}`));
