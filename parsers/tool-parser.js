@@ -84,6 +84,13 @@ function parseToolBlocks(text) {
 
   // Pre-process all operations to ensure clean content
   return operations.map(op => {
+    // Strip trailing newlines/spaces from single-line args
+    Object.keys(op).forEach(k => {
+      if (typeof op[k] === 'string' && k !== 'content') {
+         op[k] = op[k].trim();
+      }
+    });
+
     if (op.content) {
        op.content = op.content.replace(/^```[a-z]*\n?/i, "").replace(/\n?```$/i, "");
     }
