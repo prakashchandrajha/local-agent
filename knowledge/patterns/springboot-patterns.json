@@ -1,0 +1,96 @@
+{
+  "language": "java",
+  "framework": "Spring Boot",
+  "patterns": [
+
+    {
+      "name": "JWT Security Filter Chain",
+      "tags": ["jwt", "security", "filter", "spring-security"],
+      "keyFacts": [
+        "JwtFilter must extend OncePerRequestFilter",
+        "Add JWT filter BEFORE UsernamePasswordAuthenticationFilter in SecurityFilterChain",
+        "Use @EnableWebSecurity on SecurityConfig class",
+        "Disable CSRF for stateless REST APIs: http.csrf(csrf -> csrf.disable())",
+        "Use SecurityContextHolder.getContext().setAuthentication() to set the auth"
+      ],
+      "snippet": "http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);"
+    },
+
+    {
+      "name": "CORS Global Config",
+      "tags": ["cors", "spring", "web", "headers"],
+      "keyFacts": [
+        "Configure CORS in SecurityConfig, NOT with @CrossOrigin (not global)",
+        "Use CorsConfigurationSource bean for fine-grained control",
+        "Always specify allowed origins explicitly — do not use * with credentials",
+        "Register cors config: http.cors(cors -> cors.configurationSource(corsBean))"
+      ],
+      "snippet": "@Bean CorsConfigurationSource corsConfigurationSource() { CorsConfiguration cfg = new CorsConfiguration(); cfg.setAllowedOrigins(List.of(\"http://localhost:3000\")); cfg.setAllowedMethods(List.of(\"*\")); return request -> cfg; }"
+    },
+
+    {
+      "name": "Global Exception Handler",
+      "tags": ["exception", "error", "handler", "rest"],
+      "keyFacts": [
+        "Use @ControllerAdvice + @ExceptionHandler for global error handling",
+        "Return ResponseEntity with proper HTTP status codes",
+        "Create custom exceptions extending RuntimeException",
+        "Handle MethodArgumentNotValidException for @Valid failures",
+        "Log errors at WARN/ERROR level — don't swallow stack traces"
+      ],
+      "snippet": "@ControllerAdvice public class GlobalExceptionHandler { @ExceptionHandler(ResourceNotFoundException.class) public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) { return ResponseEntity.status(404).body(new ErrorResponse(ex.getMessage())); } }"
+    },
+
+    {
+      "name": "JPA Lazy Loading Fix",
+      "tags": ["jpa", "lazy", "hibernate", "transaction"],
+      "keyFacts": [
+        "LazyInitializationException = accessing lazy collection outside transaction",
+        "Fix 1: Add @Transactional to service method",
+        "Fix 2: Use JOIN FETCH in JPQL query",
+        "Fix 3: Use @EntityGraph on repository method",
+        "Never use FetchType.EAGER as default — it causes N+1 problems"
+      ],
+      "snippet": "@Query(\"SELECT u FROM User u JOIN FETCH u.orders WHERE u.id = :id\") Optional<User> findByIdWithOrders(@Param(\"id\") Long id);"
+    },
+
+    {
+      "name": "Spring Validation Pattern",
+      "tags": ["validation", "dto", "bean-validation", "input"],
+      "keyFacts": [
+        "Add @Valid on @RequestBody parameter to trigger validation",
+        "Use @NotNull, @NotBlank, @Size, @Email, @Min, @Max on DTO fields",
+        "Handle MethodArgumentNotValidException in @ControllerAdvice",
+        "Use @Validated on class for method-level validation",
+        "Return field-level error messages in response body"
+      ],
+      "snippet": "@PostMapping public ResponseEntity<UserDto> create(@Valid @RequestBody CreateUserRequest request) { ... }"
+    },
+
+    {
+      "name": "Constructor Injection",
+      "tags": ["injection", "autowired", "beans", "di"],
+      "keyFacts": [
+        "Prefer constructor injection over @Autowired field injection",
+        "Constructor injection: add final to fields, generate constructor",
+        "Use @RequiredArgsConstructor from Lombok to reduce boilerplate",
+        "Field injection makes testing harder — you can't inject mocks",
+        "Circular dependency with constructor injection = design smell, refactor"
+      ],
+      "snippet": "@Service @RequiredArgsConstructor public class UserService { private final UserRepository userRepository; private final PasswordEncoder passwordEncoder; }"
+    },
+
+    {
+      "name": "Pagination Pattern",
+      "tags": ["pagination", "jpa", "rest", "performance"],
+      "keyFacts": [
+        "Use Pageable parameter in repository methods",
+        "Pass PageRequest.of(page, size, Sort.by('createdAt').descending())",
+        "Return Page<T> or Slice<T> from repository",
+        "Map Page<Entity> to Page<DTO> using page.map(mapper::toDto)",
+        "Include total count in response for frontend pagination"
+      ],
+      "snippet": "Page<User> findByActiveTrue(Pageable pageable);"
+    }
+  ]
+}

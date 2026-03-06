@@ -1,0 +1,149 @@
+{
+  "language": "javascript",
+  "version": "ES2022+",
+  "patterns": [
+
+    {
+      "name": "JWT Auth Pattern",
+      "tags": ["jwt", "auth", "token", "security"],
+      "description": "Complete JWT authentication with access + refresh tokens",
+      "keyFacts": [
+        "Use jsonwebtoken package: jwt.sign(payload, secret, { expiresIn: '15m' })",
+        "Access token: short-lived (15min). Refresh token: long-lived (7d), stored in DB",
+        "Always verify with jwt.verify() — catch TokenExpiredError and JsonWebTokenError separately",
+        "Store refresh tokens hashed in DB, invalidate on logout",
+        "Send access token in Authorization: Bearer <token> header",
+        "Never store JWT in localStorage — use httpOnly cookies or memory"
+      ],
+      "snippet": "const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '15m' });"
+    },
+
+    {
+      "name": "Express Middleware Pattern",
+      "tags": ["express", "middleware", "error", "async"],
+      "description": "Correct async middleware and error handler setup",
+      "keyFacts": [
+        "Wrap async route handlers: const asyncHandler = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)",
+        "Error middleware MUST have 4 params: (err, req, res, next)",
+        "Register error middleware LAST, after all routes",
+        "Use express.json() and express.urlencoded() before routes",
+        "cors() middleware must come BEFORE routes and auth middleware"
+      ],
+      "snippet": "app.use((err, req, res, next) => { const status = err.status || 500; res.status(status).json({ error: err.message }); });"
+    },
+
+    {
+      "name": "Async/Await Error Pattern",
+      "tags": ["async", "await", "error", "promise", "try-catch"],
+      "description": "Correct async error handling in Node.js",
+      "keyFacts": [
+        "Every async function that can fail MUST have try/catch",
+        "Never swallow errors with empty catch blocks — at minimum log them",
+        "Use Promise.all() for parallel independent async calls — not sequential await",
+        "Promise.allSettled() when you want all results even if some fail",
+        "Unhandled promise rejections crash Node.js — always handle",
+        "process.on('unhandledRejection') is a safety net, not a replacement for try/catch"
+      ],
+      "snippet": "const [users, orders] = await Promise.all([getUsers(), getOrders()]);"
+    },
+
+    {
+      "name": "CORS Configuration Pattern",
+      "tags": ["cors", "express", "headers", "browser"],
+      "description": "Correct CORS setup for Express APIs",
+      "keyFacts": [
+        "Install: npm install cors",
+        "Add cors() BEFORE all routes: app.use(cors(options))",
+        "For credentials (cookies): set credentials: true AND specific origin (not *)",
+        "Preflight OPTIONS requests are handled automatically by cors()",
+        "In production, set origin to your exact frontend URL"
+      ],
+      "snippet": "app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true, methods: ['GET','POST','PUT','DELETE'] }));"
+    },
+
+    {
+      "name": "Environment Variables Pattern",
+      "tags": ["env", "dotenv", "config", "secrets"],
+      "description": "Correct env var loading and validation",
+      "keyFacts": [
+        "require('dotenv').config() must be the FIRST line in entry point",
+        "Never commit .env — add to .gitignore immediately",
+        "Validate required env vars on startup — fail fast if missing",
+        "Use defaults only for non-critical values: process.env.PORT || 3000",
+        "Never hardcode secrets, API keys, or DB credentials"
+      ],
+      "snippet": "const required = ['JWT_SECRET','DB_URL','PORT']; required.forEach(k => { if (!process.env[k]) throw new Error(`Missing env var: ${k}`); });"
+    },
+
+    {
+      "name": "MongoDB/Mongoose Pattern",
+      "tags": ["mongodb", "mongoose", "database", "schema"],
+      "description": "Correct Mongoose connection and schema patterns",
+      "keyFacts": [
+        "Connect once at startup: mongoose.connect(process.env.MONGO_URI)",
+        "Always define schema with types and validation — don't use mixed types",
+        "Use .lean() for read-only queries — returns plain objects, faster",
+        "Handle connection errors: mongoose.connection.on('error', console.error)",
+        "Never store passwords in plain text — always hash with bcrypt before save",
+        "Use schema.pre('save') middleware for password hashing"
+      ],
+      "snippet": "userSchema.pre('save', async function(next) { if (this.isModified('password')) this.password = await bcrypt.hash(this.password, 12); next(); });"
+    },
+
+    {
+      "name": "Event Emitter / Memory Leak Pattern",
+      "tags": ["events", "listeners", "memory", "leak"],
+      "description": "Prevent event listener memory leaks",
+      "keyFacts": [
+        "Always remove listeners when done: emitter.off('event', handler)",
+        "Use .once() for one-time listeners instead of .on() + manual removal",
+        "Default max listeners is 10 — increase with emitter.setMaxListeners(n)",
+        "In React: remove listeners in useEffect cleanup function",
+        "In Express: don't attach listeners inside request handlers — they accumulate"
+      ],
+      "snippet": "const handler = (data) => process(data); emitter.on('data', handler); return () => emitter.off('data', handler);"
+    },
+
+    {
+      "name": "Input Validation Pattern",
+      "tags": ["validation", "security", "input", "xss", "injection"],
+      "description": "Validate and sanitize all user input",
+      "keyFacts": [
+        "Never trust user input — validate shape, type, length, format",
+        "Use joi or zod for schema validation on request body",
+        "SQL injection: always use parameterized queries, never string concatenation",
+        "XSS: sanitize HTML output, use helmet() for security headers",
+        "Rate limiting: use express-rate-limit on auth endpoints"
+      ],
+      "snippet": "const schema = z.object({ email: z.string().email(), password: z.string().min(8).max(100) }); const data = schema.parse(req.body);"
+    },
+
+    {
+      "name": "File Upload Pattern",
+      "tags": ["upload", "multer", "files", "storage"],
+      "description": "Safe file upload handling",
+      "keyFacts": [
+        "Use multer for multipart form data",
+        "Always validate file type by MIME type AND file extension",
+        "Set file size limits: limits: { fileSize: 5 * 1024 * 1024 }",
+        "Never use original filename — generate a UUID filename",
+        "Store files outside web root or use cloud storage (S3)"
+      ],
+      "snippet": "const upload = multer({ limits: { fileSize: 5_000_000 }, fileFilter: (req, file, cb) => cb(null, ['image/jpeg','image/png'].includes(file.mimetype)) });"
+    },
+
+    {
+      "name": "WebSocket Pattern",
+      "tags": ["websocket", "socket.io", "realtime", "events"],
+      "description": "Correct socket.io setup and room management",
+      "keyFacts": [
+        "Create socket server from HTTP server: const io = new Server(httpServer, { cors })",
+        "Always handle disconnect event to clean up rooms and users",
+        "Use rooms for grouping: socket.join(roomId), io.to(roomId).emit()",
+        "Authenticate socket connections in io.use() middleware",
+        "Don't store state in socket object across reconnects — use external store"
+      ],
+      "snippet": "io.on('connection', (socket) => { socket.on('disconnect', () => { rooms.remove(socket.id); }); });"
+    }
+  ]
+}

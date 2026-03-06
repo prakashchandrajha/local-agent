@@ -1,6 +1,6 @@
 {
-  "scannedAt": "2026-03-06T16:11:25.377Z",
-  "totalFiles": 38,
+  "scannedAt": "2026-03-06T16:55:34.170Z",
+  "totalFiles": 53,
   "byExtension": {
     ".md": [
       "README.md",
@@ -8,9 +8,17 @@
     ],
     ".js": [
       "agent.js",
+      "agents/architect.js",
+      "agents/ceo.js",
+      "agents/integrator.js",
+      "agents/optimizer.js",
+      "agents/qa.js",
+      "agents/speculative.js",
       "browser/search.js",
+      "calculatorapp.js",
       "calor.js",
       "config/prompts.js",
+      "core/clc.js",
       "core/planner.js",
       "core/reviewer.js",
       "demoevemoji.js",
@@ -29,7 +37,9 @@
       "examples/math.js",
       "index.js",
       "knowledge/lang-profiles.js",
+      "knowledge/pattern-loader.js",
       "llm/client.js",
+      "memory/fis.js",
       "memory/index.js",
       "memory/knowledge-store.js",
       "parsers/tool-parser.js",
@@ -45,18 +55,35 @@
       "examples/demojango.html"
     ],
     ".json": [
+      "knowledge/patterns/node-patterns.json",
+      "knowledge/patterns/python-patterns.json",
+      "knowledge/patterns/springboot-patterns.json",
       "package-lock.json",
       "package.json",
       "todo-api/package-lock.json",
       "todo-api/package.json"
+    ],
+    "no-ext": [
+      "mydemofile"
+    ],
+    ".txt": [
+      "output.txt"
     ]
   },
   "allFiles": [
     "README.md",
     "agent.js",
+    "agents/architect.js",
+    "agents/ceo.js",
+    "agents/integrator.js",
+    "agents/optimizer.js",
+    "agents/qa.js",
+    "agents/speculative.js",
     "browser/search.js",
+    "calculatorapp.js",
     "calor.js",
     "config/prompts.js",
+    "core/clc.js",
     "core/planner.js",
     "core/reviewer.js",
     "demoevemoji.js",
@@ -78,9 +105,16 @@
     "examples/math.js",
     "index.js",
     "knowledge/lang-profiles.js",
+    "knowledge/pattern-loader.js",
+    "knowledge/patterns/node-patterns.json",
+    "knowledge/patterns/python-patterns.json",
+    "knowledge/patterns/springboot-patterns.json",
     "llm/client.js",
+    "memory/fis.js",
     "memory/index.js",
     "memory/knowledge-store.js",
+    "mydemofile",
+    "output.txt",
     "package-lock.json",
     "package.json",
     "parsers/tool-parser.js",
@@ -92,15 +126,15 @@
     "tools/input.js"
   ],
   "recentFiles": [
-    "package-lock.json",
-    "demovemoji.js",
-    "demoevemoji.js",
+    "output.txt",
+    "calculatorapp.js",
+    "mydemofile",
     "agent.js",
-    "browser/search.js",
-    "core/planner.js",
-    "core/reviewer.js",
-    "knowledge/lang-profiles.js",
-    "llm/client.js",
-    "memory/index.js"
+    "agents/architect.js",
+    "agents/ceo.js",
+    "agents/integrator.js",
+    "agents/optimizer.js",
+    "agents/qa.js",
+    "agents/speculative.js"
   ]
 }

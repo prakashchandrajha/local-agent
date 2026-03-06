@@ -1,0 +1,72 @@
+{
+  "language": "python",
+  "patterns": [
+
+    {
+      "name": "FastAPI Auth Pattern",
+      "tags": ["fastapi", "jwt", "auth", "oauth2"],
+      "keyFacts": [
+        "Use OAuth2PasswordBearer for token extraction from headers",
+        "Create a get_current_user dependency that decodes JWT",
+        "Inject with Depends(get_current_user) on protected routes",
+        "Use python-jose for JWT: jose.jwt.encode/decode",
+        "Hash passwords with passlib: CryptContext(schemes=['bcrypt'])",
+        "Return 401 with WWW-Authenticate header on auth failure"
+      ],
+      "snippet": "async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)): payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])"
+    },
+
+    {
+      "name": "SQLAlchemy Session Pattern",
+      "tags": ["sqlalchemy", "database", "session", "context"],
+      "keyFacts": [
+        "Always use context managers for sessions: with SessionLocal() as db:",
+        "Or use generator dependency: def get_db(): db = SessionLocal(); try: yield db; finally: db.close()",
+        "Add db.commit() before returning in write operations",
+        "Use db.rollback() in except blocks",
+        "db.refresh(obj) after commit to reload auto-generated fields like id",
+        "Use .options(joinedload()) to eagerly load relationships"
+      ],
+      "snippet": "def get_db(): db = SessionLocal(); try: yield db; finally: db.close()"
+    },
+
+    {
+      "name": "Pydantic v2 Pattern",
+      "tags": ["pydantic", "validation", "schema", "v2"],
+      "keyFacts": [
+        "Pydantic v2: use model_validate() not parse_obj()",
+        "Use model_dump() not .dict()",
+        "Field validators use @field_validator decorator",
+        "Model validators use @model_validator(mode='after')",
+        "Use model_config = ConfigDict(from_attributes=True) for ORM mode (not orm_mode=True)"
+      ],
+      "snippet": "class UserResponse(BaseModel): model_config = ConfigDict(from_attributes=True)"
+    },
+
+    {
+      "name": "Async Python Pattern",
+      "tags": ["async", "asyncio", "await", "concurrent"],
+      "keyFacts": [
+        "Use asyncio.run(main()) as entry point — not loop.run_until_complete()",
+        "Use async with for async context managers (aiohttp, databases)",
+        "Use asyncio.gather() for parallel coroutines",
+        "Don't use time.sleep() in async code — use await asyncio.sleep()",
+        "Sync blocking calls in async code: run in executor: await loop.run_in_executor(None, blocking_fn)"
+      ],
+      "snippet": "results = await asyncio.gather(fetch_users(), fetch_orders(), return_exceptions=True)"
+    },
+
+    {
+      "name": "Python Error Handling Pattern",
+      "tags": ["error", "exception", "logging", "try-catch"],
+      "keyFacts": [
+        "Catch specific exceptions, not bare except:",
+        "Use logging.exception() inside except to capture stack trace",
+        "Create custom exceptions inheriting from Exception for domain errors",
+        "Re-raise with context: raise NewException('msg') from original_exc",
+        "Use contextlib.suppress(ExceptionType) for expected suppressible errors"
+      ],
+      "snippet": "except ValueError as e: logger.exception('Validation failed'); raise HTTPException(status_code=422, detail=str(e)) from e"
+    }
+  ]
+}
