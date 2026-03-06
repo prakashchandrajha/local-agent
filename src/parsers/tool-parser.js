@@ -122,6 +122,9 @@ class ToolParser {
       case "write_file":
         return this._parseWriteFileBlock(afterMarker, seenFiles);
       
+      case "run_tests":
+        return this._parseRunTestsBlock(afterMarker);
+      
       default:
         this.logger.warn("Unknown tool type", { tool });
         return null;
@@ -293,6 +296,19 @@ class ToolParser {
       tool: "write_file", 
       path: filePath, 
       content: cleanedContent 
+    };
+  }
+
+  /**
+   * Parses run_tests tool block
+   * @param {string} content - Content after TOOL: run_tests
+   * @returns {Object} - Run tests operation
+   */
+  _parseRunTestsBlock(content) {
+    const cmdMatch = content.match(/COMMAND:\s*([^\n]+)/i);
+    return {
+      tool: "run_tests",
+      command: cmdMatch ? cmdMatch[1].trim() : "npm test"
     };
   }
 

@@ -14,6 +14,9 @@ const ToolParser = require("./parsers/tool-parser");
 const { readFile, writeFile, listFiles } = require("../tools/file");
 const memory = require("../tools/memory");
 const scanner = require("../tools/scanner");
+const { refineCode, shouldRefine, formatRefinementResult } = require("../tools/refiner");
+const patternLibrary = require("../tools/pattern_library");
+const testRunner = require("../tools/test_runner");
 
 /**
  * Main Agent Class - Orchestrates all services and handles user interaction
@@ -179,10 +182,14 @@ class Agent {
     for (let attempt = 1; attempt <= this.config.get("llm.maxRetries"); attempt++) {
       this.logger.debug("Fix loop attempt", { attempt, maxRetries: this.config.get("llm.maxRetries") });
 
+      // Add architectural patterns dynamically
+      const patternContext = patternLibrary.getRelevantPatterns(currentPrompt, contextFile);
+      const executionPrompt = systemPrompt + memoryContext + patternContext;
+
       // Call LLM
       const llmResponse = await this.llmService.callLLM(
         currentPrompt,
-        systemPrompt + memoryContext,
+        executionPrompt,
         this.conversationHistory
       );
 
@@ -254,11 +261,22 @@ class Agent {
           break;
 
         case "write_file":
-          const writeResult = await this._handleWriteOperation(op, lastWrittenFile);
+          const writeResult = await this._handleWriteOperation(op, lastWrittenFile, userInput);
           if (writeResult.success) {
             writeResults.push(writeResult.path);
             lastWrittenFile = writeResult.path;
             allSummaries.push(`Created/updated: ${writeResult.path}`);
+          }
+          break;
+
+        case "run_tests":
+          const testResult = await testRunner.runTests(op.command);
+          console.log(`\n🧪 Test Results:\n${testResult.output}\n`);
+          if (testResult.success) {
+            allSummaries.push(`Ran tests successfully: ${op.command}`);
+          } else {
+            allSummaries.push(`Test failure: ${op.command}`);
+            readResults.push({ path: `Test Output for ${op.command}`, content: `Command: ${op.command}\nOutput:\n${testResult.output}` });
           }
           break;
 
@@ -291,9 +309,9 @@ class Agent {
   }
 
   /**
-   * Handles write file operations with memory recording
+   * Handles write file operations with memory recording and self-refinement
    */
-  async _handleWriteOperation(operation, fallbackFilename) {
+  async _handleWriteOperation(operation, fallbackFilename, userInput) {
     try {
       const fullPath = path.join(process.cwd(), operation.path);
       let oldContent = null;
@@ -312,13 +330,42 @@ class Agent {
         }
       }
 
+      // Refinement Loop
+      let finalContent = operation.content;
+      if (shouldRefine(finalContent)) {
+        console.log("🔄 Starting self-refinement loop...");
+        this.logger.info("Starting code refinement", { path: operation.path });
+        try {
+          // Provide userInput as task, or fallback message
+          const task = userInput || `Fix and write file ${operation.path}`;
+          const refinement = await refineCode(
+            task,
+            finalContent,
+            `File: ${operation.path}`,
+            { maxIterations: 3, targetScore: 8, minImprovement: 1 }
+          );
+          console.log(formatRefinementResult(refinement));
+          
+          if (refinement.finalCode !== finalContent) {
+            console.log("🔧 Applying refined improvements...");
+            finalContent = refinement.finalCode;
+            this.logger.info("Applied refined code", { path: operation.path, improvement: refinement.improvement });
+          } else {
+            console.log("✅ Code is already at target quality");
+          }
+        } catch (err) {
+          console.log("⚠️  Refinement failed, keeping code");
+          this.logger.warn("Refinement failed", { error: err.message });
+        }
+      }
+
       // Write file
-      writeFile(operation.path, operation.content);
+      writeFile(operation.path, finalContent);
       console.log(`\n✅ Written: ${operation.path}`);
 
       // Record in memory
-      if (this.config.get("memory.enabled") && oldContent && oldContent !== operation.content) {
-        memory.autoRecordChange(operation.path, oldContent, operation.content, "Agent-applied fix");
+      if (this.config.get("memory.enabled") && oldContent && oldContent !== finalContent) {
+        memory.autoRecordChange(operation.path, oldContent, finalContent, "Agent-applied fix");
       }
 
       return { success: true, path: operation.path };
@@ -344,7 +391,7 @@ class Agent {
       content: operation.content
     };
 
-    return this._handleWriteOperation(writeOp, filename);
+    return this._handleWriteOperation(writeOp, filename, userInput);
   }
 
   /**
@@ -379,6 +426,10 @@ END_MESSAGE
 
 List files:
 TOOL: list_files
+
+Run tests:
+TOOL: run_tests
+COMMAND: npm test
 
 Read a file:
 TOOL: read_file

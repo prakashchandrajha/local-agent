@@ -124,16 +124,30 @@ function calculateQualityScore(review) {
     'null/undefined': 1,
     'best practices': 1,
     'naming': 0.5,
-    'console.log': 0.5
+    'console.log': 0.5,
+    'not handle': 1,
+    'does not': 1,
+    'no check': 1,
+    'null or undefined': 1,
+    'non-numeric': 1
   };
   
   review.issues.forEach(issue => {
     const lowerIssue = issue.toLowerCase();
+    let penaltyFound = false;
+    
+    // First check for specific patterns
     for (const [pattern, penalty] of Object.entries(issuePenalties)) {
       if (lowerIssue.includes(pattern)) {
         score -= penalty;
+        penaltyFound = true;
         break;
       }
+    }
+    
+    // If no specific pattern found, deduct default penalty
+    if (!penaltyFound) {
+      score -= 1; // Default penalty for general issues
     }
   });
   
