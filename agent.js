@@ -131,19 +131,19 @@ END_MESSAGE
 
 TOOL: list_files
 TOOL: read_file
-PATH: ./src/app.js
+PATH: app.js
 TOOL: write_file
-PATH: ./src/app.js
+PATH: app.js
 CONTENT:
 <complete code>
 END_CONTENT
 TOOL: delete_file
-PATH: ./src/old.js
+PATH: old.js
 TOOL: rename_file
-FROM: ./src/old.js
-TO: ./src/new.js
+FROM: old.js
+TO: new.js
 TOOL: run_file
-PATH: ./src/app.js
+PATH: app.js
 TOOL: search_web
 ERROR: <error>
 LANG: <language>`.trim();

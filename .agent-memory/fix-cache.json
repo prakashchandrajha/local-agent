@@ -6,5 +6,9 @@
   "/home/vvd/local-agent/demo.js:3 b) => a * b, ^ syntaxerror: unexpected token ')' at wrapsafe (node:i": {
     "fixCode": "const Calculator = {\n    add: (a, b) => a + b,\n    subtract: (a, b) => a - b,\n    multiply: (a, b) => a * b,\n    divide: (a, b) => b !== 0 ? a / b : 'Error! Division by zero is not allowed.',\n};\n\nconsole.log(Calculator.add(5, 3)); // Outputs: 8\nconsole.log(Calculator.subtract(5, 3)); // Outputs: 2\nconsole.log(Calculator.multiply(5, 3)); // Outputs: 15\nconsole.log(Calculator.divide(6, 3)); // Outputs: 2\nconsole.log(Calculator.divide(6, 0)); // Outputs: 'Error! Division by zero is not allowed.'",
     "ts": 1772832868818
+  },
+  "node:internal/modules/cjs/loader:1386 throw err; ^ error: cannot find module '/home/vvd/local-agent/": {
+    "fixCode": "const fs = require('fs');\n\nfunction init() {\n    // Your code here\n}\n\nfunction readMem(key) {\n    // Your code here\n}\n\nfunction writeMem(key, data) {\n    // Your code here\n}\n\nfunction scored(fixes) {\n    return fixes.map((fix) => {\n        // Your code here\n    });\n}\n\nfunction recordPattern(lang, errorSnippet) {\n    // Your code here\n}\n\nfunction existing(patterns, p) {\n    return patterns.find((pattern) => {\n        // Your code here\n    });\n}\n\nfunction buildProjectMap() {\n    // Your code here\n}\n\nfunction getProjectMap() {\n    // Your code here\n}\n\nfunction buildProjectBlock() {\n    // Your code here\n}\n\nfunction getFilesByExt(ext) {\n    // Your code here\n}\n\nmodule.exports = {\n    init,\n    readMem,\n    writeMem,\n    scored,\n    recordPattern,\n    existing,\n    buildProjectMap,\n    getProjectMap,\n    buildProjectBlock,\n    getFilesByExt\n};",
+    "ts": 1772833951554
   }
 }

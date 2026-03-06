@@ -22,5 +22,13 @@
     "count": 2,
     "firstSeen": "2026-03-06T21:32:23.775Z",
     "lastSeen": "2026-03-06T21:33:53.471Z"
+  },
+  {
+    "key": "js::node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nerro",
+    "lang": "js",
+    "errorSnippet": "node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nError: Cannot find module '/home/vvd/local-agent/src/demojs.js'\n",
+    "count": 1,
+    "firstSeen": "2026-03-06T21:51:45.140Z",
+    "lastSeen": "2026-03-06T21:51:45.140Z"
   }
 ]

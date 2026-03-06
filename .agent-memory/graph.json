@@ -49,7 +49,7 @@
     "imports": [],
     "exports": [],
     "role": "module",
-    "updatedAt": "2026-03-06T20:12:14.034Z"
+    "updatedAt": "2026-03-06T21:41:01.120Z"
   },
   "research.md": {
     "imports": [],
@@ -86,5 +86,11 @@
     "exports": [],
     "role": "module",
     "updatedAt": "2026-03-06T21:06:03.696Z"
+  },
+  "./src/demojs.js": {
+    "imports": [],
+    "exports": [],
+    "role": "module",
+    "updatedAt": "2026-03-06T21:51:25.756Z"
   }
 }

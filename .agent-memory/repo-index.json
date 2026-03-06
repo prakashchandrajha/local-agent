@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "indexedAt": "2026-03-06T21:33:30.181Z",
-  "totalFiles": 66,
+  "indexedAt": "2026-03-06T22:00:10.151Z",
+  "totalFiles": 68,
   "files": {
     "README.md": {
       "role": "other",
@@ -88,7 +88,7 @@
         "|require|return|if"
       ],
       "lineCount": 722,
-      "mtime": 1772830734435
+      "mtime": 1772833130202
     },
     "agents/architect.js": {
       "role": "other",
@@ -610,10 +610,31 @@
       "exports": [],
       "imports": [],
       "externalDeps": [],
-      "lineCount": 11,
-      "mtime": 1772832615432
+      "lineCount": 12,
+      "mtime": 1772832868817
     },
     "demojs.js": {
+      "role": "other",
+      "description": "exports: validateInput, add, multiply, divide",
+      "functions": [
+        "validateInput",
+        "add",
+        "multiply",
+        "divide"
+      ],
+      "signatures": [
+        "validateInput(a, b)",
+        "add(a, b)",
+        "multiply(a, b)",
+        "divide(a, b)"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 30,
+      "mtime": 1772833592395
+    },
+    "demojs2.js": {
       "role": "other",
       "description": "exports: validateInput, add, subtract, multiply, divide",
       "functions": [
@@ -633,8 +654,8 @@
       "exports": [],
       "imports": [],
       "externalDeps": [],
-      "lineCount": 34,
-      "mtime": 1772829122536
+      "lineCount": 30,
+      "mtime": 1772833670245
     },
     "docs/for-agent/AGENT_GUIDE.md": {
       "role": "other",
@@ -1333,6 +1354,52 @@
       ],
       "lineCount": 17,
       "mtime": 1772831284826
+    },
+    "src/demojs.js": {
+      "role": "module",
+      "description": "module — exports: init, readMem, writeMem, scored, recordPattern",
+      "functions": [
+        "init",
+        "readMem",
+        "writeMem",
+        "scored",
+        "recordPattern",
+        "existing",
+        "buildProjectMap",
+        "getProjectMap",
+        "buildProjectBlock",
+        "getFilesByExt"
+      ],
+      "signatures": [
+        "init()",
+        "readMem(key)",
+        "writeMem(key, data)",
+        "scored(fixes)",
+        "recordPattern(lang, errorSnippet)",
+        "existing(patterns, p)",
+        "buildProjectMap()",
+        "getProjectMap()",
+        "buildProjectBlock()",
+        "getFilesByExt(ext)"
+      ],
+      "exports": [
+        "init",
+        "readMem",
+        "writeMem",
+        "scored",
+        "recordPattern",
+        "existing",
+        "buildProjectMap",
+        "getProjectMap",
+        "buildProjectBlock",
+        "getFilesByExt"
+      ],
+      "imports": [],
+      "externalDeps": [
+        "fs"
+      ],
+      "lineCount": 58,
+      "mtime": 1772833951553
     },
     "src/demoncdc.js": {
       "role": "other",

@@ -24,5 +24,18 @@
     "seenCount": 1,
     "firstSeen": "2026-03-06T21:34:28.820Z",
     "lastSeen": "2026-03-06T21:34:28.820Z"
+  },
+  {
+    "id": "fis-1772833951555",
+    "key": "node:internal modules cjs loader:1386 throw err; ^ error: cannot find module home vvd local-agent src demojs.js at function.executeuserentrypoint [as ",
+    "lang": "js",
+    "file": "./src/demojs.js",
+    "errorText": "node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nError: Cannot find module '/home/vvd/local-agent/src/demojs.js'\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)\n    at resolveForCJSWithHooks (node",
+    "cause": "node:internal/modules/cjs/loader:1386",
+    "fix": "Swarm winner: simple",
+    "codeAfter": "const fs = require('fs');\n\nfunction init() {\n    // Your code here\n}\n\nfunction readMem(key) {\n    // Your code here\n}\n\nfunction writeMem(key, data) {\n    // Your code here\n}\n\nfunction scored(fixes) {\n    return fixes.map((fix) => {\n        // Your code here\n    });\n}\n\nfunction recordPattern(lang, errorSnippet) {\n    // Your code here\n}\n\nfunction existing(patterns, p) {\n    return patterns.find((pa",
+    "seenCount": 1,
+    "firstSeen": "2026-03-06T21:52:31.555Z",
+    "lastSeen": "2026-03-06T21:52:31.555Z"
   }
 ]
