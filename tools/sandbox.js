@@ -27,7 +27,7 @@ try {
   BASE_SANDBOX_DIR = path.join(process.cwd(), ".agent-memory", "sandboxes");
 }
 
-const MAX_POOL_SIZE = 5;
+const MAX_POOL_SIZE = 10;
 
 // Tracks which sandboxes are currently in use
 const pool = new Array(MAX_POOL_SIZE).fill(null).map((_, i) => ({

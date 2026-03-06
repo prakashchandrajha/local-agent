@@ -139,7 +139,7 @@
     "fact": "Use asyncio.run(main()) as entry point. Never call loop.run_until_complete() in newer Python (3.10+).",
     "id": "seed-10",
     "source": "built-in",
-    "useCount": 0,
+    "useCount": 1,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -463,7 +463,7 @@
     "fact": "After every code generation: check that all imports resolve, all functions are called with correct argument counts, and no logic is left as pseudocode.",
     "id": "seed-35",
     "source": "built-in",
-    "useCount": 16,
+    "useCount": 17,
     "createdAt": "2026-03-06T10:54:29.972Z"
   }
 ]

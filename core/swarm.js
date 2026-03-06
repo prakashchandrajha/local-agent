@@ -189,13 +189,20 @@ const tuneWeights = (winnerType) => {
  * EVALUATE VARIANT (Updated with adaptive scoring)
  */
 const evaluateVariant = async (sbId, filePath, type, weights, originalCode) => {
-  const runResult = sandbox.run(sbId, `node "${filePath}"`);
+  const sbPath = sandbox.getPath(sbId);
+  const ext = path.extname(filePath);
+  const incTest = require("./incremental-test");
+
+  const start = Date.now();
+  // 🔥 Now using the clever Incremental Test Runner 🔥
+  const testRes = incTest.runIncrementalTests(sbId, path.join(sbPath, filePath));
+  const timeMs = Date.now() - start;
   
   let score = 0;
   const fixedCode = readFile(path.join(sandbox.getPath(sbId), filePath));
   const similarity = calculateSimilarity(originalCode, fixedCode);
 
-  if (runResult.success) {
+  if (testRes.success) {
     score += weights.testPass;
     // Perf: shorter execution time (hypothetical)
     score += weights.perf;

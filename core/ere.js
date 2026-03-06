@@ -384,11 +384,13 @@ const executeAndRecover = async (filePath, lang = "") => {
   const originalError = result.output;
   console.log(`   ❌ Error: ${originalError.split("\n")[0].slice(0, 100)}`);
 
-  // Step 1: Quick-fix patterns (no LLM, <100ms)
+  // ─────────────────────────────────────────────────────────
+  // STAGE 1: Quick-fix patterns (no LLM, <100ms)
+  // ─────────────────────────────────────────────────────────
   const qf = tryQuickFix(originalError, filePath);
   if (qf.fixed) {
     actions.push({ type: "quick-fix", detail: qf.action });
-    console.log(`   ✅ ${qf.action}`);
+    console.log(`   ✅ STAGE 1: ${qf.action}`);
 
     // Retry after quick fix
     result = runTargeted(filePath);
@@ -396,13 +398,15 @@ const executeAndRecover = async (filePath, lang = "") => {
       console.log(`   ✅ Fixed by quick-fix!`);
       return { success: true, attempts: 1, fixSource: "quick-fix", error: null, actions, output: result.output };
     }
-    console.log(`   ⚠️  Quick-fix wasn't enough, continuing...`);
+    console.log(`   ⚠️  Quick-fix wasn't enough, continuing to Stage 2...`);
   }
 
-  // Step 2: FIS instant lookup (known error → known fix)
+  // ─────────────────────────────────────────────────────────
+  // STAGE 2: FIS instant lookup (known error → known fix)
+  // ─────────────────────────────────────────────────────────
   const fisEntry = fis.instantLookup(originalError, lang);
   if (fisEntry && fisEntry.codeAfter) {
-    console.log(`   📚 FIS: Found known fix (seen ${fisEntry.seenCount}x)`);
+    console.log(`   📚 STAGE 2 (FIS Recall): Found known fix (seen ${fisEntry.seenCount}x)`);
     actions.push({ type: "fis-lookup", detail: fisEntry.fix });
 
     writeFile(filePath, fisEntry.codeAfter);
@@ -415,12 +419,13 @@ const executeAndRecover = async (filePath, lang = "") => {
     console.log(`   ⚠️  FIS fix didn't work, trying LLM...`);
   }
 
-  // Step 3: Fix cache lookup
-  const errorFP = fis.instantLookup(originalError, lang);
+  // ─────────────────────────────────────────────────────────
+  // STAGE 3: Fix Cache Lookup (exact match recent fixes)
+  // ─────────────────────────────────────────────────────────
   const fingerprint = (originalError || "").toLowerCase().replace(/\s+/g, " ").slice(0, 100);
   const cachedFix = getCachedFix(fingerprint);
   if (cachedFix && cachedFix.fixCode) {
-    console.log(`   💾 Fix cache hit!`);
+    console.log(`   💾 STAGE 3 (Cache): Fix cache hit!`);
     actions.push({ type: "fix-cache", detail: "reused cached LLM fix" });
 
     writeFile(filePath, cachedFix.fixCode);
@@ -429,11 +434,13 @@ const executeAndRecover = async (filePath, lang = "") => {
       console.log(`   ✅ Fixed by cached fix!`);
       return { success: true, attempts: 1, fixSource: "fix-cache", error: null, actions, output: result.output };
     }
-    console.log(`   ⚠️  Cached fix didn't work, trying fresh LLM fix...`);
+    console.log(`   ⚠️  Cached fix didn't work, escalating to Swarm...`);
   }
 
-  // Step 4: Speculative Swarm (Parallel LLM Fix + Sandboxing + Internet Backup)
-  console.log(`\n🐝 ERE: Triggering Speculative Swarm for ${filePath}...`);
+  // ─────────────────────────────────────────────────────────
+  // STAGE 4: Speculative Swarm (with CCE + Web Fusion)
+  // ─────────────────────────────────────────────────────────
+  console.log(`\n🐝 STAGE 4 (ERE): Triggering Speculative Swarm for ${filePath}...`);
   const swarm = require("./swarm");
   const swarmResult = await swarm.speculateFix(filePath, originalError, lang);
 

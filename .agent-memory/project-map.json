@@ -1,6 +1,6 @@
 {
-  "scannedAt": "2026-03-06T21:04:29.393Z",
-  "totalFiles": 66,
+  "scannedAt": "2026-03-06T21:23:07.951Z",
+  "totalFiles": 69,
   "byExtension": {
     ".md": [
       "README.md",
@@ -20,6 +20,7 @@
       "core/cce.js",
       "core/clc.js",
       "core/ere.js",
+      "core/incremental-test.js",
       "core/planner.js",
       "core/repo-indexer.js",
       "core/reviewer.js",
@@ -49,6 +50,7 @@
       "path/to/demoncdc.js",
       "path/to/index.js",
       "path/to/server.js",
+      "src/agent.js",
       "src/demoncdc.js",
       "swarm_demo.js",
       "swarm_test_simple.js",
@@ -80,7 +82,8 @@
       "output.txt"
     ],
     ".py": [
-      "path/to/demovemo.py"
+      "path/to/demovemo.py",
+      "test_complex_python.py"
     ]
   },
   "allFiles": [
@@ -97,6 +100,7 @@
     "core/cce.js",
     "core/clc.js",
     "core/ere.js",
+    "core/incremental-test.js",
     "core/planner.js",
     "core/repo-indexer.js",
     "core/reviewer.js",
@@ -137,9 +141,11 @@
     "path/to/index.js",
     "path/to/server.js",
     "research.md",
+    "src/agent.js",
     "src/demoncdc.js",
     "swarm_demo.js",
     "swarm_test_simple.js",
+    "test_complex_python.py",
     "tests/test-cce.js",
     "tests/test-ere.js",
     "tests/test-swarm-integration.js",
@@ -152,15 +158,15 @@
     "tools/sandbox.js"
   ],
   "recentFiles": [
-    "src/demoncdc.js",
-    "agent.js",
-    "llm/client.js",
-    "output.txt",
-    "path/to/demoncdc.js",
-    "path/to/server.js",
-    "path/to/index.js",
-    "research.md",
     "package-lock.json",
-    "core/swarm.js"
+    "test_complex_python.py",
+    "core/swarm.js",
+    "core/incremental-test.js",
+    "tools/sandbox.js",
+    "core/ere.js",
+    "output.txt",
+    "src/demoncdc.js",
+    "src/agent.js",
+    "agent.js"
   ]
 }

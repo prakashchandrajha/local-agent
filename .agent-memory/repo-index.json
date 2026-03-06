@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "indexedAt": "2026-03-06T21:04:29.415Z",
-  "totalFiles": 63,
+  "indexedAt": "2026-03-06T21:23:07.980Z",
+  "totalFiles": 66,
   "files": {
     "README.md": {
       "role": "other",
@@ -415,8 +415,36 @@
         "path",
         "child_process"
       ],
-      "lineCount": 516,
-      "mtime": 1772827045112
+      "lineCount": 523,
+      "mtime": 1772831725895
+    },
+    "core/incremental-test.js": {
+      "role": "test",
+      "description": "INCREMENTAL TEST RUNNER (v8)",
+      "functions": [
+        "findRelevantTests",
+        "runIncrementalTests",
+        "testFilesStr"
+      ],
+      "signatures": [
+        "findRelevantTests(filePath)",
+        "runIncrementalTests(sbId, targetFilePath, runFunc)",
+        "testFilesStr(relevantTests.map(p)"
+      ],
+      "exports": [
+        "findRelevantTests",
+        "runIncrementalTests"
+      ],
+      "imports": [
+        "./ere"
+      ],
+      "externalDeps": [
+        "fs",
+        "path",
+        "child_process"
+      ],
+      "lineCount": 113,
+      "mtime": 1772831788074
     },
     "core/planner.js": {
       "role": "other",
@@ -564,14 +592,15 @@
         "../tools/sandbox",
         "../memory/fis",
         "../browser/search",
+        "./incremental-test",
         "./cce"
       ],
       "externalDeps": [
         "path",
         "fs"
       ],
-      "lineCount": 351,
-      "mtime": 1772829540735
+      "lineCount": 358,
+      "mtime": 1772831855924
     },
     "demo.js": {
       "role": "other",
@@ -1158,7 +1187,7 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 309,
-      "mtime": 1772829681479
+      "mtime": 1772832185837
     },
     "package.json": {
       "role": "other",
@@ -1284,16 +1313,43 @@
       "lineCount": 13,
       "mtime": 1772829861565
     },
-    "src/demoncdc.js": {
-      "role": "other",
-      "description": "demoncdc module",
-      "functions": [],
-      "signatures": [],
+    "src/agent.js": {
+      "role": "module",
+      "description": "Handle agent-related functionalities and interactions with other modules.",
+      "functions": [
+        "readFileAsync",
+        "constructor",
+        "handleFunctionalities"
+      ],
+      "signatures": [
+        "readFileAsync(path)",
+        "constructor()",
+        "handleFunctionalities()"
+      ],
       "exports": [],
       "imports": [],
-      "externalDeps": [],
-      "lineCount": 14,
-      "mtime": 1772830995379
+      "externalDeps": [
+        "fs"
+      ],
+      "lineCount": 17,
+      "mtime": 1772831284826
+    },
+    "src/demoncdc.js": {
+      "role": "other",
+      "description": "existing content of the file",
+      "functions": [
+        "readFile"
+      ],
+      "signatures": [
+        "readFile(path)"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [
+        "fs"
+      ],
+      "lineCount": 34,
+      "mtime": 1772831292879
     },
     "swarm_demo.js": {
       "role": "other",
@@ -1322,6 +1378,24 @@
       "externalDeps": [],
       "lineCount": 1,
       "mtime": 1772829455637
+    },
+    "test_complex_python.py": {
+      "role": "other",
+      "description": "Intentional complex bug: failing json loads, missing module imports, bad regex",
+      "functions": [
+        "process_data"
+      ],
+      "signatures": [
+        "process_data(payload: str)"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [
+        "re",
+        "json"
+      ],
+      "lineCount": 12,
+      "mtime": 1772831864599
     },
     "tests/test-cce.js": {
       "role": "test",
@@ -1582,7 +1656,7 @@
         "child_process"
       ],
       "lineCount": 186,
-      "mtime": 1772829311487
+      "mtime": 1772831773828
     }
   }
 }
