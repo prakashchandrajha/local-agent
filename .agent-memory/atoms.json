@@ -9,7 +9,7 @@
     "fact": "Always wrap await calls in try/catch. Unhandled promise rejections crash Node.js.",
     "id": "seed-0",
     "source": "built-in",
-    "useCount": 13,
+    "useCount": 14,
     "createdAt": "2026-03-06T10:54:29.971Z"
   },
   {
@@ -35,7 +35,7 @@
     "fact": "In Node.js ESM, use import/export. In CommonJS, use require/module.exports. Never mix them in the same file.",
     "id": "seed-2",
     "source": "built-in",
-    "useCount": 15,
+    "useCount": 16,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -113,7 +113,7 @@
     "fact": "Use interfaces for object shapes (mergeable), type aliases for unions/intersections/primitives.",
     "id": "seed-8",
     "source": "built-in",
-    "useCount": 0,
+    "useCount": 1,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -204,7 +204,7 @@
     "fact": "python-jose: use jwt.encode() with algorithm='HS256'. Decode with jwt.decode() passing the secret and algorithms list.",
     "id": "seed-15",
     "source": "built-in",
-    "useCount": 1,
+    "useCount": 2,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -320,7 +320,7 @@
     "fact": "Use @ConfigurationProperties(prefix='app') with a @Configuration class for grouped settings. Type-safe and IDE-friendly.",
     "id": "seed-24",
     "source": "built-in",
-    "useCount": 1,
+    "useCount": 2,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -346,7 +346,7 @@
     "fact": "Wrap errors with fmt.Errorf('context: %w', err). Check with errors.Is() and errors.As() for type-safe error inspection.",
     "id": "seed-26",
     "source": "built-in",
-    "useCount": 2,
+    "useCount": 4,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -411,7 +411,7 @@
     "fact": "Copy package.json and install dependencies BEFORE copying source code. This caches the node_modules layer and speeds up rebuilds.",
     "id": "seed-31",
     "source": "built-in",
-    "useCount": 4,
+    "useCount": 5,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {

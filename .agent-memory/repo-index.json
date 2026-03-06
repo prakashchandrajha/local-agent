@@ -1,0 +1,1209 @@
+{
+  "version": 1,
+  "indexedAt": "2026-03-06T18:25:11.795Z",
+  "totalFiles": 47,
+  "files": {
+    "README.md": {
+      "role": "other",
+      "description": "🚀 Supercharged Local Coding Agent — v3",
+      "functions": [],
+      "signatures": [],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [
+        "relationships"
+      ],
+      "lineCount": 204,
+      "mtime": 1772773752000
+    },
+    "agent.js": {
+      "role": "other",
+      "description": "║  SUPERCHARGED LOCAL CODING AGENT  v5                            ║",
+      "functions": [
+        "rememberTurn",
+        "formatHistory",
+        "callLLM",
+        "loadReadme",
+        "cleanFences",
+        "extractFilename",
+        "detectIntent",
+        "isSolved",
+        "isFollowUp",
+        "interceptCapability",
+        "tryDirectDelete",
+        "tryDirectRename",
+        "parseToolBlocks",
+        "writeWithReview",
+        "runFullPipeline",
+        "blocks",
+        "run"
+      ],
+      "signatures": [
+        "rememberTurn(role, content)",
+        "formatHistory()",
+        "callLLM(prompt, systemPrompt)",
+        "loadReadme()",
+        "cleanFences(s)",
+        "extractFilename(input)",
+        "detectIntent(input)",
+        "isSolved(s)",
+        "isFollowUp(s)",
+        "interceptCapability(input)",
+        "tryDirectDelete(input)",
+        "tryDirectRename(input)",
+        "parseToolBlocks(response)",
+        "writeWithReview(filePath, code, lang)",
+        "runFullPipeline(userInput, readmeContent, projectContext)",
+        "blocks(t.read.map((r)",
+        "run()"
+      ],
+      "exports": [],
+      "imports": [
+        "./llm/client",
+        "./tools/input",
+        "./tools/file",
+        "./knowledge/lang-profiles",
+        "./knowledge/pattern-loader",
+        "./memory/index",
+        "./memory/knowledge-store",
+        "./memory/fis",
+        "./agents/ceo",
+        "./agents/architect",
+        "./agents/integrator",
+        "./agents/qa",
+        "./agents/optimizer",
+        "./agents/speculative",
+        "./core/planner",
+        "./core/reviewer",
+        "./core/clc",
+        "./core/repo-indexer",
+        "./core/cce",
+        "./browser/search"
+      ],
+      "externalDeps": [
+        "fs",
+        "path",
+        "|def",
+        "|require|return|if"
+      ],
+      "lineCount": 728,
+      "mtime": 1772821171804
+    },
+    "agents/architect.js": {
+      "role": "other",
+      "description": "Designs the full system BEFORE coding starts.",
+      "functions": [
+        "displayArchitecture",
+        "ordered",
+        "archToSteps"
+      ],
+      "signatures": [
+        "displayArchitecture(arch)",
+        "ordered([...arch.modules].sort((a, b)",
+        "archToSteps(arch)"
+      ],
+      "exports": [
+        "designArchitecture",
+        "displayArchitecture",
+        "archToSteps"
+      ],
+      "imports": [
+        "../llm/client"
+      ],
+      "externalDeps": [],
+      "lineCount": 112,
+      "mtime": 1772795568000
+    },
+    "agents/ceo.js": {
+      "role": "other",
+      "description": "Translates messy/vague user prompts into a clear engineering",
+      "functions": [
+        "isVague",
+        "displaySpec"
+      ],
+      "signatures": [
+        "isVague(input)",
+        "displaySpec(spec)"
+      ],
+      "exports": [
+        "interpretPrompt",
+        "isVague",
+        "displaySpec"
+      ],
+      "imports": [
+        "../llm/client"
+      ],
+      "externalDeps": [],
+      "lineCount": 99,
+      "mtime": 1772795568000
+    },
+    "agents/integrator.js": {
+      "role": "other",
+      "description": "After all modules are written, checks:",
+      "functions": [
+        "checkIntegration",
+        "fixIntegrationIssues",
+        "issueList",
+        "runIntegrationPass"
+      ],
+      "signatures": [
+        "checkIntegration(writtenFiles)",
+        "fixIntegrationIssues(issues, writtenFiles)",
+        "issueList(fileIssues.map((i)",
+        "runIntegrationPass(writtenFiles)"
+      ],
+      "exports": [
+        "runIntegrationPass",
+        "checkIntegration"
+      ],
+      "imports": [
+        "../llm/client",
+        "../tools/file"
+      ],
+      "externalDeps": [
+        "|require|return)\\b/.test(fixedCode);"
+      ],
+      "lineCount": 151,
+      "mtime": 1772797136000
+    },
+    "agents/optimizer.js": {
+      "role": "other",
+      "description": "Runs AFTER code passes QA. Looks for:",
+      "functions": [
+        "runOptimizationPass"
+      ],
+      "signatures": [
+        "runOptimizationPass(writtenFiles, detectLangFn)"
+      ],
+      "exports": [
+        "runOptimizationPass",
+        "optimizeFile"
+      ],
+      "imports": [
+        "../llm/client",
+        "../tools/file"
+      ],
+      "externalDeps": [
+        "|require|return|if"
+      ],
+      "lineCount": 167,
+      "mtime": 1772797136000
+    },
+    "agents/qa.js": {
+      "role": "other",
+      "description": "After code is written and integrated:",
+      "functions": [
+        "generateTests",
+        "runAndCapture"
+      ],
+      "signatures": [
+        "generateTests(filePath, fileContent)",
+        "runAndCapture(filePath)"
+      ],
+      "exports": [
+        "runQAPass",
+        "generateTests",
+        "runAndCapture"
+      ],
+      "imports": [
+        "../llm/client",
+        "../tools/file"
+      ],
+      "externalDeps": [
+        "path"
+      ],
+      "lineCount": 130,
+      "mtime": 1772795568000
+    },
+    "agents/speculative.js": {
+      "role": "other",
+      "description": "Generates MULTIPLE candidate solutions for the same task,",
+      "functions": [
+        "scoreCandidate"
+      ],
+      "signatures": [
+        "scoreCandidate(code, runResult)"
+      ],
+      "exports": [
+        "pickBestSolution",
+        "generateCandidate",
+        "scoreCandidate"
+      ],
+      "imports": [
+        "../llm/client",
+        "../tools/file"
+      ],
+      "externalDeps": [
+        "path",
+        "fs"
+      ],
+      "lineCount": 143,
+      "mtime": 1772795568000
+    },
+    "browser/search.js": {
+      "role": "other",
+      "description": "BROWSER / WEB SEARCH MODULE",
+      "functions": [
+        "searchDuckDuckGo",
+        "extractCodeSnippets",
+        "crystallizeSolution",
+        "isOnline"
+      ],
+      "signatures": [
+        "searchDuckDuckGo(query)",
+        "extractCodeSnippets(results)",
+        "crystallizeSolution({ lang, query, solution, source })",
+        "isOnline()"
+      ],
+      "exports": [
+        "searchForFix",
+        "crystallizeSolution",
+        "normalizeErrorSignature",
+        "isOnline"
+      ],
+      "imports": [
+        "../memory/knowledge-store"
+      ],
+      "externalDeps": [
+        "https",
+        "http"
+      ],
+      "lineCount": 249,
+      "mtime": 1772792926000
+    },
+    "config/prompts.js": {
+      "role": "config",
+      "description": "config",
+      "functions": [],
+      "signatures": [],
+      "exports": [
+        "SYSTEM_PROMPT"
+      ],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 45,
+      "mtime": 1772787895649
+    },
+    "core/cce.js": {
+      "role": "other",
+      "description": "CONTEXT COMPRESSION ENGINE (CCE)",
+      "functions": [
+        "estimateTokens",
+        "loadCache",
+        "saveCache",
+        "sorted",
+        "getCached",
+        "setCached",
+        "buildFileSummaries",
+        "scoreFileRelevance",
+        "detectIntentRole",
+        "selectRelevantFiles",
+        "logCCEStats",
+        "displayCCEInfo"
+      ],
+      "signatures": [
+        "estimateTokens(text)",
+        "loadCache()",
+        "saveCache(cache)",
+        "sorted(keys.sort((a, b)",
+        "getCached(cacheKey)",
+        "setCached(cacheKey, data)",
+        "buildFileSummaries(indexFiles)",
+        "scoreFileRelevance(filePath, meta, keywords, intentRole)",
+        "detectIntentRole(prompt)",
+        "selectRelevantFiles(prompt, indexFiles, archGraph)",
+        "logCCEStats(stats)",
+        "displayCCEInfo()"
+      ],
+      "exports": [
+        "getCompressedContext",
+        "logCCEStats",
+        "displayCCEInfo",
+        "selectRelevantFiles",
+        "buildFileSummaries",
+        "buildSignatureBlock",
+        "detectBudget",
+        "estimateTokens"
+      ],
+      "imports": [
+        "./repo-indexer",
+        "../tools/file"
+      ],
+      "externalDeps": [
+        "fs",
+        "path"
+      ],
+      "lineCount": 419,
+      "mtime": 1772821101556
+    },
+    "core/clc.js": {
+      "role": "other",
+      "description": "COGNITIVE LOAD CONTROLLER (CLC) v2",
+      "functions": [
+        "scoreRelevance",
+        "logBudget"
+      ],
+      "signatures": [
+        "scoreRelevance(filePath, fileContent, taskKeywords)",
+        "logBudget(stats)"
+      ],
+      "exports": [
+        "buildCompressedContext",
+        "scoreRelevance",
+        "detectBudget",
+        "logBudget"
+      ],
+      "imports": [
+        "./cce",
+        "../tools/file"
+      ],
+      "externalDeps": [
+        "path"
+      ],
+      "lineCount": 65,
+      "mtime": 1772821129615
+    },
+    "core/planner.js": {
+      "role": "other",
+      "description": "Decomposes complex requests into ordered, focused steps.",
+      "functions": [
+        "isComplexTask",
+        "signalCount",
+        "findBlueprint",
+        "buildGenericPlan",
+        "planTask",
+        "displayPlan"
+      ],
+      "signatures": [
+        "isComplexTask(input)",
+        "signalCount(COMPLEX_SIGNALS.filter((s)",
+        "findBlueprint(input)",
+        "buildGenericPlan(input)",
+        "planTask(input)",
+        "displayPlan(plan)"
+      ],
+      "exports": [
+        "planTask",
+        "displayPlan",
+        "isComplexTask",
+        "findBlueprint"
+      ],
+      "imports": [],
+      "externalDeps": [
+        "and",
+        "or"
+      ],
+      "lineCount": 219,
+      "mtime": 1772792926000
+    },
+    "core/repo-indexer.js": {
+      "role": "repository",
+      "description": "REPO INDEXER — Full Project Scanner",
+      "functions": [
+        "classifyRole",
+        "extractSignatures",
+        "extractExports",
+        "extractImports",
+        "generateDescription",
+        "loadIndex",
+        "buildArchGraph",
+        "formatArchGraph"
+      ],
+      "signatures": [
+        "classifyRole(filePath, content)",
+        "extractSignatures(content, filePath)",
+        "extractExports(content, filePath)",
+        "extractImports(content, filePath)",
+        "generateDescription(filePath, content, role, sigs, exportNames)",
+        "loadIndex()",
+        "buildArchGraph(indexFiles)",
+        "formatArchGraph(graph, indexFiles)"
+      ],
+      "exports": [
+        "a",
+        "b",
+        "c",
+        "esExports"
+      ],
+      "imports": [
+        "..."
+      ],
+      "externalDeps": [
+        "fs",
+        "path",
+        "for",
+        "for",
+        "to"
+      ],
+      "lineCount": 432,
+      "mtime": 1772821483622
+    },
+    "core/reviewer.js": {
+      "role": "other",
+      "description": "After code generation, runs a focused review pass to catch",
+      "functions": [
+        "cleanFences",
+        "logTrace"
+      ],
+      "signatures": [
+        "cleanFences(code)",
+        "logTrace(entry)"
+      ],
+      "exports": [
+        "reviewCode",
+        "traceStep",
+        "getRecentTrace"
+      ],
+      "imports": [
+        "../llm/client"
+      ],
+      "externalDeps": [
+        "fs",
+        "path",
+        "paths"
+      ],
+      "lineCount": 200,
+      "mtime": 1772792926000
+    },
+    "docs/for-agent/AGENT_GUIDE.md": {
+      "role": "other",
+      "description": "For the AI Assistant** - Understanding your capabilities and tools.",
+      "functions": [
+        "add"
+      ],
+      "signatures": [
+        "add(a, b)"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 358,
+      "mtime": 1772718905849
+    },
+    "examples/agent_demo.js": {
+      "role": "other",
+      "description": "exports: runTest",
+      "functions": [
+        "runTest"
+      ],
+      "signatures": [
+        "runTest(index)"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [
+        "readline",
+        "child_process"
+      ],
+      "lineCount": 70,
+      "mtime": 1772779687241
+    },
+    "examples/bug.js": {
+      "role": "other",
+      "description": "exports: divide",
+      "functions": [
+        "divide"
+      ],
+      "signatures": [
+        "divide(a,b)"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 3,
+      "mtime": 1772778834230
+    },
+    "examples/calculator.js": {
+      "role": "module",
+      "description": "module — exports: add, subtract, divide",
+      "functions": [
+        "add",
+        "subtract",
+        "divide"
+      ],
+      "signatures": [
+        "add(a, b)",
+        "subtract(a, b)",
+        "divide(a, b)"
+      ],
+      "exports": [
+        "add",
+        "subtract",
+        "divide"
+      ],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 27,
+      "mtime": 1772771898390
+    },
+    "examples/demo_agent.js": {
+      "role": "other",
+      "description": "Quick demo of the enhanced agent with planner",
+      "functions": [
+        "demonstrateAgent"
+      ],
+      "signatures": [
+        "demonstrateAgent()"
+      ],
+      "exports": [],
+      "imports": [
+        "./tools/simple_planner"
+      ],
+      "externalDeps": [],
+      "lineCount": 52,
+      "mtime": 1772775574500
+    },
+    "examples/demo_complete_flow.js": {
+      "role": "other",
+      "description": "Demonstration of the complete enhanced agent flow with Self-Refinement Loop:",
+      "functions": [
+        "demonstrateCompleteFlow"
+      ],
+      "signatures": [
+        "demonstrateCompleteFlow()"
+      ],
+      "exports": [],
+      "imports": [
+        "./tools/simple_planner",
+        "./tools/refiner"
+      ],
+      "externalDeps": [],
+      "lineCount": 71,
+      "mtime": 1772776730266
+    },
+    "examples/democalc.js": {
+      "role": "other",
+      "description": "Usage: node democalc.js add 2 3",
+      "functions": [
+        "parseArguments",
+        "main"
+      ],
+      "signatures": [
+        "parseArguments(args)",
+        "main()"
+      ],
+      "exports": [],
+      "imports": [
+        "./calculator"
+      ],
+      "externalDeps": [],
+      "lineCount": 28,
+      "mtime": 1772775475099
+    },
+    "examples/demojango.js": {
+      "role": "other",
+      "description": "Usage: node demojango.js",
+      "functions": [
+        "convertMarkdownToJS",
+        "htmlToJsComments"
+      ],
+      "signatures": [
+        "convertMarkdownToJS(filename)",
+        "htmlToJsComments(html)"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [
+        "fs"
+      ],
+      "lineCount": 31,
+      "mtime": 1772722109233
+    },
+    "examples/filename.js": {
+      "role": "other",
+      "description": "filename module",
+      "functions": [],
+      "signatures": [],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 1,
+      "mtime": 1772721571212
+    },
+    "examples/index.js": {
+      "role": "entry",
+      "description": "entry",
+      "functions": [],
+      "signatures": [],
+      "exports": [],
+      "imports": [
+        "./math"
+      ],
+      "externalDeps": [],
+      "lineCount": 3,
+      "mtime": 1772778950224
+    },
+    "examples/legacy/legacy_agent.js": {
+      "role": "other",
+      "description": "exports: rememberTurn, formatHistory, loadReadme, loadAgentDocs, buildSystemPrompt",
+      "functions": [
+        "rememberTurn",
+        "formatHistory",
+        "loadReadme",
+        "loadAgentDocs",
+        "buildSystemPrompt",
+        "buildMemoryContext",
+        "cleanCodeFences",
+        "extractFilename",
+        "parseToolBlocks",
+        "callLLM",
+        "initializeProjectContext",
+        "injectProjectContext",
+        "isSolved",
+        "isFollowUp",
+        "run"
+      ],
+      "signatures": [
+        "rememberTurn(role, content)",
+        "formatHistory()",
+        "loadReadme()",
+        "loadAgentDocs()",
+        "buildSystemPrompt(readmeContent, agentDocsContent)",
+        "buildMemoryContext(file)",
+        "cleanCodeFences(content)",
+        "extractFilename(input)",
+        "parseToolBlocks(response)",
+        "callLLM(prompt, systemPrompt)",
+        "initializeProjectContext()",
+        "injectProjectContext(file)",
+        "isSolved(input)",
+        "isFollowUp(input)",
+        "run()"
+      ],
+      "exports": [],
+      "imports": [
+        "./tools/file",
+        "./tools/memory",
+        "./tools/scanner",
+        "./tools/knowledge",
+        "./tools/simple_planner",
+        "./tools/refiner"
+      ],
+      "externalDeps": [
+        "axios",
+        "readline-sync",
+        "fs",
+        "path"
+      ],
+      "lineCount": 901,
+      "mtime": 1772776004904
+    },
+    "examples/math.js": {
+      "role": "module",
+      "description": "module — exports: add",
+      "functions": [
+        "add"
+      ],
+      "signatures": [
+        "add(a,b)"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 4,
+      "mtime": 1772778943687
+    },
+    "index.js": {
+      "role": "entry",
+      "description": "Stores: fixes, error patterns, project map, sessions",
+      "functions": [
+        "init",
+        "readMem",
+        "writeMem",
+        "scored",
+        "recordPattern",
+        "existing",
+        "buildProjectMap",
+        "getProjectMap",
+        "buildProjectBlock",
+        "getFilesByExt"
+      ],
+      "signatures": [
+        "init()",
+        "readMem(key)",
+        "writeMem(key, data)",
+        "scored(fixes.map((fix)",
+        "recordPattern(lang, errorSnippet)",
+        "existing(patterns.find((p)",
+        "buildProjectMap()",
+        "getProjectMap()",
+        "buildProjectBlock()",
+        "getFilesByExt(ext)"
+      ],
+      "exports": [
+        "init",
+        "recordFix",
+        "searchFixes",
+        "buildMemoryBlock",
+        "recordPattern",
+        "getTopPatterns",
+        "buildProjectMap",
+        "getProjectMap",
+        "buildProjectBlock",
+        "getFilesByExt"
+      ],
+      "imports": [],
+      "externalDeps": [
+        "fs",
+        "path"
+      ],
+      "lineCount": 282,
+      "mtime": 1772773752000
+    },
+    "knowledge/lang-profiles.js": {
+      "role": "other",
+      "description": "LANGUAGE PROFILES — Knowledge wrapper for multi-language support",
+      "functions": [
+        "detectLangFromFile",
+        "detectFrameworkFromContent",
+        "buildKnowledgeBlock"
+      ],
+      "signatures": [
+        "detectLangFromFile(filePath)",
+        "detectFrameworkFromContent(content, langKey)",
+        "buildKnowledgeBlock(profile)"
+      ],
+      "exports": [
+        "LANG_PROFILES",
+        "getProfile",
+        "buildKnowledgeBlock",
+        "detectLangFromFile"
+      ],
+      "imports": [],
+      "externalDeps": [
+        "paths;",
+        "name\",",
+        "paths"
+      ],
+      "lineCount": 319,
+      "mtime": 1772792926000
+    },
+    "knowledge/pattern-loader.js": {
+      "role": "other",
+      "description": "Loads the right patterns JSON for the detected language",
+      "functions": [
+        "scorePattern",
+        "buildPatternBlock",
+        "lines",
+        "listAvailablePatterns"
+      ],
+      "signatures": [
+        "scorePattern(pattern, queryTokens)",
+        "buildPatternBlock(lang, query)",
+        "lines(patterns.map((p)",
+        "listAvailablePatterns()"
+      ],
+      "exports": [
+        "loadPatterns",
+        "findRelevantPatterns",
+        "buildPatternBlock",
+        "listAvailablePatterns"
+      ],
+      "imports": [],
+      "externalDeps": [
+        "fs",
+        "path"
+      ],
+      "lineCount": 101,
+      "mtime": 1772795568000
+    },
+    "knowledge/patterns/node-patterns.json": {
+      "role": "other",
+      "description": "node-patterns module",
+      "functions": [],
+      "signatures": [],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [
+        "dotenv"
+      ],
+      "lineCount": 150,
+      "mtime": 1772795568000
+    },
+    "knowledge/patterns/python-patterns.json": {
+      "role": "other",
+      "description": "python-patterns module",
+      "functions": [],
+      "signatures": [],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 73,
+      "mtime": 1772795568000
+    },
+    "knowledge/patterns/springboot-patterns.json": {
+      "role": "other",
+      "description": "springboot-patterns module",
+      "functions": [],
+      "signatures": [],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 97,
+      "mtime": 1772795568000
+    },
+    "llm/client.js": {
+      "role": "module",
+      "description": "LLM CLIENT — uses Node.js built-in http/https only",
+      "functions": [
+        "req"
+      ],
+      "signatures": [
+        "req(lib.request(options, (res)"
+      ],
+      "exports": [
+        "postJSON"
+      ],
+      "imports": [],
+      "externalDeps": [
+        "http",
+        "https"
+      ],
+      "lineCount": 46,
+      "mtime": 1772792926000
+    },
+    "memory/fis.js": {
+      "role": "other",
+      "description": "FAILURE INTELLIGENCE SYSTEM (FIS)",
+      "functions": [
+        "load",
+        "save",
+        "fingerprint",
+        "recordFailure",
+        "existing",
+        "scored",
+        "best",
+        "getStats"
+      ],
+      "signatures": [
+        "load()",
+        "save(entries)",
+        "fingerprint(errorText)",
+        "recordFailure({ lang, file, errorText, cause, fix, codeAfter })",
+        "existing(entries.find((e)",
+        "scored(entries.map((e)",
+        "best(scored.sort((a, b)",
+        "getStats()"
+      ],
+      "exports": [
+        "recordFailure",
+        "instantLookup",
+        "buildFISBlock",
+        "getStats"
+      ],
+      "imports": [],
+      "externalDeps": [
+        "fs",
+        "path"
+      ],
+      "lineCount": 157,
+      "mtime": 1772795568000
+    },
+    "memory/index.js": {
+      "role": "entry",
+      "description": "Stores: fixes, error patterns, project map, sessions",
+      "functions": [
+        "init",
+        "readMem",
+        "writeMem",
+        "scored",
+        "recordPattern",
+        "existing",
+        "buildProjectMap",
+        "getProjectMap",
+        "buildProjectBlock",
+        "getFilesByExt"
+      ],
+      "signatures": [
+        "init()",
+        "readMem(key)",
+        "writeMem(key, data)",
+        "scored(fixes.map((fix)",
+        "recordPattern(lang, errorSnippet)",
+        "existing(patterns.find((p)",
+        "buildProjectMap()",
+        "getProjectMap()",
+        "buildProjectBlock()",
+        "getFilesByExt(ext)"
+      ],
+      "exports": [
+        "init",
+        "recordFix",
+        "searchFixes",
+        "buildMemoryBlock",
+        "recordPattern",
+        "getTopPatterns",
+        "buildProjectMap",
+        "getProjectMap",
+        "buildProjectBlock",
+        "getFilesByExt"
+      ],
+      "imports": [],
+      "externalDeps": [
+        "fs",
+        "path"
+      ],
+      "lineCount": 282,
+      "mtime": 1772792926000
+    },
+    "memory/knowledge-store.js": {
+      "role": "module",
+      "description": "KNOWLEDGE ATOM STORE + TF-IDF SEARCH",
+      "functions": [
+        "loadAtoms",
+        "saveAtoms",
+        "initAtoms",
+        "seeded",
+        "tokenize",
+        "count",
+        "usedIds",
+        "updated",
+        "lines",
+        "loadGraph",
+        "saveGraph",
+        "extractImports",
+        "updateGraph",
+        "extractExportNames",
+        "detectFileRole",
+        "getDependents",
+        "getDependencies"
+      ],
+      "signatures": [
+        "loadAtoms()",
+        "saveAtoms(atoms)",
+        "initAtoms()",
+        "seeded(SEED_ATOMS.map((a, i)",
+        "tokenize(text)",
+        "count(factTokens.filter((f)",
+        "usedIds(new Set(scored.map(({ atom })",
+        "updated(atoms.map((a)",
+        "lines(atoms.map((a)",
+        "loadGraph()",
+        "saveGraph(graph)",
+        "extractImports(content, filePath)",
+        "updateGraph(filePath, content)",
+        "extractExportNames(content, filePath)",
+        "detectFileRole(filePath, content)",
+        "getDependents(filePath)",
+        "getDependencies(filePath)"
+      ],
+      "exports": [
+        "a",
+        "b",
+        "c",
+        "for"
+      ],
+      "imports": [
+        ".module"
+      ],
+      "externalDeps": [
+        "fs",
+        "path",
+        "dotenv",
+        "const",
+        "const",
+        "const"
+      ],
+      "lineCount": 361,
+      "mtime": 1772821223517
+    },
+    "package-lock.json": {
+      "role": "other",
+      "description": "package-lock module",
+      "functions": [],
+      "signatures": [],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 309,
+      "mtime": 1772817001967
+    },
+    "package.json": {
+      "role": "other",
+      "description": "package module",
+      "functions": [],
+      "signatures": [],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 21,
+      "mtime": 1772792926000
+    },
+    "parsers/tool-parser.js": {
+      "role": "other",
+      "description": "Extracts tool commands from the LLM output.",
+      "functions": [
+        "parseToolBlocks"
+      ],
+      "signatures": [
+        "parseToolBlocks(text)"
+      ],
+      "exports": [
+        "parseToolBlocks"
+      ],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 102,
+      "mtime": 1772788109564
+    },
+    "tests/test-cce.js": {
+      "role": "test",
+      "description": "Tests the Context Compression Engine against its own codebase",
+      "functions": [
+        "assert",
+        "callLLM",
+        "buildSystemPrompt",
+        "run",
+        "foo",
+        "bar"
+      ],
+      "signatures": [
+        "assert(condition, name)",
+        "callLLM(prompt, systemPrompt)",
+        "buildSystemPrompt({ langProfile, atomBlock })",
+        "run()",
+        "foo()",
+        "bar()"
+      ],
+      "exports": [
+        "foo",
+        "bar"
+      ],
+      "imports": [
+        "../core/repo-indexer",
+        "../core/cce"
+      ],
+      "externalDeps": [
+        "path"
+      ],
+      "lineCount": 183,
+      "mtime": 1772821337599
+    },
+    "todo-api/package-lock.json": {
+      "role": "other",
+      "description": "package-lock module",
+      "functions": [],
+      "signatures": [],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 856,
+      "mtime": 1772779794086
+    },
+    "todo-api/package.json": {
+      "role": "other",
+      "description": "package module",
+      "functions": [],
+      "signatures": [],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 18,
+      "mtime": 1772779794063
+    },
+    "todo-api/server.js": {
+      "role": "entry",
+      "description": "entry — exports: index, index",
+      "functions": [
+        "index",
+        "index"
+      ],
+      "signatures": [
+        "index(todos.findIndex(todo)",
+        "index(todos.findIndex(todo)"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [
+        "express",
+        "cors",
+        "body-parser"
+      ],
+      "lineCount": 93,
+      "mtime": 1772779794226
+    },
+    "todo-api/test.js": {
+      "role": "test",
+      "description": "test",
+      "functions": [],
+      "signatures": [],
+      "exports": [],
+      "imports": [
+        "./server"
+      ],
+      "externalDeps": [
+        "supertest"
+      ],
+      "lineCount": 24,
+      "mtime": 1772779794226
+    },
+    "tools/file.js": {
+      "role": "other",
+      "description": "Writes a file, creating parent directories as needed",
+      "functions": [
+        "readFile",
+        "writeFile",
+        "readFiles",
+        "fileExists",
+        "getDiffSummary",
+        "deleteFile",
+        "renameFile",
+        "deleteDir"
+      ],
+      "signatures": [
+        "readFile(filePath)",
+        "writeFile(filePath, content)",
+        "readFiles(filePaths)",
+        "fileExists(filePath)",
+        "getDiffSummary(before, after)",
+        "deleteFile(filePath)",
+        "renameFile(fromPath, toPath)",
+        "deleteDir(dirPath)"
+      ],
+      "exports": [
+        "readFile",
+        "writeFile",
+        "listFiles",
+        "readFiles",
+        "fileExists",
+        "runFile",
+        "getDiffSummary",
+        "deleteFile",
+        "renameFile",
+        "deleteDir"
+      ],
+      "imports": [],
+      "externalDeps": [
+        "fs",
+        "path",
+        "child_process"
+      ],
+      "lineCount": 152,
+      "mtime": 1772792926000
+    },
+    "tools/input.js": {
+      "role": "module",
+      "description": "READLINE WRAPPER — Node.js built-in only",
+      "functions": [
+        "makeRL",
+        "question",
+        "keyInYN"
+      ],
+      "signatures": [
+        "makeRL()",
+        "question(prompt)",
+        "keyInYN(prompt)"
+      ],
+      "exports": [
+        "question",
+        "keyInYN"
+      ],
+      "imports": [],
+      "externalDeps": [
+        "readline"
+      ],
+      "lineCount": 32,
+      "mtime": 1772792926000
+    }
+  }
+}

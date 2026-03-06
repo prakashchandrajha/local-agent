@@ -259,15 +259,73 @@ const extractImports = (content, filePath) => {
   return Array.from(imports);
 };
 
-// Updates the dependency graph for a file
+// Updates the dependency graph for a file (enhanced with exports + role)
 const updateGraph = (filePath, content) => {
   const graph = loadGraph();
   const imports = extractImports(content, filePath);
+
+  // Extract export names for cross-referencing
+  const exportNames = extractExportNames(content, filePath);
+
+  // Detect file role (controller/service/repo/util/etc.)
+  const role = detectFileRole(filePath, content);
+
   graph[filePath] = {
     imports,
+    exports: exportNames,
+    role,
     updatedAt: new Date().toISOString(),
   };
   saveGraph(graph);
+};
+
+// Extracts export names from file content
+const extractExportNames = (content, filePath) => {
+  const exports = [];
+  const ext = path.extname(filePath);
+
+  if ([".js", ".ts", ".jsx", ".tsx"].includes(ext)) {
+    // module.exports = { a, b, c }
+    const modExp = content.match(/module\.exports\s*=\s*\{([^}]+)\}/);
+    if (modExp) {
+      modExp[1].split(",").forEach((e) => {
+        const name = e.trim().split(":")[0].trim();
+        if (name && /^\w+$/.test(name)) exports.push(name);
+      });
+    }
+    // export const / export function
+    for (const m of content.matchAll(/export\s+(?:default\s+)?(?:const|let|var|function|class)\s+(\w+)/g)) {
+      exports.push(m[1]);
+    }
+  }
+
+  if (ext === ".py") {
+    const allMatch = content.match(/__all__\s*=\s*\[([^\]]+)\]/);
+    if (allMatch) {
+      allMatch[1].split(",").forEach((e) => {
+        const name = e.trim().replace(/['"]/g, "");
+        if (name) exports.push(name);
+      });
+    }
+  }
+
+  return [...new Set(exports)];
+};
+
+// Detects file role from filepath and content
+const detectFileRole = (filePath, content) => {
+  const name  = path.basename(filePath).toLowerCase();
+  const lower = (content || "").toLowerCase().slice(0, 1000);
+
+  if (/\b(test|spec)\b/.test(name))                                               return "test";
+  if (/\b(config|settings|setup)\b/.test(name))                                   return "config";
+  if (/^(index|main|app|server)\.(js|ts|py|go|java)$/.test(name))                return "entry";
+  if (/\b(controller|route|router|handler|endpoint)\b/.test(name))                return "controller";
+  if (/\b(service|usecase)\b/.test(name))                                         return "service";
+  if (/\b(repository|repo|dao|model|schema|entity)\b/.test(name))                return "repository";
+  if (/\b(middleware|interceptor|guard|filter)\b/.test(name))                     return "middleware";
+  if (/\b(util|helper|lib|common)\b/.test(name))                                  return "utility";
+  return "module";
 };
 
 // Finds files that depend on a given file (reverse lookup)
@@ -296,4 +354,7 @@ module.exports = {
   getDependents,
   getDependencies,
   loadAtoms,
+  extractExportNames,
+  detectFileRole,
 };
+

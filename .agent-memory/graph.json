@@ -22,5 +22,13 @@
   "path/to/demo.js": {
     "imports": [],
     "updatedAt": "2026-03-06T17:13:07.016Z"
+  },
+  "./output.txt": {
+    "imports": [],
+    "updatedAt": "2026-03-06T17:16:49.115Z"
+  },
+  "./demo.js": {
+    "imports": [],
+    "updatedAt": "2026-03-06T17:18:51.643Z"
   }
 }

@@ -1,13 +1,13 @@
 "use strict";
 
 // ╔══════════════════════════════════════════════════════════════════╗
-// ║  SUPERCHARGED LOCAL CODING AGENT  v4                            ║
+// ║  SUPERCHARGED LOCAL CODING AGENT  v5                            ║
 // ║                                                                  ║
 // ║  Full Software Company Simulation:                               ║
 // ║  CEO → Architect → Parallel Coders → Integrator → QA → Optim   ║
 // ║                                                                  ║
 // ║  + Failure Intelligence (instant recall of past fixes)          ║
-// ║  + Cognitive Load Controller (7B works on huge repos)           ║
+// ║  + Context Compression Engine (7B works on huge repos)          ║
 // ║  + Knowledge Patterns (JS / Python / Spring Boot)               ║
 // ║  + Speculative Coding (multi-candidate, pick best)              ║
 // ║  + Web Search Fallback                                           ║
@@ -45,6 +45,10 @@ const { pickBestSolution }                                     = require("./agen
 const { planTask, displayPlan }                                = require("./core/planner");
 const { reviewCode, traceStep, getRecentTrace }                = require("./core/reviewer");
 const { buildCompressedContext, logBudget }                    = require("./core/clc");
+
+// ── Context Compression Engine ───────────────────────────────
+const { buildIndex }                                           = require("./core/repo-indexer");
+const { getCompressedContext, logCCEStats, displayCCEInfo }    = require("./core/cce");
 
 // ── Browser ──────────────────────────────────────────────────
 const { searchForFix, crystallizeSolution, isOnline }         = require("./browser/search");
@@ -157,7 +161,7 @@ LANG: <language>`.trim();
 };
 
 // ─────────────────────────────────────────────────────────────
-// DYNAMIC PROMPT
+// DYNAMIC PROMPT (v2 — with Context Compression Engine)
 // ─────────────────────────────────────────────────────────────
 const buildDynamicPrompt = (userInput, readmeContent, activeFile = null, errorContext = "") => {
   const content    = activeFile && fileExists(activeFile) ? readFile(activeFile) : "";
@@ -166,11 +170,15 @@ const buildDynamicPrompt = (userInput, readmeContent, activeFile = null, errorCo
   const fisBlock   = errorContext ? fis.buildFISBlock(errorContext, lang) : "";
   const patternBlock = buildPatternBlock(lang, userInput);
 
+  // CCE: inject compressed repo context instead of raw project block
+  const { context: cceContext, stats: cceStats } = getCompressedContext(userInput, MODEL);
+  if (cceStats && cceStats.totalFiles > 0) logCCEStats(cceStats);
+
   return buildSystemPrompt({
     langProfile:   profile ? buildKnowledgeBlock(profile) : "",
     atomBlock:     kstore.buildAtomBlock(userInput, lang),
     memoryBlock:   memory.buildMemoryBlock(lang, userInput),
-    projectBlock:  memory.buildProjectBlock(),
+    projectBlock:  cceContext || memory.buildProjectBlock(),
     patternBlock,
     fisBlock,
     readmeContent,
@@ -616,16 +624,22 @@ const run = async () => {
   memory.init();
   kstore.initAtoms();
   memory.buildProjectMap();
+
+  // CCE: Build repo index on startup
+  const indexResult = buildIndex();
+  console.log(`📊 Repo indexed: ${indexResult.totalFiles} files (${indexResult.updated} updated, ${indexResult.cached} cached)`);
+
   const readmeContent = loadReadme();
   const projectContext = memory.buildProjectBlock();
 
   console.log("╔════════════════════════════════════════════════════════════╗");
-  console.log("║  🚀  SUPERCHARGED LOCAL CODING AGENT  v4                  ║");
+  console.log("║  🚀  SUPERCHARGED LOCAL CODING AGENT  v5                  ║");
   console.log("║  CEO · Architect · Coders · Integrator · QA · Optimizer   ║");
+  console.log("║  + Context Compression Engine (CCE)                       ║");
   console.log(`║  Model: ${MODEL.padEnd(52)}║`);
   console.log(`║  Review:${ENABLE_REVIEW?"ON ":"OFF"} Speculative:${ENABLE_SPECULATIVE?"ON ":"OFF"} QA:${ENABLE_QA?"ON ":"OFF"} Optimize:${ENABLE_OPTIMIZE?"ON ":"OFF"}        ║`);
   console.log("╚════════════════════════════════════════════════════════════╝");
-  console.log("\n  exit · history · clear · memory · atoms · trace · scan · fis\n");
+  console.log("\n  exit · history · clear · memory · atoms · trace · scan · fis · index · cce\n");
 
   let activeFile = null;
 
@@ -637,6 +651,8 @@ const run = async () => {
     if (lo === "exit")    { console.log("\n👋 Bye!\n"); break; }
     if (lo === "clear")   { history.length = 0; activeFile = null; console.log("\n🧹 Cleared.\n"); continue; }
     if (lo === "scan")    { const m = memory.buildProjectMap(); console.log(`\n✅ ${m.totalFiles} files mapped\n`); continue; }
+    if (lo === "index")   { const r = buildIndex(true); console.log(`\n✅ ${r.totalFiles} files indexed (${r.updated} updated)\n`); continue; }
+    if (lo === "cce")     { displayCCEInfo(); continue; }
 
     if (lo === "history") {
       history.forEach((t, i) => console.log(`[${String(i+1).padStart(2)}] ${t.role==="user"?"You  ":"Agent"}: ${t.content.slice(0, 80)}`));
