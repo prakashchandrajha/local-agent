@@ -19,13 +19,13 @@ const readline     = require("readline-sync");
 const fs           = require("fs");
 const path         = require("path");
 
-const { readFile, writeFile, listFiles, runFile, getDiffSummary, fileExists } = require("../tools/file");
-const { getProfile, buildKnowledgeBlock, detectLangFromFile }                 = require("../knowledge/lang-profiles");
-const memory       = require("../memory/index");
-const kstore       = require("../memory/knowledge-store");
-const { planTask, displayPlan }                                                = require("../core/planner");
-const { reviewCode, traceStep, getRecentTrace }                               = require("../core/reviewer");
-const { searchForFix, crystallizeSolution, isOnline }                        = require("../browser/search");
+const { readFile, writeFile, listFiles, runFile, getDiffSummary, fileExists, deleteFile, renameFile, deleteDir } = require("./tools/file");
+const { getProfile, buildKnowledgeBlock, detectLangFromFile }                 = require("./knowledge/lang-profiles");
+const memory       = require("./memory/index");
+const kstore       = require("./memory/knowledge-store");
+const { planTask, displayPlan }                                                = require("./core/planner");
+const { reviewCode, traceStep, getRecentTrace }                               = require("./core/reviewer");
+const { searchForFix, crystallizeSolution, isOnline }                        = require("./browser/search");
 
 // ─────────────────────────────────────────────────────────────
 // CONFIG
@@ -86,6 +86,13 @@ END_CONTENT
 TOOL: run_file
 PATH: path/to/file.ext
 
+TOOL: delete_file
+PATH: path/to/file.ext
+
+TOOL: rename_file
+FROM: old-name.ext
+TO: new-name.ext
+
 TOOL: search_web
 ERROR: <exact error message>
 LANG: <language>
@@ -110,7 +117,10 @@ RULES (follow exactly):
 5. For new files: correct imports, "use strict" (JS), proper entry point.
 6. After writing: mentally verify imports resolve and all functions are complete.
 7. No text outside TOOL blocks.
-8. Multi-file tasks: stack write_file blocks in dependency order (dependencies first).`.trim();
+8. Multi-file tasks: stack write_file blocks in dependency order (dependencies first).
+9. You CAN delete files (delete_file), rename files (rename_file), and move files.
+10. If the user asks a yes/no question about your capabilities, answer directly and honestly with TOOL: chat.
+11. NEVER list files when the user asked a question — only list files if explicitly asked.`.trim();
 
   contextParts.push(rules);
   return contextParts.join("\n\n");
@@ -128,8 +138,69 @@ const loadReadme = () => {
 };
 
 // ─────────────────────────────────────────────────────────────
-// INTENT DETECTION
+// CAPABILITY INTERCEPTOR
+// Answers "can you X?" questions directly in Node.js — never
+// sends them to the LLM which gives vague non-answers.
+// Returns a string if intercepted, null if should go to LLM.
 // ─────────────────────────────────────────────────────────────
+const CAPABILITIES = {
+  // What the agent CAN do
+  can: [
+    { match: /\b(delete|remove|erase)\s+(file|files|it)\b/i,       answer: "✅ Yes — I can delete files. Just say: delete <filename> or remove <filename>." },
+    { match: /\b(rename|move)\s+(file|files|it)\b/i,               answer: "✅ Yes — I can rename or move files. Just say: rename <old> to <new>." },
+    { match: /\b(read|open|show)\s+(file|files)\b/i,               answer: "✅ Yes — I can read any file and show you its contents." },
+    { match: /\b(write|create|make|generate)\s+(file|files)\b/i,   answer: "✅ Yes — I can create and write files in any language." },
+    { match: /\b(run|execute|launch)\s+(file|code)\b/i,            answer: "✅ Yes — I can run JS, TS, Python, Go, Ruby, Bash, PHP files and show you the output." },
+    { match: /\b(fix|debug|repair)\s+(error|bug|code)\b/i,         answer: "✅ Yes — I can fix bugs. I read the file, analyze the error, and rewrite the fix." },
+    { match: /\brename\b/i,                                         answer: "✅ Yes — I can rename files. Say: rename <filename> to <newname>." },
+    { match: /\bsearch\s+(web|online|internet|stackoverflow)\b/i,  answer: "✅ Yes — when I can't fix an error locally after 3 attempts, I search Stack Overflow and the web automatically." },
+    { match: /\b(remember|memory|store|save)\b/i,                  answer: "✅ Yes — I have persistent memory across sessions. Every fix I make is recorded in .agent-memory/ and I use it next time." },
+    { match: /\b(multi.?file|multiple files|across files)\b/i,     answer: "✅ Yes — I can work across multiple files, track imports, and coordinate changes between them." },
+    { match: /\bplan\b/i,                                           answer: "✅ Yes — for complex tasks (OAuth2, REST API, etc.) I break the work into steps and execute each one focused." },
+  ],
+  // What the agent CANNOT do
+  cannot: [
+    { match: /\b(browser|open browser|open chrome|open firefox)\b/i, answer: "❌ No — I cannot open a browser or render web pages. I can write HTML/CSS/JS files though." },
+    { match: /\b(send email|email someone)\b/i,                       answer: "❌ No — I cannot send emails. I can write email-sending code for you though." },
+    { match: /\b(access internet|browse web)\b/i,                     answer: "✅ I can search the web for error solutions when I'm stuck (Stack Overflow, DuckDuckGo). I don't browse freely." },
+    { match: /\b(voice|speak|talk|audio|microphone)\b/i,              answer: "❌ No — I'm text-only. I cannot speak or listen." },
+  ],
+};
+
+// Detects if the input is a capability question ("can you X?", "are you able to X?", "do you support X?")
+const isCapabilityQuestion = (input) => {
+  return /\b(can you|are you able to|do you support|do you have|is it possible|can i ask you to|will you|would you be able)\b/i.test(input);
+};
+
+// Returns a direct answer if the question is about capabilities, or null
+const interceptCapabilityQuestion = (input) => {
+  if (!isCapabilityQuestion(input)) return null;
+
+  for (const { match, answer } of CAPABILITIES.can) {
+    if (match.test(input)) return answer;
+  }
+  for (const { match, answer } of CAPABILITIES.cannot) {
+    if (match.test(input)) return answer;
+  }
+
+  // Generic capability overview
+  if (/\b(what can you do|your capabilities|what do you support|help me|what are you)\b/i.test(input)) {
+    return `Here's what I can do:
+
+📝 Files:    read, write, create, delete, rename, move
+▶️  Run:     execute JS, TS, Python, Go, Ruby, Bash, PHP — capture output
+🔧 Fix:     debug and fix errors, auto-retry up to 3x, then search web
+🌐 Web:     search Stack Overflow + DuckDuckGo when stuck on errors
+🧠 Memory:  remember every fix across sessions (persistent .agent-memory/)
+📋 Plan:    decompose complex tasks (OAuth2, REST API, etc.) into steps
+🗂️  Multi:  coordinate changes across multiple files simultaneously
+🔍 Review:  self-review generated code before writing it
+
+Supported languages: JS, TS, Python, Java, Spring Boot, FastAPI, Go, Rust, C++, PHP, Bash`;
+  }
+
+  return null; // Not a capability question we recognise — send to LLM
+};
 const detectIntent = (input) => {
   const lo = input.toLowerCase();
   if (/\b(run|execute|test|launch|start)\b/.test(lo))                                     return "run";
@@ -211,6 +282,15 @@ const parseToolBlocks = (response) => {
     } else if (tool === "run_file") {
       const pm = after.match(/^\s*\nPATH:\s*([^\n]+)/i);
       if (pm) ops.push({ tool: "run_file", path: pm[1].trim() });
+
+    } else if (tool === "delete_file") {
+      const pm = after.match(/^\s*\nPATH:\s*([^\n]+)/i);
+      if (pm) ops.push({ tool: "delete_file", path: pm[1].trim() });
+
+    } else if (tool === "rename_file") {
+      const fm = after.match(/\nFROM:\s*([^\n]+)/i);
+      const tm = after.match(/\nTO:\s*([^\n]+)/i);
+      if (fm && tm) ops.push({ tool: "rename_file", from: fm[1].trim(), to: tm[1].trim() });
 
     } else if (tool === "search_web") {
       const em = after.match(/\nERROR:\s*([^\n]+)/i);
@@ -400,6 +480,28 @@ const runAgentTurn = async (prompt, readmeContent, activeFile = null) => {
 
       written.push(op.path);
       kstore.updateGraph(op.path, finalCode);
+
+    } else if (op.tool === "delete_file") {
+      const ok = readline.keyInYN(`\n⚠️  Permanently delete ${op.path}?`);
+      if (ok) {
+        const result = deleteFile(op.path);
+        console.log(result.success ? `\n🗑️  ${result.message}` : `\n❌ ${result.message}`);
+        if (result.success) terminated = true;
+      } else {
+        console.log(`⏭️  Skipped deletion of ${op.path}`);
+        terminated = true;
+      }
+
+    } else if (op.tool === "rename_file") {
+      const ok = readline.keyInYN(`\n⚠️  Rename ${op.from} → ${op.to}?`);
+      if (ok) {
+        const result = renameFile(op.from, op.to);
+        console.log(result.success ? `\n✏️  ${result.message}` : `\n❌ ${result.message}`);
+        terminated = true;
+      } else {
+        console.log(`⏭️  Skipped rename`);
+        terminated = true;
+      }
 
     } else if (op.tool === "run_file") {
       console.log(`\n▶️  Running: ${op.path}...`);
@@ -663,6 +765,52 @@ const run = async () => {
       rememberTurn("user", input);
       rememberTurn("agent", `Done with ${activeFile}`);
       activeFile = null;
+      continue;
+    }
+
+    // ── CAPABILITY QUESTION — answer directly, skip LLM ──
+    const capabilityAnswer = interceptCapabilityQuestion(input);
+    if (capabilityAnswer) {
+      console.log(`\n${capabilityAnswer}\n`);
+      rememberTurn("user", input);
+      rememberTurn("agent", capabilityAnswer);
+      continue;
+    }
+
+    // ── DIRECT FILE OPERATIONS — detect from natural language ──
+    // Delete: "delete foo.js", "remove bar.py", "trash old.js"
+    const deleteMatch = input.match(/\b(?:delete|remove|erase|trash)\s+["']?([\w\-\.\/]+\.[\w]+)["']?/i);
+    if (deleteMatch) {
+      const target = deleteMatch[1];
+      if (fileExists(target)) {
+        const ok = readline.keyInYN(`\n⚠️  Permanently delete ${target}?`);
+        if (ok) {
+          const r = deleteFile(target);
+          console.log(r.success ? `\n🗑️  ${r.message}\n` : `\n❌ ${r.message}\n`);
+        } else {
+          console.log(`⏭️  Skipped.\n`);
+        }
+      } else {
+        console.log(`\n❌ File not found: ${target}\n`);
+      }
+      rememberTurn("user", input);
+      rememberTurn("agent", `Handled delete: ${target}`);
+      continue;
+    }
+
+    // Rename: "rename foo.js to bar.js", "move foo.js to utils/bar.js"
+    const renameMatch = input.match(/\b(?:rename|move)\s+["']?([\w\-\.\/]+\.[\w]+)["']?\s+to\s+["']?([\w\-\.\/]+\.[\w]+)["']?/i);
+    if (renameMatch) {
+      const [, from, to] = renameMatch;
+      const ok = readline.keyInYN(`\n⚠️  Rename ${from} → ${to}?`);
+      if (ok) {
+        const r = renameFile(from, to);
+        console.log(r.success ? `\n✏️  ${r.message}\n` : `\n❌ ${r.message}\n`);
+      } else {
+        console.log(`⏭️  Skipped.\n`);
+      }
+      rememberTurn("user", input);
+      rememberTurn("agent", `Handled rename: ${from} → ${to}`);
       continue;
     }
 

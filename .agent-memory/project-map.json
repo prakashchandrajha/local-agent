@@ -1,6 +1,6 @@
 {
-  "scannedAt": "2026-03-06T10:56:47.194Z",
-  "totalFiles": 41,
+  "scannedAt": "2026-03-06T11:02:33.192Z",
+  "totalFiles": 42,
   "byExtension": {
     ".md": [
       "README.md",
@@ -15,6 +15,7 @@
       "config/prompts.js",
       "core/planner.js",
       "core/reviewer.js",
+      "demoevemoji.js",
       "demovemo.js",
       "examples/agent_demo.js",
       "examples/bug.js",
@@ -64,6 +65,7 @@
     "config/prompts.js",
     "core/planner.js",
     "core/reviewer.js",
+    "demoevemoji.js",
     "demovemo.js",
     "docs/for-agent/AGENT_GUIDE.md",
     "examples/agent_demo.js",

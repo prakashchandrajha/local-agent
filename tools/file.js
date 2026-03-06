@@ -110,4 +110,42 @@ const getDiffSummary = (before, after) => {
   return `${changed} lines changed, ${delta >= 0 ? "+" : ""}${delta} lines`;
 };
 
-module.exports = { readFile, writeFile, listFiles, readFiles, fileExists, runFile, getDiffSummary };
+// Deletes a file. Returns { success, message }
+const deleteFile = (filePath) => {
+  try {
+    const full = path.join(BASE_DIR, filePath);
+    if (!fs.existsSync(full)) return { success: false, message: `File not found: ${filePath}` };
+    fs.unlinkSync(full);
+    return { success: true, message: `Deleted: ${filePath}` };
+  } catch (err) {
+    return { success: false, message: `Delete error: ${err.message}` };
+  }
+};
+
+// Renames or moves a file. Returns { success, message }
+const renameFile = (fromPath, toPath) => {
+  try {
+    const from = path.join(BASE_DIR, fromPath);
+    const to   = path.join(BASE_DIR, toPath);
+    if (!fs.existsSync(from)) return { success: false, message: `Source not found: ${fromPath}` };
+    fs.mkdirSync(path.dirname(to), { recursive: true });
+    fs.renameSync(from, to);
+    return { success: true, message: `Renamed: ${fromPath} → ${toPath}` };
+  } catch (err) {
+    return { success: false, message: `Rename error: ${err.message}` };
+  }
+};
+
+// Deletes an entire directory recursively
+const deleteDir = (dirPath) => {
+  try {
+    const full = path.join(BASE_DIR, dirPath);
+    if (!fs.existsSync(full)) return { success: false, message: `Directory not found: ${dirPath}` };
+    fs.rmSync(full, { recursive: true, force: true });
+    return { success: true, message: `Deleted directory: ${dirPath}` };
+  } catch (err) {
+    return { success: false, message: `Delete dir error: ${err.message}` };
+  }
+};
+
+module.exports = { readFile, writeFile, listFiles, readFiles, fileExists, runFile, getDiffSummary, deleteFile, renameFile, deleteDir };
