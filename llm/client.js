@@ -9,7 +9,7 @@ const http  = require("http");
 const https = require("https");
 
 // Makes a JSON POST request and returns parsed response body
-const postJSON = (url, body, timeoutMs = 120000) =>
+const postJSON = (url, body, timeoutMs = 600000) =>
   new Promise((resolve, reject) => {
     const payload = JSON.stringify(body);
     const parsed  = new URL(url);

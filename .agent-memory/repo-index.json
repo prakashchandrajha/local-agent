@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "indexedAt": "2026-03-06T20:08:49.132Z",
-  "totalFiles": 57,
+  "indexedAt": "2026-03-06T21:04:29.415Z",
+  "totalFiles": 63,
   "files": {
     "README.md": {
       "role": "other",
@@ -87,8 +87,8 @@
         "|def",
         "|require|return|if"
       ],
-      "lineCount": 715,
-      "mtime": 1772823615673
+      "lineCount": 722,
+      "mtime": 1772830734435
     },
     "agents/architect.js": {
       "role": "other",
@@ -530,6 +530,7 @@
         "buildSpeculativePrompt",
         "generateVariant",
         "getWeights",
+        "tuneWeights",
         "evaluateVariant",
         "displayReport",
         "llmTasks",
@@ -541,9 +542,10 @@
         "getVariantCount(errorOutput)",
         "cleanCode(text)",
         "calculateSimilarity(original, fixed)",
-        "buildSpeculativePrompt(filePath, content, errorOutput, variantType)",
-        "generateVariant(filePath, content, errorOutput, type)",
+        "buildSpeculativePrompt(filePath, content, errorOutput, variantType, predictionHint)",
+        "generateVariant(filePath, content, errorOutput, type, predictionHint)",
         "getWeights(filePath)",
+        "tuneWeights(winnerType)",
         "evaluateVariant(sbId, filePath, type, weights, originalCode)",
         "displayReport(results, winner)",
         "llmTasks(initialStrategies.map((s, i)",
@@ -561,13 +563,15 @@
         "../tools/file",
         "../tools/sandbox",
         "../memory/fis",
-        "../browser/search"
+        "../browser/search",
+        "./cce"
       ],
       "externalDeps": [
-        "path"
+        "path",
+        "fs"
       ],
-      "lineCount": 257,
-      "mtime": 1772827641137
+      "lineCount": 351,
+      "mtime": 1772829540735
     },
     "demo.js": {
       "role": "other",
@@ -578,7 +582,30 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 12,
-      "mtime": 1772823333289
+      "mtime": 1772829122536
+    },
+    "demojs.js": {
+      "role": "other",
+      "description": "exports: validateInput, add, subtract, multiply, divide",
+      "functions": [
+        "validateInput",
+        "add",
+        "subtract",
+        "multiply",
+        "divide"
+      ],
+      "signatures": [
+        "validateInput(a, b)",
+        "add(a, b)",
+        "subtract(a, b)",
+        "multiply(a, b)",
+        "divide(a, b)"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 34,
+      "mtime": 1772829122536
     },
     "docs/for-agent/AGENT_GUIDE.md": {
       "role": "other",
@@ -975,7 +1002,7 @@
         "https"
       ],
       "lineCount": 46,
-      "mtime": 1772792926000
+      "mtime": 1772830717345
     },
     "memory/fis.js": {
       "role": "other",
@@ -1131,7 +1158,7 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 309,
-      "mtime": 1772827726060
+      "mtime": 1772829681479
     },
     "package.json": {
       "role": "other",
@@ -1182,6 +1209,23 @@
       "lineCount": 34,
       "mtime": 1772826373069
     },
+    "path/to/demoncdc.js": {
+      "role": "other",
+      "description": "exports: fetchData, calculateTotal",
+      "functions": [
+        "fetchData",
+        "calculateTotal"
+      ],
+      "signatures": [
+        "fetchData(url)",
+        "calculateTotal(items)"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 25,
+      "mtime": 1772830334133
+    },
     "path/to/demovemo.py": {
       "role": "other",
       "description": "exports: add",
@@ -1197,22 +1241,76 @@
       "lineCount": 3,
       "mtime": 1772826373069
     },
-    "swarm_demo.js": {
-      "role": "other",
-      "description": "exports: add, subtract",
+    "path/to/index.js": {
+      "role": "entry",
+      "description": "entry — exports: myFunction",
       "functions": [
-        "add",
-        "subtract"
+        "myFunction"
       ],
       "signatures": [
-        "add(a, b)",
-        "subtract(a, b)"
+        "myFunction()"
       ],
       "exports": [],
       "imports": [],
       "externalDeps": [],
-      "lineCount": 7,
-      "mtime": 1772827561575
+      "lineCount": 5,
+      "mtime": 1772829925390
+    },
+    "path/to/server.js": {
+      "role": "entry",
+      "description": "All require()/import paths exist and are correct",
+      "functions": [
+        "myFunction"
+      ],
+      "signatures": [
+        "myFunction()"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [
+        "paths"
+      ],
+      "lineCount": 9,
+      "mtime": 1772829933862
+    },
+    "research.md": {
+      "role": "other",
+      "description": "AI and Machine Learning",
+      "functions": [],
+      "signatures": [],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 13,
+      "mtime": 1772829861565
+    },
+    "src/demoncdc.js": {
+      "role": "other",
+      "description": "demoncdc module",
+      "functions": [],
+      "signatures": [],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 14,
+      "mtime": 1772830995379
+    },
+    "swarm_demo.js": {
+      "role": "other",
+      "description": "exports: main",
+      "functions": [
+        "main"
+      ],
+      "signatures": [
+        "main()"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [
+        "fs"
+      ],
+      "lineCount": 9,
+      "mtime": 1772829533366
     },
     "swarm_test_simple.js": {
       "role": "other",
@@ -1222,8 +1320,8 @@
       "exports": [],
       "imports": [],
       "externalDeps": [],
-      "lineCount": 2,
-      "mtime": 1772827665231
+      "lineCount": 1,
+      "mtime": 1772829455637
     },
     "tests/test-cce.js": {
       "role": "test",
@@ -1483,8 +1581,8 @@
         "path",
         "child_process"
       ],
-      "lineCount": 171,
-      "mtime": 1772827524419
+      "lineCount": 186,
+      "mtime": 1772829311487
     }
   }
 }

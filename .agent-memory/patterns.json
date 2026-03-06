@@ -6,5 +6,13 @@
     "count": 1,
     "firstSeen": "2026-03-06T17:13:49.448Z",
     "lastSeen": "2026-03-06T17:13:49.448Z"
+  },
+  {
+    "key": "js::/home/vvd/local-agent/src/demoncdc.js:1\ni'm sorry for any co",
+    "lang": "js",
+    "errorSnippet": "/home/vvd/local-agent/src/demoncdc.js:1\nI'm sorry for any confusion, but I am an AI model developed by Deepseek and my p",
+    "count": 2,
+    "firstSeen": "2026-03-06T21:06:32.635Z",
+    "lastSeen": "2026-03-06T21:07:15.928Z"
   }
 ]

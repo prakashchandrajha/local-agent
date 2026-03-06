@@ -11,7 +11,22 @@ const fs   = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
 
-const BASE_SANDBOX_DIR = path.join(process.cwd(), ".agent-memory", "sandboxes");
+// Use RAM-backed filesystem (/dev/shm) on Linux if available for ultra-low latency
+let BASE_SANDBOX_DIR;
+const SHM_DIR = "/dev/shm/agent-sandboxes";
+
+try {
+  if (fs.existsSync("/dev/shm")) {
+    fs.mkdirSync(SHM_DIR, { recursive: true });
+    BASE_SANDBOX_DIR = SHM_DIR;
+    console.log("⚡ using RAM-backed sandboxes (/dev/shm)");
+  } else {
+    BASE_SANDBOX_DIR = path.join(process.cwd(), ".agent-memory", "sandboxes");
+  }
+} catch (e) {
+  BASE_SANDBOX_DIR = path.join(process.cwd(), ".agent-memory", "sandboxes");
+}
+
 const MAX_POOL_SIZE = 5;
 
 // Tracks which sandboxes are currently in use

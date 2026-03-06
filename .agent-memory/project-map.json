@@ -1,10 +1,11 @@
 {
-  "scannedAt": "2026-03-06T20:08:49.109Z",
-  "totalFiles": 60,
+  "scannedAt": "2026-03-06T21:04:29.393Z",
+  "totalFiles": 66,
   "byExtension": {
     ".md": [
       "README.md",
-      "docs/for-agent/AGENT_GUIDE.md"
+      "docs/for-agent/AGENT_GUIDE.md",
+      "research.md"
     ],
     ".js": [
       "agent.js",
@@ -24,6 +25,7 @@
       "core/reviewer.js",
       "core/swarm.js",
       "demo.js",
+      "demojs.js",
       "examples/agent_demo.js",
       "examples/bug.js",
       "examples/calculator.js",
@@ -44,6 +46,10 @@
       "memory/knowledge-store.js",
       "parsers/tool-parser.js",
       "path/to/DEMOVEMO.js",
+      "path/to/demoncdc.js",
+      "path/to/index.js",
+      "path/to/server.js",
+      "src/demoncdc.js",
       "swarm_demo.js",
       "swarm_test_simple.js",
       "tests/test-cce.js",
@@ -96,6 +102,7 @@
     "core/reviewer.js",
     "core/swarm.js",
     "demo.js",
+    "demojs.js",
     "docs/for-agent/AGENT_GUIDE.md",
     "examples/agent_demo.js",
     "examples/bug.js",
@@ -125,7 +132,12 @@
     "package.json",
     "parsers/tool-parser.js",
     "path/to/DEMOVEMO.js",
+    "path/to/demoncdc.js",
     "path/to/demovemo.py",
+    "path/to/index.js",
+    "path/to/server.js",
+    "research.md",
+    "src/demoncdc.js",
     "swarm_demo.js",
     "swarm_test_simple.js",
     "tests/test-cce.js",
@@ -140,15 +152,15 @@
     "tools/sandbox.js"
   ],
   "recentFiles": [
-    "package-lock.json",
-    "swarm_test_simple.js",
-    "core/swarm.js",
-    "memory/fis.js",
-    "swarm_demo.js",
-    "tools/sandbox.js",
-    "tests/test-swarm-integration.js",
-    "core/ere.js",
+    "src/demoncdc.js",
+    "agent.js",
+    "llm/client.js",
     "output.txt",
-    "path/to/DEMOVEMO.js"
+    "path/to/demoncdc.js",
+    "path/to/server.js",
+    "path/to/index.js",
+    "research.md",
+    "package-lock.json",
+    "core/swarm.js"
   ]
 }

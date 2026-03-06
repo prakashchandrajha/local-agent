@@ -90,8 +90,14 @@ const callLLM = async (prompt, systemPrompt) => {
   let cur = prompt;
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
-      const full = systemPrompt + formatHistory() + `\n\nUser: ${cur}\n\nAgent (TOOL blocks only):`;
-      const res  = await postJSON(OLLAMA_URL, { model: MODEL, prompt: full, stream: false, options: { temperature: 0.1, num_predict: 8000 } });
+      const promptText = formatHistory() + `\n\nUser: ${cur}\n\nRespond with ONLY valid TOOL blocks.`;
+      const res  = await postJSON(OLLAMA_URL, { 
+        model: MODEL, 
+        system: systemPrompt,
+        prompt: promptText, 
+        stream: false, 
+        options: { temperature: 0.1, num_predict: 8000 } 
+      });
       const raw  = (res.response || "").trim();
       if (DEBUG) console.log(`\n[DEBUG #${attempt}]:\n${raw.slice(0, 500)}\n`);
       const ops  = parseToolBlocks(raw);
@@ -125,19 +131,19 @@ END_MESSAGE
 
 TOOL: list_files
 TOOL: read_file
-PATH: path/to/file
+PATH: ./src/app.js
 TOOL: write_file
-PATH: path/to/file
+PATH: ./src/app.js
 CONTENT:
 <complete code>
 END_CONTENT
 TOOL: delete_file
-PATH: path/to/file
+PATH: ./src/old.js
 TOOL: rename_file
-FROM: old.ext
-TO: new.ext
+FROM: ./src/old.js
+TO: ./src/new.js
 TOOL: run_file
-PATH: path/to/file
+PATH: ./src/app.js
 TOOL: search_web
 ERROR: <error>
 LANG: <language>`.trim();
@@ -158,7 +164,8 @@ LANG: <language>`.trim();
 4. No text outside TOOL blocks.
 5. Answer capability questions directly in TOOL: chat — YES or NO.
 6. NEVER list_files when user asked a question.
-7. Write multi-file dependencies in order: imports first.`);
+7. Write multi-file dependencies in order: imports first.
+8. NEVER use literal placeholder paths like 'path/to/file'. ALWAYS use actual project paths.`);
 
   return parts.join("\n\n");
 };

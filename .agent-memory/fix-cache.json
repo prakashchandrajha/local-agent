@@ -1,6 +1,6 @@
 {
-  "/home/vvd/local-agent/swarm_test_simple.js:1 console.log(dat); ^ referenceerror: dat is not defined ": {
-    "fixCode": "let dat = \"Hello, World!\";\nconsole.log(dat);",
-    "ts": 1772827665232
+  "/home/vvd/local-agent/swarm_demo.js:9 syntaxerror: unexpected end of input at wrapsafe (node:interna": {
+    "fixCode": "const fs = require('fs');\nfunction main() {\n  const data = \"hello world\";\n  console.log(data); // Fixed typo in variable name and missing close bracket\n  if (true) {\n    console.log(\"missing bracket\");\n  }\n}\nmain();",
+    "ts": 1772829533367
   }
 }

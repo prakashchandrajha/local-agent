@@ -50,5 +50,41 @@
     "exports": [],
     "role": "module",
     "updatedAt": "2026-03-06T20:12:14.034Z"
+  },
+  "research.md": {
+    "imports": [],
+    "exports": [],
+    "role": "module",
+    "updatedAt": "2026-03-06T20:44:21.566Z"
+  },
+  "path/to/demoncdc.js": {
+    "imports": [],
+    "exports": [],
+    "role": "module",
+    "updatedAt": "2026-03-06T20:45:24.008Z"
+  },
+  "path/to/index.js": {
+    "imports": [],
+    "exports": [],
+    "role": "entry",
+    "updatedAt": "2026-03-06T20:45:25.390Z"
+  },
+  "path/to/server.js": {
+    "imports": [],
+    "exports": [],
+    "role": "entry",
+    "updatedAt": "2026-03-06T20:45:33.863Z"
+  },
+  "./src/demoncdc.js": {
+    "imports": [],
+    "exports": [],
+    "role": "module",
+    "updatedAt": "2026-03-06T21:07:49.761Z"
+  },
+  "./src/agent.js": {
+    "imports": [],
+    "exports": [],
+    "role": "module",
+    "updatedAt": "2026-03-06T21:06:03.696Z"
   }
 }

@@ -9,7 +9,7 @@
     "fact": "Always wrap await calls in try/catch. Unhandled promise rejections crash Node.js.",
     "id": "seed-0",
     "source": "built-in",
-    "useCount": 17,
+    "useCount": 24,
     "createdAt": "2026-03-06T10:54:29.971Z"
   },
   {
@@ -35,7 +35,7 @@
     "fact": "In Node.js ESM, use import/export. In CommonJS, use require/module.exports. Never mix them in the same file.",
     "id": "seed-2",
     "source": "built-in",
-    "useCount": 19,
+    "useCount": 24,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -74,7 +74,7 @@
     "fact": "Load .env with require('dotenv').config() as the very FIRST line in entry point. Never commit .env to git.",
     "id": "seed-5",
     "source": "built-in",
-    "useCount": 10,
+    "useCount": 11,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -126,7 +126,7 @@
     "fact": "Async functions always return Promise<T>. Annotate return type as Promise<void>, Promise<string>, etc.",
     "id": "seed-9",
     "source": "built-in",
-    "useCount": 6,
+    "useCount": 13,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -152,7 +152,7 @@
     "fact": "Relative imports (from .module import X) only work inside packages. Add __init__.py to make a directory a package.",
     "id": "seed-11",
     "source": "built-in",
-    "useCount": 3,
+    "useCount": 4,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -204,7 +204,7 @@
     "fact": "python-jose: use jwt.encode() with algorithm='HS256'. Decode with jwt.decode() passing the secret and algorithms list.",
     "id": "seed-15",
     "source": "built-in",
-    "useCount": 3,
+    "useCount": 6,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -411,7 +411,7 @@
     "fact": "Copy package.json and install dependencies BEFORE copying source code. This caches the node_modules layer and speeds up rebuilds.",
     "id": "seed-31",
     "source": "built-in",
-    "useCount": 9,
+    "useCount": 14,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -463,7 +463,7 @@
     "fact": "After every code generation: check that all imports resolve, all functions are called with correct argument counts, and no logic is left as pseudocode.",
     "id": "seed-35",
     "source": "built-in",
-    "useCount": 9,
+    "useCount": 16,
     "createdAt": "2026-03-06T10:54:29.972Z"
   }
 ]
