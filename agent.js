@@ -6,6 +6,8 @@ const { readFile, writeFile, listFiles } = require("./tools/file");
 const memory = require("./tools/memory");
 const scanner = require("./tools/scanner");
 const knowledge = require("./tools/knowledge");
+const planner = require("./tools/planner");
+const reviewer = require("./tools/reviewer");
 const fs = require("fs");
 const path = require("path");
 
@@ -18,6 +20,8 @@ const MAX_RETRIES = 3;          // retry attempts on bad LLM output
 const MAX_HISTORY = 20;         // max conversation turns to keep in memory
 const DEBUG = false;            // set true to see raw LLM responses
 const USE_MEMORY = true;        // enable persistent memory
+const USE_PLANNING = true;      // enable planning layer
+const USE_REVIEW = true;        // enable self-review
 
 // ─────────────────────────────────────────────────────────────
 // CONVERSATION MEMORY
@@ -77,8 +81,28 @@ const loadAgentDocs = () => {
 // ─────────────────────────────────────────────────────────────
 const buildSystemPrompt = (readmeContent, agentDocsContent) => {
   const base = `
-You are an expert coding assistant with file operation capabilities.
-You have memory of the entire conversation — use it to understand "that file", "add to it", "fix it", etc.
+You are a Senior Software Engineer with 10+ years of experience in production systems.
+You write clean, maintainable, and robust code following industry best practices.
+
+YOUR ENGINEERING PRINCIPLES:
+✅ Write production-quality code with proper error handling
+✅ Use clear, descriptive variable and function names
+✅ Add input validation and edge case handling
+✅ Follow established patterns and conventions
+✅ Write efficient and secure code
+✅ Include helpful comments for complex logic
+✅ Think step-by-step before implementing
+✅ Consider performance, security, and maintainability
+
+CODING STANDARDS:
+- Use const/let instead of var
+- Use strict equality (===) instead of (==)
+- Handle errors gracefully with try/catch
+- Validate inputs and check for null/undefined
+- Use meaningful function and variable names
+- Keep functions focused and single-purpose
+- Add JSDoc comments for public functions
+- Avoid console.log in production code
 
 TOOL FORMAT — respond using ONLY these blocks, nothing else:
 
@@ -112,7 +136,9 @@ CRITICAL RULES:
 5. Each file must appear ONCE only — never write the same file twice.
 6. Always include 100% complete code in CONTENT — never truncate or use placeholders.
 7. Do NOT add any text outside of tool blocks.
-`.trim();
+8. Before writing complex code, think through the approach and consider edge cases.
+9. Always include proper error handling and input validation.
+10. Write code that a junior developer can understand and maintain.`.trim();
 
   let enhanced = base;
 
@@ -619,6 +645,26 @@ const run = async () => {
     console.log("\n🤔 Thinking...");
     rememberTurn("user", userInput);
 
+    // STEP 1: PLANNING PHASE (for complex tasks)
+    let plan = null;
+    if (USE_PLANNING && planner.needsPlanning(userInput)) {
+      console.log("📋 Planning approach...");
+      try {
+        const context = {
+          file: activeFile,
+          imports: activeFile && projectMap ? (projectMap.imports[activeFile] || []) : [],
+          structures: activeFile && projectMap ? projectMap.structures[activeFile] : null
+        };
+        plan = await planner.generatePlan(userInput, context);
+        console.log(planner.formatPlanForDisplay(plan));
+        
+        // Add plan to prompt
+        userInput += "\n\nFOLLOW THIS PLAN:\n" + plan.steps.map((step, i) => `${i + 1}. ${step}`).join("\n");
+      } catch (err) {
+        console.log("⚠️  Planning failed, proceeding without plan");
+      }
+    }
+
     // Build enhanced system prompt with memory context if working on a file
     let enhancedPrompt = SYSTEM_PROMPT;
     
@@ -653,6 +699,28 @@ const run = async () => {
 
     // Update active file if a new one was written
     if (updatedFile) activeFile = updatedFile;
+
+    // STEP 3: SELF-REVIEW PHASE (for code that was written)
+    if (USE_REVIEW && updatedFile && plan && plan.complexity !== "simple") {
+      console.log("🔍 Reviewing code quality...");
+      try {
+        const reviewResult = await reviewer.reviewAndImprove(
+          updatedFile, 
+          null, // We don't have the original code easily accessible
+          userInput
+        );
+        
+        if (reviewResult.improved) {
+          console.log("✅ Code improved through self-review");
+          console.log(`   Reason: ${reviewResult.reason}`);
+          if (reviewResult.improvements.length > 0) {
+            console.log(`   Improvements: ${reviewResult.improvements.join(", ")}`);
+          }
+        }
+      } catch (err) {
+        console.log("⚠️  Self-review failed");
+      }
+    }
 
     if (summaries.length === 0) {
       const errMsg = "Sorry, I couldn't complete that after multiple attempts.";

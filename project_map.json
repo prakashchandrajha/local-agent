@@ -16,6 +16,8 @@
     "tools/file.js",
     "tools/knowledge.js",
     "tools/memory.js",
+    "tools/planner.js",
+    "tools/reviewer.js",
     "tools/scanner.js"
   ],
   "recentlyModified": [
@@ -34,13 +36,14 @@
     "testing/test_scanner.js",
     "tools/knowledge.js",
     "tools/memory.js",
+    "tools/planner.js",
+    "tools/reviewer.js",
     "tools/scanner.js"
   ],
   "imports": {
-    "testing/test_e2e_knowledge.js": [
-      "tools/knowledge.js",
-      "tools/memory.js",
-      "tools/scanner.js"
+    "tools/reviewer.js": [
+      "tools/file.js",
+      "tools/memory.js"
     ]
   },
   "languages": {
@@ -61,10 +64,37 @@
       "tools/file.js",
       "tools/knowledge.js",
       "tools/memory.js",
+      "tools/planner.js",
+      "tools/reviewer.js",
       "tools/scanner.js"
     ]
   },
-  "structures": {},
-  "lastScan": "2026-03-06T04:36:35.078Z",
-  "scanDuration": 1
+  "structures": {
+    "tools/planner.js": {
+      "functions": [
+        "generatePlan",
+        "buildPlanningPrompt",
+        "parsePlan",
+        "createFallbackPlan",
+        "needsPlanning",
+        "formatPlanForDisplay"
+      ],
+      "classes": [],
+      "exports": []
+    },
+    "tools/reviewer.js": {
+      "functions": [
+        "reviewAndImprove",
+        "generateReview",
+        "buildReviewPrompt",
+        "parseReview",
+        "isSimpleFile",
+        "quickQualityCheck"
+      ],
+      "classes": [],
+      "exports": []
+    }
+  },
+  "lastScan": "2026-03-06T05:02:34.298Z",
+  "scanDuration": 2
 }

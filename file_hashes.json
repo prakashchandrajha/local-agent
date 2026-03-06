@@ -15,5 +15,7 @@
   "tools/file.js": "1b4930babb4cf635243c7ad271f5a0b8",
   "tools/knowledge.js": "5ca2c2e1e71fe57858ebad95609f9c52",
   "tools/memory.js": "41b10dd672a1276b7fec497d668cb567",
+  "tools/planner.js": "1a2852bcdb36413396f40d75a8ffaf75",
+  "tools/reviewer.js": "f4b072d7d8c29396f5cf2824f59c41ca",
   "tools/scanner.js": "d6e970df0a30bc7a520e6943339fb168"
 }
