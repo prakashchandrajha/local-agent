@@ -1,6 +1,6 @@
 {
-  "scannedAt": "2026-03-06T19:02:04.663Z",
-  "totalFiles": 52,
+  "scannedAt": "2026-03-06T20:08:49.109Z",
+  "totalFiles": 60,
   "byExtension": {
     ".md": [
       "README.md",
@@ -22,6 +22,7 @@
       "core/planner.js",
       "core/repo-indexer.js",
       "core/reviewer.js",
+      "core/swarm.js",
       "demo.js",
       "examples/agent_demo.js",
       "examples/bug.js",
@@ -42,12 +43,17 @@
       "memory/index.js",
       "memory/knowledge-store.js",
       "parsers/tool-parser.js",
+      "path/to/DEMOVEMO.js",
+      "swarm_demo.js",
+      "swarm_test_simple.js",
       "tests/test-cce.js",
       "tests/test-ere.js",
+      "tests/test-swarm-integration.js",
       "todo-api/server.js",
       "todo-api/test.js",
       "tools/file.js",
-      "tools/input.js"
+      "tools/input.js",
+      "tools/sandbox.js"
     ],
     ".css": [
       "examples/demojango.css"
@@ -63,6 +69,12 @@
       "package.json",
       "todo-api/package-lock.json",
       "todo-api/package.json"
+    ],
+    ".txt": [
+      "output.txt"
+    ],
+    ".py": [
+      "path/to/demovemo.py"
     ]
   },
   "allFiles": [
@@ -82,6 +94,7 @@
     "core/planner.js",
     "core/repo-indexer.js",
     "core/reviewer.js",
+    "core/swarm.js",
     "demo.js",
     "docs/for-agent/AGENT_GUIDE.md",
     "examples/agent_demo.js",
@@ -107,28 +120,35 @@
     "memory/fis.js",
     "memory/index.js",
     "memory/knowledge-store.js",
+    "output.txt",
     "package-lock.json",
     "package.json",
     "parsers/tool-parser.js",
+    "path/to/DEMOVEMO.js",
+    "path/to/demovemo.py",
+    "swarm_demo.js",
+    "swarm_test_simple.js",
     "tests/test-cce.js",
     "tests/test-ere.js",
+    "tests/test-swarm-integration.js",
     "todo-api/package-lock.json",
     "todo-api/package.json",
     "todo-api/server.js",
     "todo-api/test.js",
     "tools/file.js",
-    "tools/input.js"
+    "tools/input.js",
+    "tools/sandbox.js"
   ],
   "recentFiles": [
-    "tests/test-ere.js",
-    "agent.js",
-    "core/ere.js",
-    "demo.js",
-    "tests/test-cce.js",
-    "core/cce.js",
     "package-lock.json",
-    "core/repo-indexer.js",
-    "memory/knowledge-store.js",
-    "core/clc.js"
+    "swarm_test_simple.js",
+    "core/swarm.js",
+    "memory/fis.js",
+    "swarm_demo.js",
+    "tools/sandbox.js",
+    "tests/test-swarm-integration.js",
+    "core/ere.js",
+    "output.txt",
+    "path/to/DEMOVEMO.js"
   ]
 }

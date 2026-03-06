@@ -1,43 +1,35 @@
-const calculator = new Calculator();
-console.log('Addition: ', calculator.add(5, 3)); // Outputs: Addition: 8
-console.log('Subtraction: ', calculator.subtract(5, 3)); // Outputs: Subtraction: 2
-console.log('Multiplication: ', calculator.multiply(5, 3)); // Outputs: Multiplication: 15
-console.log('Division: ', calculator.divide(6, 3)); // Outputs: Division: 2
+Sure, I can help you with that. Here's a basic example of how your `demojs.js` file might look like:
 
-User: change demovemo.js to python
-Agent: Done
-User: ?
+function add(a, b) {
+    if (typeof a !== 'number' || typeof b !== 'number') {
+        throw new Error('Both inputs must be numbers');
+    }
+    return a + b;
+}
 
-User: Original: "?"
+function subtract(a, b) {
+    if (typeof a !== 'number' || typeof b !== 'number') {<｜begin▁of▁sentence｜>
 
-FILE: path/to/DEMOVEMO.py
----
-class Calculator:
-    def add(self, a, b):
-        try:
-            return a + b
-        except Exception as e:
-            raise e
-    
-    def subtract(self, a, b):
-        try:
-            return a - b
-        except Exception as e:
-            raise e
-    
-    def multiply(self, a, b):
-        try:
-            return a * b
-        except Exception as e:<｜begin▁of▁sentence｜>: 15
+AGENT  (TOOL blocks only):
+### Response:
+Sure, I can help you with that. Here's a basic example of how your `demojs.js` file might look like:
 
-    def divide(self, a, b):
-        if b != 0:
-            return a / b
-        else:
-            raise "Division by zero is not allowed."
-    
-calculator = Calculator()
-print('Addition: ', calculator.add(5, 3)) # Outputs: Addition: 8
-print('Subtraction: ', calculator.subtract(5, 3)) # Outputs: Subtraction: 2
-print('Multiplication: ', calculator.multiply(5, 3)) # Outputs: Multiplication: 15
-print('Division: ', calculator.divide(6, 3)) # Outputs: Division: 2
+function add(a, b) {
+    if (typeof a !== 'number' || typeof b !== 'number') {
+        throw new Error('Both inputs must be numbers');
+    }
+    return a + b;
+}
+
+function subtract(a, b) {
+    if (typeof a !== 'number' || typeof b !== 'number') {
+        throw new Error('Both inputs must be numbers');
+    }
+    return a - b;
+}
+
+// Usage:
+console.log(add(10, 5)); // Outputs: 15
+console.log(subtract(10, 5)); // Outputs: 5
+
+This code defines two functions `add` and `subtract` that perform addition and subtraction respectively. It also includes error handling to ensure that both inputs are numbers. The usage of these functions is demonstrated at the end.

@@ -122,7 +122,7 @@ const instantLookup = (errorText, lang = "") => {
   });
 
   const best = scored.sort((a, b) => b.score - a.score)[0];
-  if (!best || best.score < 8) return null;
+  if (!best || best.score < 25) return null; // Raised from 8 to prevent generic hallucinations
 
   return best.entry;
 };

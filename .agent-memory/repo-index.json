@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "indexedAt": "2026-03-06T19:02:04.675Z",
-  "totalFiles": 50,
+  "indexedAt": "2026-03-06T20:08:49.132Z",
+  "totalFiles": 57,
   "files": {
     "README.md": {
       "role": "other",
@@ -407,15 +407,16 @@
         "../llm/client",
         "../memory/fis",
         "../browser/search",
-        "../memory/knowledge-store"
+        "../memory/knowledge-store",
+        "./swarm"
       ],
       "externalDeps": [
         "fs",
         "path",
         "child_process"
       ],
-      "lineCount": 597,
-      "mtime": 1772823561902
+      "lineCount": 516,
+      "mtime": 1772827045112
     },
     "core/planner.js": {
       "role": "other",
@@ -518,6 +519,55 @@
       ],
       "lineCount": 200,
       "mtime": 1772792926000
+    },
+    "core/swarm.js": {
+      "role": "other",
+      "description": "Manages parallel speculative fix cycles.",
+      "functions": [
+        "getVariantCount",
+        "cleanCode",
+        "calculateSimilarity",
+        "buildSpeculativePrompt",
+        "generateVariant",
+        "getWeights",
+        "evaluateVariant",
+        "displayReport",
+        "llmTasks",
+        "validVariants",
+        "results",
+        "winner"
+      ],
+      "signatures": [
+        "getVariantCount(errorOutput)",
+        "cleanCode(text)",
+        "calculateSimilarity(original, fixed)",
+        "buildSpeculativePrompt(filePath, content, errorOutput, variantType)",
+        "generateVariant(filePath, content, errorOutput, type)",
+        "getWeights(filePath)",
+        "evaluateVariant(sbId, filePath, type, weights, originalCode)",
+        "displayReport(results, winner)",
+        "llmTasks(initialStrategies.map((s, i)",
+        "validVariants(variants.filter(v)",
+        "results(await Promise.all(validVariants.map(async (v)",
+        "winner(results.sort((a, b)"
+      ],
+      "exports": [
+        "speculateFix",
+        "getVariantCount",
+        "displayReport"
+      ],
+      "imports": [
+        "../llm/client",
+        "../tools/file",
+        "../tools/sandbox",
+        "../memory/fis",
+        "../browser/search"
+      ],
+      "externalDeps": [
+        "path"
+      ],
+      "lineCount": 257,
+      "mtime": 1772827641137
     },
     "demo.js": {
       "role": "other",
@@ -962,7 +1012,7 @@
         "path"
       ],
       "lineCount": 157,
-      "mtime": 1772795568000
+      "mtime": 1772827577962
     },
     "memory/index.js": {
       "role": "entry",
@@ -1081,7 +1131,7 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 309,
-      "mtime": 1772821550575
+      "mtime": 1772827726060
     },
     "package.json": {
       "role": "other",
@@ -1110,6 +1160,70 @@
       "externalDeps": [],
       "lineCount": 102,
       "mtime": 1772788109564
+    },
+    "path/to/DEMOVEMO.js": {
+      "role": "class",
+      "description": "class — exports: add, subtract, multiply, divide",
+      "functions": [
+        "add",
+        "subtract",
+        "multiply",
+        "divide"
+      ],
+      "signatures": [
+        "add(a, b)",
+        "subtract(a, b)",
+        "multiply(a, b)",
+        "divide(a, b)"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 34,
+      "mtime": 1772826373069
+    },
+    "path/to/demovemo.py": {
+      "role": "other",
+      "description": "exports: add",
+      "functions": [
+        "add"
+      ],
+      "signatures": [
+        "add(a, b)"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 3,
+      "mtime": 1772826373069
+    },
+    "swarm_demo.js": {
+      "role": "other",
+      "description": "exports: add, subtract",
+      "functions": [
+        "add",
+        "subtract"
+      ],
+      "signatures": [
+        "add(a, b)",
+        "subtract(a, b)"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 7,
+      "mtime": 1772827561575
+    },
+    "swarm_test_simple.js": {
+      "role": "other",
+      "description": "swarm_test_simple module",
+      "functions": [],
+      "signatures": [],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 2,
+      "mtime": 1772827665231
     },
     "tests/test-cce.js": {
       "role": "test",
@@ -1175,6 +1289,30 @@
       ],
       "lineCount": 152,
       "mtime": 1772823655599
+    },
+    "tests/test-swarm-integration.js": {
+      "role": "test",
+      "description": "TYPO in variable name and missing close bracket",
+      "functions": [
+        "test",
+        "main"
+      ],
+      "signatures": [
+        "test()",
+        "main()"
+      ],
+      "exports": [],
+      "imports": [
+        "../core/ere",
+        "../tools/file"
+      ],
+      "externalDeps": [
+        "fs",
+        "path",
+        "fs"
+      ],
+      "lineCount": 47,
+      "mtime": 1772827061000
     },
     "todo-api/package-lock.json": {
       "role": "other",
@@ -1301,6 +1439,52 @@
       ],
       "lineCount": 32,
       "mtime": 1772792926000
+    },
+    "tools/sandbox.js": {
+      "role": "other",
+      "description": "Provides isolated environments for speculative code execution.",
+      "functions": [
+        "initPool",
+        "prepareSandbox",
+        "checkout",
+        "sb",
+        "release",
+        "sb",
+        "sb",
+        "write",
+        "sb",
+        "getPath",
+        "sb"
+      ],
+      "signatures": [
+        "initPool()",
+        "prepareSandbox(sb, targetFilePath)",
+        "checkout(targetFilePath)",
+        "sb(pool.find(s)",
+        "release(id)",
+        "sb(pool.find(s)",
+        "sb(pool.find(s)",
+        "write(sbId, relativePath, content)",
+        "sb(pool.find(s)",
+        "getPath(sbId)",
+        "sb(pool.find(s)"
+      ],
+      "exports": [
+        "checkout",
+        "release",
+        "run",
+        "write",
+        "initPool",
+        "getPath"
+      ],
+      "imports": [],
+      "externalDeps": [
+        "fs",
+        "path",
+        "child_process"
+      ],
+      "lineCount": 171,
+      "mtime": 1772827524419
     }
   }
 }

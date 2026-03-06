@@ -9,7 +9,7 @@
     "fact": "Always wrap await calls in try/catch. Unhandled promise rejections crash Node.js.",
     "id": "seed-0",
     "source": "built-in",
-    "useCount": 16,
+    "useCount": 17,
     "createdAt": "2026-03-06T10:54:29.971Z"
   },
   {
@@ -35,7 +35,7 @@
     "fact": "In Node.js ESM, use import/export. In CommonJS, use require/module.exports. Never mix them in the same file.",
     "id": "seed-2",
     "source": "built-in",
-    "useCount": 16,
+    "useCount": 19,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -74,7 +74,7 @@
     "fact": "Load .env with require('dotenv').config() as the very FIRST line in entry point. Never commit .env to git.",
     "id": "seed-5",
     "source": "built-in",
-    "useCount": 8,
+    "useCount": 10,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -87,7 +87,7 @@
     "fact": "bcrypt.hash() is async. Always await it. Use saltRounds = 12 minimum for production passwords.",
     "id": "seed-6",
     "source": "built-in",
-    "useCount": 6,
+    "useCount": 7,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -100,7 +100,7 @@
     "fact": "Avoid 'any'. Use 'unknown' for truly unknown types — it forces type checking before use.",
     "id": "seed-7",
     "source": "built-in",
-    "useCount": 1,
+    "useCount": 3,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -191,7 +191,7 @@
     "fact": "FastAPI dependencies with yield are generators. Put cleanup code after yield. Use Depends() in route params.",
     "id": "seed-14",
     "source": "built-in",
-    "useCount": 0,
+    "useCount": 1,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -204,7 +204,7 @@
     "fact": "python-jose: use jwt.encode() with algorithm='HS256'. Decode with jwt.decode() passing the secret and algorithms list.",
     "id": "seed-15",
     "source": "built-in",
-    "useCount": 2,
+    "useCount": 3,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -346,7 +346,7 @@
     "fact": "Wrap errors with fmt.Errorf('context: %w', err). Check with errors.Is() and errors.As() for type-safe error inspection.",
     "id": "seed-26",
     "source": "built-in",
-    "useCount": 6,
+    "useCount": 11,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -359,7 +359,7 @@
     "fact": "Always pass context.Context to goroutines. Use context.WithCancel() to signal shutdown. Goroutines without exit conditions leak.",
     "id": "seed-27",
     "source": "built-in",
-    "useCount": 6,
+    "useCount": 9,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -398,7 +398,7 @@
     "fact": "Never use .unwrap() in production code. Use ?, match, if let, or .unwrap_or_else() for safe error handling.",
     "id": "seed-30",
     "source": "built-in",
-    "useCount": 2,
+    "useCount": 4,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -411,7 +411,7 @@
     "fact": "Copy package.json and install dependencies BEFORE copying source code. This caches the node_modules layer and speeds up rebuilds.",
     "id": "seed-31",
     "source": "built-in",
-    "useCount": 5,
+    "useCount": 9,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -463,7 +463,7 @@
     "fact": "After every code generation: check that all imports resolve, all functions are called with correct argument counts, and no logic is left as pseudocode.",
     "id": "seed-35",
     "source": "built-in",
-    "useCount": 4,
+    "useCount": 9,
     "createdAt": "2026-03-06T10:54:29.972Z"
   }
 ]

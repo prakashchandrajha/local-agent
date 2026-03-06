@@ -432,132 +432,51 @@ const executeAndRecover = async (filePath, lang = "") => {
     console.log(`   ⚠️  Cached fix didn't work, trying fresh LLM fix...`);
   }
 
-  // Step 4: LLM fix loop (3 attempts, error-only prompts)
-  let currentError = originalError;
-  for (let attempt = 1; attempt <= MAX_FIX_ATTEMPTS; attempt++) {
-    // Check FIS for hints
-    const known = fis.buildFISBlock(currentError, lang);
+  // Step 4: Speculative Swarm (Parallel LLM Fix + Sandboxing + Internet Backup)
+  console.log(`\n🐝 ERE: Triggering Speculative Swarm for ${filePath}...`);
+  const swarm = require("./swarm");
+  const swarmResult = await swarm.speculateFix(filePath, originalError, lang);
 
-    const fix = await llmFix(filePath, currentError, attempt, known);
-    if (!fix.fixed) {
-      actions.push({ type: "llm-fix", attempt, detail: "LLM returned no fix" });
-      continue;
-    }
+  if (swarmResult.success && swarmResult.winner) {
+    const winner = swarmResult.winner;
+    console.log(`   ✅ Fixed by Swarm! Winner: ${winner.type.toUpperCase()} (Score: ${winner.score})`);
+    
+    actions.push({ type: "swarm-fix", detail: `Winner: ${winner.type}`, score: winner.score });
 
-    // Apply fix
-    const beforeContent = readFile(filePath);
-    writeFile(filePath, fix.code);
-    actions.push({ type: "llm-fix", attempt, detail: `Applied LLM fix (${fix.code.length} chars)` });
+    writeFile(filePath, winner.code);
+    
+    // Cache the winning fix
+    cacheFix(fingerprint, winner.code);
 
-    // Retry
-    result = runTargeted(filePath);
-    if (result.success) {
-      console.log(`   ✅ Fixed by LLM (attempt ${attempt})!`);
+    // Record in FIS
+    fis.recordFailure({
+      lang,
+      file: filePath,
+      errorText: originalError,
+      fix: `Swarm winner: ${winner.type}`,
+      cause: originalError.split("\n")[0].slice(0, 100),
+      codeAfter: winner.code.slice(0, 400),
+    });
 
-      // Cache the fix
-      cacheFix(fingerprint, fix.code);
-
-      // Record in FIS
-      fis.recordFailure({
-        lang,
-        file: filePath,
-        errorText: originalError,
-        fix: `LLM fix attempt ${attempt}`,
-        cause: currentError.split("\n")[0].slice(0, 100),
-        codeAfter: fix.code.slice(0, 400),
-      });
-
-      return { success: true, attempts: attempt, fixSource: "llm", error: null, actions, output: result.output };
-    }
-
-    // Update error for next attempt
-    currentError = result.output;
-    console.log(`   ❌ Attempt ${attempt} failed: ${currentError.split("\n")[0].slice(0, 80)}`);
-  }
-
-  // Step 5: Internet research (last resort)
-  console.log("\n   🌐 All local fixes failed. Searching internet...");
-
-  if (await isOnline()) {
-    const web = await searchForFix(currentError, lang);
-    if (web.found) {
-      actions.push({ type: "web-search", detail: web.query });
-
-      // Use web context for one more LLM attempt
-      const content = readFile(filePath);
-      const webPrompt = `Error in ${filePath}:
-\`\`\`
-${currentError.slice(0, 300)}
-\`\`\`
-
-${web.context}
-
-Current file:
-\`\`\`
-${content}
-\`\`\`
-
-Fix using the web results above. Return the COMPLETE fixed file.`;
-
-      try {
-        const res = await postJSON(OLLAMA_URL, {
-          model: MODEL,
-          prompt: webPrompt,
-          stream: false,
-          options: { temperature: 0.2, num_predict: 4000 },
-        });
-
-        let code = (res.response || "").trim()
-          .replace(/^```[\w]*\n?/gm, "").replace(/```$/gm, "").trim();
-
-        if (code && code.length > 20) {
-          writeFile(filePath, code);
-          actions.push({ type: "web-fix", detail: `Applied web-assisted fix (${code.length} chars)` });
-
-          result = runTargeted(filePath);
-          if (result.success) {
-            console.log(`   ✅ Fixed using internet research!`);
-
-            // Crystallize the solution
-            crystallizeSolution({
-              lang,
-              query: currentError.slice(0, 60),
-              solution: web.snippets?.[0]?.code || code.slice(0, 200),
-              source: "web",
-            });
-
-            // Record in FIS
-            fis.recordFailure({
-              lang,
-              file: filePath,
-              errorText: originalError,
-              fix: "web-sourced fix",
-              cause: currentError.split("\n")[0].slice(0, 100),
-              codeAfter: code.slice(0, 400),
-            });
-
-            cacheFix(fingerprint, code);
-
-            return { success: true, attempts: MAX_FIX_ATTEMPTS + 1, fixSource: "internet", error: null, actions, output: result.output };
-          }
-        }
-      } catch (err) {
-        console.log(`   ⚠️  Web-assisted fix failed: ${err.message}`);
-      }
-    }
-  } else {
-    console.log("   ⚠️  Offline — skipping web search.");
+    return { 
+      success: true, 
+      attempts: 1, 
+      fixSource: `swarm:${winner.type}`, 
+      error: null, 
+      actions, 
+      output: winner.output 
+    };
   }
 
   // All attempts exhausted
-  console.log(`\n   💀 ERE: Could not fix ${filePath} after ${MAX_FIX_ATTEMPTS} attempts + web search.`);
+  console.log(`\n   💀 ERE: Could not fix ${filePath} after Swarm speculative runs.`);
   return {
     success: false,
-    attempts: MAX_FIX_ATTEMPTS,
+    attempts: 1,
     fixSource: "none",
-    error: currentError,
+    error: originalError,
     actions,
-    output: currentError,
+    output: originalError,
   };
 };
 

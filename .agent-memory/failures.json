@@ -1,14 +1,15 @@
 [
   {
-    "id": "fis-1772817076239",
-    "key": "home vvd local-agent demo.js:5 function subtract(a, b) {<｜begin▁of▁sentence｜> ^ syntaxerror: unexpected token < at function.executeuserentrypoint [as ",
+    "id": "fis-1772827665232",
+    "key": "home vvd local-agent swarm_test_simple.js:1 console.log(dat); ^ referenceerror: dat is not defined at function.executeuserentrypoint [as runmain] (nod",
     "lang": "js",
-    "file": "demo.js",
-    "errorText": "/home/vvd/local-agent/demo.js:5\nfunction subtract(a, b) {<｜begin▁of▁sentence｜>\n                         ^\n\nSyntaxError: Unexpected token '<'\n    at wrapSafe (node:internal/modules/cjs/loader:1638:18)\n    at Module._compile (node:internal/modules/cjs/loader:1680:20)\n    at Object..js (node:internal/m",
-    "fix": "Fixed by agent",
-    "codeAfter": "function add(a, b) {\n    return a + b;\n}\n\nfunction subtract(a, b) {<｜begin▁of▁sentence｜>",
+    "file": "swarm_test_simple.js",
+    "errorText": "/home/vvd/local-agent/swarm_test_simple.js:1\nconsole.log(dat);\n            ^\n\nReferenceError: dat is not defined\n    at Object.<anonymous> (/home/vvd/local-agent/swarm_test_simple.js:1:13)\n    at Module._compile (node:internal/modules/cjs/loader:1706:14)\n    at Object..js (node:internal/modules/cjs/",
+    "cause": "/home/vvd/local-agent/swarm_test_simple.js:1",
+    "fix": "Swarm winner: simple",
+    "codeAfter": "let dat = \"Hello, World!\";\nconsole.log(dat);",
     "seenCount": 1,
-    "firstSeen": "2026-03-06T17:11:16.239Z",
-    "lastSeen": "2026-03-06T17:11:16.239Z"
+    "firstSeen": "2026-03-06T20:07:45.232Z",
+    "lastSeen": "2026-03-06T20:07:45.233Z"
   }
 ]
