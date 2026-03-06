@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
 /**
- * Demonstration of the complete enhanced agent flow:
- * Planner → Coder → Critic → Improved Code
+ * Demonstration of the complete enhanced agent flow with Self-Refinement Loop:
+ * Planner → Coder → Refinement Loop (Critic → Improve → Repeat) → Final Code
  */
 
 const { planTask, needsPlanning, formatPlan } = require('./tools/simple_planner');
-const { reviewCode, needsReview, formatReview } = require('./tools/critic');
+const { refineCode, shouldRefine, formatRefinementResult } = require('./tools/refiner');
 
 async function demonstrateCompleteFlow() {
     console.log('🤖 Complete Enhanced Agent Flow Demo\n');
@@ -27,29 +27,36 @@ async function demonstrateCompleteFlow() {
         const firstStep = plan.steps[0] || userRequest;
         console.log(`\n🚀 Step 2: Coder executes: "${firstStep}"`);
         
-        // Simulate what a basic coder might write
-        const basicCode = `function divide(a, b) {
-  return a / b;
+        // Simulate what a basic coder might write that needs refinement
+        const basicCode = `function calculateTotal(price, quantity, discount) {
+  var total = price * quantity;
+  if (discount == 0) {
+    return total;
+  }
+  var final = total - discount;
+  console.log("Calculated total: " + final);
+  return final;
 }`;
         
         console.log('📝 Coder writes:');
         console.log(basicCode);
-        console.log(`\nNeeds review: ${needsReview(basicCode)}`);
+        console.log(`\nShould refine: ${shouldRefine(basicCode)}`);
         
-        // Step 3: Critic review
-        if (needsReview(basicCode)) {
-            console.log('\n🔍 Step 3: Critic Review');
-            const review = await reviewCode(userRequest, basicCode, 'calculator.js');
-            console.log(formatReview(review));
+        // Step 3: Self-Refinement Loop
+        if (shouldRefine(basicCode)) {
+            console.log('\n🔄 Step 3: Self-Refinement Loop');
+            const refinement = await refineCode(userRequest, basicCode, 'calculator.js');
+            console.log(formatRefinementResult(refinement));
             
-            if (review.improved_code && review.improved_code !== basicCode) {
+            if (refinement.finalCode !== basicCode) {
                 console.log('\n✅ Final Improved Code:');
-                console.log(review.improved_code);
+                console.log(refinement.finalCode);
                 
                 console.log('\n🎯 Result:');
                 console.log('  • Planner broke down the task');
                 console.log('  • Coder implemented basic version');
-                console.log('  • Critic identified issues and improved');
+                console.log('  • Refinement loop improved quality');
+                console.log(`  • Quality score improved from ${refinement.history[0].score}/10 to ${refinement.finalScore}/10`);
                 console.log('  • Final code is production-ready!');
             }
         }
@@ -57,7 +64,7 @@ async function demonstrateCompleteFlow() {
     
     console.log('\n' + '='.repeat(60));
     console.log('🏆 This is why your agent now writes MUCH BETTER CODE!');
-    console.log('   Think → Plan → Code → Review → Improve');
+    console.log('   Think → Plan → Code → Critic → Improve → Repeat');
 }
 
 demonstrateCompleteFlow().catch(console.error);
