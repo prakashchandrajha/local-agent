@@ -17,7 +17,9 @@
   },
   "demo.js": {
     "imports": [],
-    "updatedAt": "2026-03-06T17:11:49.419Z"
+    "exports": [],
+    "role": "module",
+    "updatedAt": "2026-03-06T18:34:12.448Z"
   },
   "path/to/demo.js": {
     "imports": [],

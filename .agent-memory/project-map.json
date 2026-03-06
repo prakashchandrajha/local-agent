@@ -1,6 +1,6 @@
 {
-  "scannedAt": "2026-03-06T17:16:38.042Z",
-  "totalFiles": 46,
+  "scannedAt": "2026-03-06T18:33:46.736Z",
+  "totalFiles": 49,
   "byExtension": {
     ".md": [
       "README.md",
@@ -16,8 +16,10 @@
       "agents/speculative.js",
       "browser/search.js",
       "config/prompts.js",
+      "core/cce.js",
       "core/clc.js",
       "core/planner.js",
+      "core/repo-indexer.js",
       "core/reviewer.js",
       "examples/agent_demo.js",
       "examples/bug.js",
@@ -38,6 +40,7 @@
       "memory/index.js",
       "memory/knowledge-store.js",
       "parsers/tool-parser.js",
+      "tests/test-cce.js",
       "todo-api/server.js",
       "todo-api/test.js",
       "tools/file.js",
@@ -70,8 +73,10 @@
     "agents/speculative.js",
     "browser/search.js",
     "config/prompts.js",
+    "core/cce.js",
     "core/clc.js",
     "core/planner.js",
+    "core/repo-indexer.js",
     "core/reviewer.js",
     "docs/for-agent/AGENT_GUIDE.md",
     "examples/agent_demo.js",
@@ -100,6 +105,7 @@
     "package-lock.json",
     "package.json",
     "parsers/tool-parser.js",
+    "tests/test-cce.js",
     "todo-api/package-lock.json",
     "todo-api/package.json",
     "todo-api/server.js",
@@ -108,15 +114,15 @@
     "tools/input.js"
   ],
   "recentFiles": [
+    "tests/test-cce.js",
+    "core/cce.js",
     "package-lock.json",
+    "core/repo-indexer.js",
+    "memory/knowledge-store.js",
     "agent.js",
+    "core/clc.js",
     "agents/integrator.js",
     "agents/optimizer.js",
-    "agents/architect.js",
-    "agents/ceo.js",
-    "agents/qa.js",
-    "agents/speculative.js",
-    "core/clc.js",
-    "knowledge/pattern-loader.js"
+    "agents/architect.js"
   ]
 }

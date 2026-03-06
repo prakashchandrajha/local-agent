@@ -220,11 +220,34 @@ const selectRelevantFiles = (prompt, indexFiles, archGraph) => {
 };
 
 // ─────────────────────────────────────────────────────────────
+// TASK TYPE DETECTION
+// "Create new file" tasks need minimal context
+// "Fix/improve existing" tasks need full compression
+// ─────────────────────────────────────────────────────────────
+const isNewFileTask = (task) => {
+  const lo = task.toLowerCase();
+  return /\b(create|make|write|generate|new|scaffold)\b/.test(lo)
+      && !/\b(fix|debug|repair|improve|refactor|update|change)\b/.test(lo);
+};
+
+// ─────────────────────────────────────────────────────────────
 // MAIN: GET COMPRESSED CONTEXT
 // Combines all 4 levels into a single, budget-aware context block
+//
+// CRITICAL: The CCE budget is only 35% of the model's total
+// context window. The other 65% is reserved for:
+//   - System prompt + tool instructions (~800 tokens)
+//   - Conversation history (~200 tokens)
+//   - Knowledge atoms + patterns (~200 tokens)
+//   - Memory + FIS blocks (~200 tokens)
+//   - User prompt + LLM response space (~600 tokens)
 // ─────────────────────────────────────────────────────────────
 const getCompressedContext = (task, modelName = "") => {
-  const budget = detectBudget(modelName);
+  const totalBudget = detectBudget(modelName);
+
+  // CCE gets only 35% of total model budget
+  // The rest is for system prompt, tools, history, atoms, user prompt, response
+  const cceBudget = Math.floor(totalBudget * 0.35);
 
   // Check cache first
   const cacheKey = task.toLowerCase().replace(/\s+/g, "_").slice(0, 80);
@@ -239,7 +262,30 @@ const getCompressedContext = (task, modelName = "") => {
   // Load repo index
   const { files: indexFiles, totalFiles } = loadIndex();
   if (!indexFiles || totalFiles === 0) {
-    return { context: "", stats: { totalFiles: 0, full: 0, summarized: 0, ignored: 0, usedTokens: 0, budget } };
+    return { context: "", stats: { totalFiles: 0, full: 0, summarized: 0, ignored: 0, usedTokens: 0, budget: cceBudget } };
+  }
+
+  // For "create new file" tasks, only send minimal context
+  // The LLM doesn't need to read 47 files to create demo.js
+  if (isNewFileTask(task)) {
+    const archGraph = buildArchGraph(indexFiles);
+    const archText  = formatArchGraph(archGraph, indexFiles);
+    const archTokens = estimateTokens(archText);
+    let context = "";
+    let usedTokens = 0;
+
+    if (archTokens < cceBudget * 0.8) {
+      context = "PROJECT OVERVIEW:\n" + archText;
+      usedTokens = archTokens;
+    }
+
+    const stats = {
+      totalFiles, relevant: 0, full: 0,
+      summarized: totalFiles, ignored: 0,
+      usedTokens, budget: cceBudget, fromCache: false,
+    };
+    setCached(cacheKey, { context, stats });
+    return { context, stats };
   }
 
   // Build architecture graph
@@ -248,29 +294,32 @@ const getCompressedContext = (task, modelName = "") => {
   // Level 4: Smart file selection
   const relevantFiles = selectRelevantFiles(task, indexFiles, archGraph);
 
-  // Build context with budget awareness
+  // Build context with budget awareness (using CCE budget, not total)
   const parts = [];
-  let usedTokens = estimateTokens(task) + 300; // reserve for task + rules
+  let usedTokens = 0;
 
-  // Level 2: Architecture overview (compact, always included)
+  // Level 2: Architecture overview (compact, always included if fits)
   const archText = formatArchGraph(archGraph, indexFiles);
   const archTokens = estimateTokens(archText);
-  if (archTokens < budget * 0.15) {
+  if (archTokens < cceBudget * 0.25) {
     parts.push("REPO ARCHITECTURE:\n" + archText);
     usedTokens += archTokens;
   }
 
-  // Level 3: Function signatures for relevant files
-  const sigBlock = buildSignatureBlock(indexFiles, relevantFiles);
+  // Level 3: Function signatures for ONLY the most relevant files (top 4)
+  const topRelevant = relevantFiles.slice(0, 4);
+  const sigBlock = buildSignatureBlock(indexFiles, topRelevant);
   const sigTokens = estimateTokens(sigBlock);
-  if (sigBlock && usedTokens + sigTokens < budget * 0.35) {
+  if (sigBlock && usedTokens + sigTokens < cceBudget * 0.5) {
     parts.push("FUNCTION SIGNATURES:\n" + sigBlock);
     usedTokens += sigTokens;
   }
 
-  // Level 4: Full content of the most relevant files
+  // Level 4: Full content — load at most 2 files (the most relevant ones)
   const fullFiles = [];
   const summarizedFiles = [];
+  let fullFileCount = 0;
+  const MAX_FULL_FILES = 2;
 
   for (const filePath of relevantFiles) {
     if (!fileExists(filePath)) continue;
@@ -279,11 +328,11 @@ const getCompressedContext = (task, modelName = "") => {
 
     const tokens = estimateTokens(content);
 
-    if (usedTokens + tokens < budget * 0.7) {
-      // Fits in budget — load in full
+    if (fullFileCount < MAX_FULL_FILES && usedTokens + tokens < cceBudget * 0.85) {
       fullFiles.push({ filePath, content });
       usedTokens += tokens;
-    } else {
+      fullFileCount++;
+    } else if (usedTokens + 30 < cceBudget) {
       // Over budget — just include the summary
       const meta = indexFiles[filePath];
       if (meta) {
@@ -296,18 +345,18 @@ const getCompressedContext = (task, modelName = "") => {
     }
   }
 
-  // Level 1: File summaries for remaining (non-selected) files
+  // Level 1: File summaries for remaining files — only if space allows, cap at 10
   const remainingFiles = Object.keys(indexFiles).filter((f) => !relevantFiles.includes(f));
-  if (remainingFiles.length > 0 && usedTokens < budget * 0.85) {
+  if (remainingFiles.length > 0 && usedTokens < cceBudget * 0.9) {
     const summaries = [];
-    for (const fp of remainingFiles) {
-      if (usedTokens >= budget * 0.85) break;
+    for (const fp of remainingFiles.slice(0, 10)) {
+      if (usedTokens >= cceBudget * 0.9) break;
       const meta = indexFiles[fp];
-      summaries.push(`  • ${fp} [${meta.role}]: ${(meta.description || "").slice(0, 60)}`);
-      usedTokens += 15;
+      summaries.push(`  • ${fp} [${meta.role}]`);
+      usedTokens += 8;
     }
     if (summaries.length) {
-      parts.push("OTHER FILES (summaries):\n" + summaries.join("\n"));
+      parts.push("OTHER FILES:\n" + summaries.join("\n"));
     }
   }
 
@@ -321,7 +370,7 @@ const getCompressedContext = (task, modelName = "") => {
 
   // Add summarized relevant files
   if (summarizedFiles.length) {
-    parts.push("RELEVANT FILES (summaries — over budget for full load):\n" + summarizedFiles.join("\n"));
+    parts.push("RELATED FILES:\n" + summarizedFiles.join("\n"));
   }
 
   const context = parts.join("\n\n");
@@ -330,10 +379,10 @@ const getCompressedContext = (task, modelName = "") => {
     totalFiles,
     relevant: relevantFiles.length,
     full: fullFiles.length,
-    summarized: summarizedFiles.length + remainingFiles.length,
-    ignored: totalFiles - relevantFiles.length - remainingFiles.length,
+    summarized: summarizedFiles.length + Math.min(remainingFiles.length, 10),
+    ignored: Math.max(0, remainingFiles.length - 10),
     usedTokens,
-    budget,
+    budget: cceBudget,
     fromCache: false,
   };
 

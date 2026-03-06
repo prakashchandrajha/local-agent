@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "indexedAt": "2026-03-06T18:25:11.795Z",
+  "indexedAt": "2026-03-06T18:33:46.748Z",
   "totalFiles": 47,
   "files": {
     "README.md": {
@@ -298,6 +298,7 @@
         "scoreFileRelevance",
         "detectIntentRole",
         "selectRelevantFiles",
+        "isNewFileTask",
         "logCCEStats",
         "displayCCEInfo"
       ],
@@ -312,6 +313,7 @@
         "scoreFileRelevance(filePath, meta, keywords, intentRole)",
         "detectIntentRole(prompt)",
         "selectRelevantFiles(prompt, indexFiles, archGraph)",
+        "isNewFileTask(task)",
         "logCCEStats(stats)",
         "displayCCEInfo()"
       ],
@@ -333,8 +335,8 @@
         "fs",
         "path"
       ],
-      "lineCount": 419,
-      "mtime": 1772821101556
+      "lineCount": 468,
+      "mtime": 1772821949890
     },
     "core/clc.js": {
       "role": "other",
@@ -1016,7 +1018,7 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 309,
-      "mtime": 1772817001967
+      "mtime": 1772821550575
     },
     "package.json": {
       "role": "other",
@@ -1076,8 +1078,8 @@
       "externalDeps": [
         "path"
       ],
-      "lineCount": 183,
-      "mtime": 1772821337599
+      "lineCount": 189,
+      "mtime": 1772821981164
     },
     "todo-api/package-lock.json": {
       "role": "other",

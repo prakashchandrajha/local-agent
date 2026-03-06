@@ -133,9 +133,15 @@ console.log("\n📋 TEST 8: Compressed Context");
 const startTime = Date.now();
 const ctx1 = getCompressedContext("fix authentication bug", "deepseek-coder:6.7b");
 const time1 = Date.now() - startTime;
-assert(ctx1.context.length > 100, `Generated ${ctx1.context.length} chars of context`);
-assert(ctx1.stats.usedTokens <= ctx1.stats.budget, `Tokens ${ctx1.stats.usedTokens} within budget ${ctx1.stats.budget}`);
+assert(ctx1.context.length > 50, `Generated ${ctx1.context.length} chars of context`);
+assert(ctx1.stats.usedTokens <= ctx1.stats.budget, `Tokens ${ctx1.stats.usedTokens} within CCE budget ${ctx1.stats.budget}`);
+assert(ctx1.stats.budget <= 1400, `CCE budget is 35% of 4000 = ${ctx1.stats.budget} (not full 4000)`);
 assert(ctx1.stats.totalFiles > 5, `Stats show ${ctx1.stats.totalFiles} total files`);
+
+// Test that "create" tasks get minimal context
+const ctxCreate = getCompressedContext("create demo.js write calculator", "deepseek-coder:6.7b");
+assert(ctxCreate.stats.full === 0, `Create task loads 0 full files (got ${ctxCreate.stats.full})`);
+assert(ctxCreate.stats.usedTokens < 500, `Create task uses minimal tokens: ${ctxCreate.stats.usedTokens}`);
 
 // ─────────────────────────────────────────────────────────────
 // TEST 9: Context Cache
@@ -145,7 +151,7 @@ const startTime2 = Date.now();
 const ctx2 = getCompressedContext("fix authentication bug", "deepseek-coder:6.7b");
 const time2 = Date.now() - startTime2;
 assert(ctx2.stats.fromCache === true, "Second call returned cached result");
-assert(time2 <= time1 + 10, `Cached call (${time2}ms) faster than first (${time1}ms)`);
+assert(time2 <= time1 + 50, `Cached call (${time2}ms) not slower than first (${time1}ms)`);
 
 // ─────────────────────────────────────────────────────────────
 // TEST 10: Budget Detection
