@@ -1,0 +1,102 @@
+{
+  "scannedAt": "2026-03-06T10:09:17.437Z",
+  "totalFiles": 41,
+  "byExtension": {
+    ".md": [
+      "README.md",
+      "docs/for-agent/AGENT_GUIDE.md",
+      "files/README.md",
+      "knowledge/design_patterns.md",
+      "knowledge/js_best_practices.md"
+    ],
+    ".js": [
+      "agent/agent.js",
+      "config/prompts.js",
+      "examples/agent_demo.js",
+      "examples/bug.js",
+      "examples/calculator.js",
+      "examples/demo_agent.js",
+      "examples/demo_complete_flow.js",
+      "examples/democalc.js",
+      "examples/demojango.js",
+      "examples/filename.js",
+      "examples/index.js",
+      "examples/legacy/legacy_agent.js",
+      "examples/math.js",
+      "files/agent.js",
+      "files/file.js",
+      "files/index.js",
+      "files/lang-profiles.js",
+      "index.js",
+      "knowledge/lang-profiles.js",
+      "llm/ollama.js",
+      "memory/index.js",
+      "memory/memory-manager.js",
+      "parsers/tool-parser.js",
+      "todo-api/server.js",
+      "todo-api/test.js",
+      "tools/file.js",
+      "tools/run-code.js"
+    ],
+    ".css": [
+      "examples/demojango.css"
+    ],
+    ".html": [
+      "examples/demojango.html"
+    ],
+    ".json": [
+      "files/package.json",
+      "knowledge/project_notes.json",
+      "package-lock.json",
+      "package.json",
+      "todo-api/package-lock.json",
+      "todo-api/package.json"
+    ],
+    ".txt": [
+      "knowledge/architecture_guidelines.txt"
+    ]
+  },
+  "allFiles": [
+    "README.md",
+    "agent/agent.js",
+    "config/prompts.js",
+    "docs/for-agent/AGENT_GUIDE.md",
+    "examples/agent_demo.js",
+    "examples/bug.js",
+    "examples/calculator.js",
+    "examples/demo_agent.js",
+    "examples/demo_complete_flow.js",
+    "examples/democalc.js",
+    "examples/demojango.css",
+    "examples/demojango.html",
+    "examples/demojango.js",
+    "examples/filename.js",
+    "examples/index.js",
+    "examples/legacy/legacy_agent.js",
+    "examples/math.js",
+    "files/README.md",
+    "files/agent.js",
+    "files/file.js",
+    "files/index.js",
+    "files/lang-profiles.js",
+    "files/package.json",
+    "index.js",
+    "knowledge/architecture_guidelines.txt",
+    "knowledge/design_patterns.md",
+    "knowledge/js_best_practices.md",
+    "knowledge/lang-profiles.js",
+    "knowledge/project_notes.json",
+    "llm/ollama.js",
+    "memory/index.js",
+    "memory/memory-manager.js",
+    "package-lock.json",
+    "package.json",
+    "parsers/tool-parser.js",
+    "todo-api/package-lock.json",
+    "todo-api/package.json",
+    "todo-api/server.js",
+    "todo-api/test.js",
+    "tools/file.js",
+    "tools/run-code.js"
+  ]
+}

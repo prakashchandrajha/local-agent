@@ -11,9 +11,9 @@ const readline = require("readline-sync");
 const fs = require("fs");
 const path = require("path");
 
-const { readFile, writeFile, listFiles, runFile, getDiffSummary, fileExists } = require("../tools/file");
-const { getProfile, buildKnowledgeBlock, detectLangFromFile } = require("../knowledge/lang-profiles");
-const memory = require("../memory/index");
+const { readFile, writeFile, listFiles, runFile, getDiffSummary, fileExists } = require("./tools/file");
+const { getProfile, buildKnowledgeBlock, detectLangFromFile } = require("./knowledge/lang-profiles");
+const memory = require("./memory/index");
 
 // ─────────────────────────────────────────────────────────────
 // CONFIG
@@ -504,70 +504,128 @@ const runAgentLoop = async (userInput, readmeContent, contextFile = null) => {
 };
 
 // ─────────────────────────────────────────────────────────────
-// MAIN ENTRY POINT
+// INTENT HELPERS
 // ─────────────────────────────────────────────────────────────
-const main = async () => {
-  console.clear();
-  console.log("═══════════════════════════════════════════════════════");
-  console.log("   🚀 SUPERCHARGED LOCAL CODING AGENT v2.0");
-  console.log("   Multi-language • Memory • Knowledge Wrapper");
-  console.log("═══════════════════════════════════════════════════════\n");
+const isSolved = (input) =>
+  /\b(done|solved|fixed|good|great|perfect|ok|okay|looks good|all good|that'?s?( it| fine| good| correct| right)|no more|no issues?|works?( now)?|yeah|nice|cool|sweet)\b/i
+    .test(input);
 
-  // Initialize memory system
+const isFollowUp = (input) =>
+  /\b(recheck|re-check|check again|still|again|not yet|nope|wrong|another|more|also|now fix|fix (it|this|that|again)|try again|improve|make it better|update it|change it|add|remove|refactor)\b/i
+    .test(input);
+
+// ─────────────────────────────────────────────────────────────
+// MAIN LOOP
+// ─────────────────────────────────────────────────────────────
+const run = async () => {
+  // Initialize persistent memory
   memory.init();
   memory.buildProjectMap();
 
   const readmeContent = loadReadme();
-  const activeFile = null;
 
-  console.log("💬 Enter a request (or 'exit' to quit):\n");
+  console.log("╔══════════════════════════════════════════════════╗");
+  console.log("║  🚀 SUPERCHARGED LOCAL CODING AGENT              ║");
+  console.log("║  Multi-lang • Memory • Knowledge • Run+Fix       ║");
+  console.log(`║  Model: ${MODEL.padEnd(40)}║`);
+  console.log("╚══════════════════════════════════════════════════╝");
+  console.log("\nCommands: 'exit' · 'history' · 'clear' · 'memory' · 'scan'\n");
+
+  let activeFile = null;
 
   while (true) {
-    const userInput = readline.question("You: ");
+    const userInput = readline.question("You: ").trim();
+    if (!userInput) continue;
 
+    // ── BUILT-IN COMMANDS ──────────────────────────────
     if (userInput.toLowerCase() === "exit") {
-      console.log("\n👋 Saving memory and exiting...");
+      console.log("\n👋 Goodbye! Memory saved.\n");
       break;
     }
 
     if (userInput.toLowerCase() === "history") {
-      console.log("\n📜 Conversation history:");
-      console.log(formatHistory() || "(empty)");
+      if (conversationHistory.length === 0) {
+        console.log("\n📭 No history yet.\n");
+      } else {
+        console.log("\n📜 Conversation history:");
+        console.log("─".repeat(50));
+        conversationHistory.forEach((t, i) => {
+          const role = t.role === "user" ? "You  " : "Agent";
+          const preview = t.content.length > 90 ? t.content.slice(0, 90) + "..." : t.content;
+          console.log(`[${String(i + 1).padStart(2)}] ${role}: ${preview}`);
+        });
+        console.log("─".repeat(50) + "\n");
+      }
       continue;
     }
 
     if (userInput.toLowerCase() === "clear") {
       conversationHistory.length = 0;
-      console.log("✅ Session cleared.");
+      activeFile = null;
+      console.log("\n🧹 Session memory and active file cleared.\n");
       continue;
     }
 
     if (userInput.toLowerCase() === "memory") {
-      const fixes = memory.readMemory("fixes");
-      const patterns = memory.getTopPatterns();
-      console.log(`\n🧠 Persistent memory:`);
-      console.log(`   • Saved fixes: ${fixes.length}`);
-      console.log(`   • Top error patterns:`);
-      patterns.forEach((p) => console.log(`     - [${p.lang}] ${p.errorType}: ${p.count} times`));
+      const fixes = memory.searchFixes();
+      const patterns = memory.getTopPatterns("", 10);
+      console.log(`\n🧠 Persistent Memory:`);
+      console.log(`   Past fixes stored: ${fixes.length}`);
+      if (patterns.length > 0) {
+        console.log(`   Top error patterns:`);
+        patterns.forEach((p) => console.log(`     • [${p.lang}] ${p.errorType} (seen ${p.count}x)`));
+      }
+      console.log();
       continue;
     }
 
     if (userInput.toLowerCase() === "scan") {
+      console.log("\n🔍 Scanning project...");
       const map = memory.buildProjectMap();
-      console.log(`\n🗺️  Scanned ${map.totalFiles} files.`);
+      console.log(`✅ Scanned ${map.totalFiles} files\n`);
       continue;
     }
 
-    if (!userInput.trim()) continue;
+    // ── SOLVED CONFIRMATION ────────────────────────────
+    if (activeFile && isSolved(userInput)) {
+      console.log(`\n✨ Great! Finished with ${activeFile}.\n`);
+      rememberTurn("user", userInput);
+      rememberTurn("assistant", `Confirmed done with ${activeFile}`);
+      activeFile = null;
+      continue;
+    }
 
+    console.log("\n🤔 Thinking...");
     rememberTurn("user", userInput);
 
-    const result = await runAgentLoop(userInput, readmeContent, activeFile);
+    const { summaries, activeFile: updatedFile } = await runAgentLoop(
+      userInput,
+      readmeContent,
+      isFollowUp(userInput) ? activeFile : null
+    );
 
-    if (result && result.summaries.length > 0) {
-      rememberTurn("assistant", result.summaries.join(" | "));
+    if (updatedFile) activeFile = updatedFile;
+
+    if (summaries.length === 0) {
+      const msg = "Sorry, I couldn't complete that. Please try rephrasing.";
+      console.log(`\n❌ ${msg}\n`);
+      rememberTurn("assistant", msg);
+      continue;
+    }
+
+    rememberTurn("assistant", summaries.join(" | "));
+
+    if (activeFile) {
+      const profile = getProfile(activeFile);
+      const langName = profile ? profile.name : "code";
+      console.log(`\n💬 Still on ${activeFile} (${langName}). Looks good or more to fix?\n`);
+    } else {
+      console.log();
     }
   }
 };
 
-main().catch(console.error);
+run().catch((err) => {
+  console.error("❌ Fatal error:", err.message);
+  process.exit(1);
+});
