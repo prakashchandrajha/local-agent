@@ -1,16 +1,20 @@
 {
-  "name": "supercharged-local-agent",
-  "version": "2.0.0",
-  "description": "Multi-language local coding agent with persistent memory, knowledge wrapper, and run+fix loop",
-  "main": "agent.js",
+  "name": "supercharged-coding-agent",
+  "version": "3.0.0",
+  "description": "Elite local coding agent — plan, code, review, run, fix, learn",
+  "main": "agent/agent.js",
   "scripts": {
-    "start": "node agent.js",
-    "dev": "AGENT_DEBUG=1 node agent.js"
+    "start": "node agent/agent.js",
+    "dev":   "AGENT_DEBUG=1 node agent.js",
+    "fast":  "AGENT_REVIEW=0 node agent.js"
   },
-  "keywords": ["ai", "coding-agent", "local-llm", "ollama"],
+  "keywords": ["ai", "agent", "coding", "local-llm", "ollama"],
   "license": "ISC",
   "dependencies": {
     "axios": "^1.13.6",
     "readline-sync": "^1.4.10"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

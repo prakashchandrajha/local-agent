@@ -6,103 +6,54 @@ const { execSync } = require("child_process");
 
 const BASE_DIR = process.cwd();
 
-// Reads a file and returns its content or an error string
+// Reads a file safely
 const readFile = (filePath) => {
   try {
-    const fullPath = path.join(BASE_DIR, filePath);
-    return fs.readFileSync(fullPath, "utf8");
+    return fs.readFileSync(path.join(BASE_DIR, filePath), "utf8");
   } catch (err) {
-    return `ERROR: Cannot read file — ${err.message}`;
+    return `ERROR: ${err.message}`;
   }
 };
 
-// Writes content to a file, creating directories as needed
+// Writes a file, creating parent directories as needed
 const writeFile = (filePath, content) => {
   try {
-    const fullPath = path.join(BASE_DIR, filePath);
-    fs.mkdirSync(path.dirname(fullPath), { recursive: true });
-    fs.writeFileSync(fullPath, content);
-    return "File written successfully.";
+    const full = path.join(BASE_DIR, filePath);
+    fs.mkdirSync(path.dirname(full), { recursive: true });
+    fs.writeFileSync(full, content, "utf8");
+    return true;
   } catch (err) {
-    return `ERROR: Cannot write file — ${err.message}`;
+    console.error(`❌ Write error (${filePath}):`, err.message);
+    return false;
   }
 };
 
-// Lists all non-hidden files in the project (respects skip dirs)
+// Lists files as a pretty tree
 const listFiles = (dir = BASE_DIR, depth = 0, prefix = "") => {
-  const SKIP = new Set(["node_modules", ".git", ".agent-memory", "dist", "build", "__pycache__"]);
-  let output = [];
+  const SKIP = new Set(["node_modules", ".git", ".agent-memory", "dist", "build", "__pycache__", "target", "venv"]);
+  const lines = [];
   try {
     const entries = fs.readdirSync(dir, { withFileTypes: true });
-    for (const entry of entries) {
-      if (entry.name.startsWith(".") || SKIP.has(entry.name)) continue;
-      const icon = entry.isDirectory() ? "📁" : "📄";
-      output.push(`${prefix}${icon} ${entry.name}`);
-      if (entry.isDirectory() && depth < 3) {
-        output.push(...listFiles(path.join(dir, entry.name), depth + 1, prefix + "  ").split("\n").filter(Boolean));
+    for (const e of entries) {
+      if (e.name.startsWith(".") || SKIP.has(e.name)) continue;
+      lines.push(`${prefix}${e.isDirectory() ? "📁" : "📄"} ${e.name}`);
+      if (e.isDirectory() && depth < 3) {
+        const sub = listFiles(path.join(dir, e.name), depth + 1, prefix + "  ");
+        if (sub) lines.push(sub);
       }
     }
   } catch (_) {}
-  return output.join("\n");
+  return lines.join("\n");
 };
 
-// Reads multiple files at once — returns map of path → content
+// Reads multiple files at once
 const readFiles = (filePaths) => {
-  const results = {};
-  for (const fp of filePaths) {
-    results[fp] = readFile(fp);
-  }
-  return results;
+  const map = {};
+  for (const fp of filePaths) map[fp] = readFile(fp);
+  return map;
 };
 
-// Tries to run a file and capture output/errors for diagnostic
-const runFile = (filePath) => {
-  const ext = path.extname(filePath).toLowerCase();
-  const runCommands = {
-    ".js": `node "${filePath}"`,
-    ".py": `python3 "${filePath}"`,
-    ".ts": `npx ts-node "${filePath}"`,
-    ".go": `go run "${filePath}"`,
-    ".rb": `ruby "${filePath}"`,
-    ".sh": `bash "${filePath}"`,
-    ".php": `php "${filePath}"`,
-  };
-  const cmd = runCommands[ext];
-  if (!cmd) return { success: false, output: `No runner configured for ${ext} files.` };
-  try {
-    const output = execSync(cmd, {
-      cwd: BASE_DIR,
-      timeout: 15000,
-      encoding: "utf8",
-      stdio: ["pipe", "pipe", "pipe"],
-    });
-    return { success: true, output: output.trim() };
-  } catch (err) {
-    return {
-      success: false,
-      output: (err.stderr || err.stdout || err.message || "Unknown error").trim(),
-      exitCode: err.status,
-    };
-  }
-};
-
-// Computes a simple diff summary between two code strings
-const getDiffSummary = (before, after) => {
-  if (!before || !after) return "";
-  const bLines = before.split("\n");
-  const aLines = after.split("\n");
-  let added = 0, removed = 0;
-  const maxLen = Math.max(bLines.length, aLines.length);
-  for (let i = 0; i < maxLen; i++) {
-    if (bLines[i] !== aLines[i]) {
-      if (i < bLines.length) removed++;
-      if (i < aLines.length) added++;
-    }
-  }
-  return `~${removed} lines changed, ~${added} lines updated`;
-};
-
-// Checks if file exists
+// Checks file existence
 const fileExists = (filePath) => {
   try {
     return fs.existsSync(path.join(BASE_DIR, filePath));
@@ -111,4 +62,52 @@ const fileExists = (filePath) => {
   }
 };
 
-module.exports = { readFile, writeFile, listFiles, readFiles, runFile, getDiffSummary, fileExists };
+// Runs a file and returns { success, output, exitCode }
+const RUNNERS = {
+  ".js":  (f) => `node "${f}"`,
+  ".ts":  (f) => `npx ts-node "${f}"`,
+  ".py":  (f) => `python3 "${f}"`,
+  ".go":  (f) => `go run "${f}"`,
+  ".rb":  (f) => `ruby "${f}"`,
+  ".sh":  (f) => `bash "${f}"`,
+  ".php": (f) => `php "${f}"`,
+  ".rs":  (_) => `cargo run`,
+};
+
+const runFile = (filePath, timeoutMs = 20000) => {
+  const ext = path.extname(filePath).toLowerCase();
+  const cmdFn = RUNNERS[ext];
+  if (!cmdFn) return { success: false, output: `No runner for ${ext}` };
+
+  try {
+    const output = execSync(cmdFn(filePath), {
+      cwd: BASE_DIR,
+      timeout: timeoutMs,
+      encoding: "utf8",
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+    return { success: true, output: output.trim() };
+  } catch (err) {
+    return {
+      success: false,
+      output: (err.stderr || err.stdout || err.message || "").trim(),
+      exitCode: err.status || 1,
+    };
+  }
+};
+
+// Computes a diff summary between two strings
+const getDiffSummary = (before, after) => {
+  if (!before || !after) return "";
+  const bLines = before.split("\n");
+  const aLines = after.split("\n");
+  let changed = 0;
+  const maxLen = Math.max(bLines.length, aLines.length);
+  for (let i = 0; i < maxLen; i++) {
+    if (bLines[i] !== aLines[i]) changed++;
+  }
+  const delta = aLines.length - bLines.length;
+  return `${changed} lines changed, ${delta >= 0 ? "+" : ""}${delta} lines`;
+};
+
+module.exports = { readFile, writeFile, listFiles, readFiles, fileExists, runFile, getDiffSummary };

@@ -300,9 +300,9 @@ const getProfile = (filePath, content = "") => {
 const buildKnowledgeBlock = (profile) => {
   if (!profile) return "";
   return `
-═════════════════════════════════════════════════════
+═══════════════════════════════════════════════
 LANGUAGE EXPERT CONTEXT: ${profile.name}
-═════════════════════════════════════════════════════
+═══════════════════════════════════════════════
 COMMON ERRORS TO LOOK FOR:
 ${profile.commonErrors.map((e) => `  • ${e}`).join("\n")}
 
@@ -311,7 +311,7 @@ ${profile.fixHints.trim()}
 
 CODING STYLE:
 ${profile.style}
-═════════════════════════════════════════════════════
+═══════════════════════════════════════════════
 `.trim();
 };
 

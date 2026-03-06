@@ -1,0 +1,469 @@
+[
+  {
+    "lang": "js",
+    "tags": [
+      "async",
+      "error",
+      "promise"
+    ],
+    "fact": "Always wrap await calls in try/catch. Unhandled promise rejections crash Node.js.",
+    "id": "seed-0",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.971Z"
+  },
+  {
+    "lang": "js",
+    "tags": [
+      "null",
+      "undefined",
+      "optional"
+    ],
+    "fact": "Use optional chaining (?.) and nullish coalescing (??) to safely access nested properties.",
+    "id": "seed-1",
+    "source": "built-in",
+    "useCount": 1,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "js",
+    "tags": [
+      "module",
+      "import",
+      "require"
+    ],
+    "fact": "In Node.js ESM, use import/export. In CommonJS, use require/module.exports. Never mix them in the same file.",
+    "id": "seed-2",
+    "source": "built-in",
+    "useCount": 1,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "js",
+    "tags": [
+      "cors",
+      "express",
+      "header"
+    ],
+    "fact": "CORS errors: add cors() middleware BEFORE route definitions. Set origin, methods, credentials explicitly.",
+    "id": "seed-3",
+    "source": "built-in",
+    "useCount": 1,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "js",
+    "tags": [
+      "jwt",
+      "auth",
+      "token"
+    ],
+    "fact": "JWT secrets must be long random strings (32+ chars). Always verify token on every protected route. Store in httpOnly cookies, not localStorage.",
+    "id": "seed-4",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "js",
+    "tags": [
+      "env",
+      "config",
+      "dotenv"
+    ],
+    "fact": "Load .env with require('dotenv').config() as the very FIRST line in entry point. Never commit .env to git.",
+    "id": "seed-5",
+    "source": "built-in",
+    "useCount": 1,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "js",
+    "tags": [
+      "bcrypt",
+      "password",
+      "hash"
+    ],
+    "fact": "bcrypt.hash() is async. Always await it. Use saltRounds = 12 minimum for production passwords.",
+    "id": "seed-6",
+    "source": "built-in",
+    "useCount": 1,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "ts",
+    "tags": [
+      "type",
+      "any",
+      "generic"
+    ],
+    "fact": "Avoid 'any'. Use 'unknown' for truly unknown types — it forces type checking before use.",
+    "id": "seed-7",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "ts",
+    "tags": [
+      "interface",
+      "type",
+      "object"
+    ],
+    "fact": "Use interfaces for object shapes (mergeable), type aliases for unions/intersections/primitives.",
+    "id": "seed-8",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "ts",
+    "tags": [
+      "async",
+      "return",
+      "promise"
+    ],
+    "fact": "Async functions always return Promise<T>. Annotate return type as Promise<void>, Promise<string>, etc.",
+    "id": "seed-9",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "py",
+    "tags": [
+      "async",
+      "asyncio",
+      "event loop"
+    ],
+    "fact": "Use asyncio.run(main()) as entry point. Never call loop.run_until_complete() in newer Python (3.10+).",
+    "id": "seed-10",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "py",
+    "tags": [
+      "import",
+      "module",
+      "package"
+    ],
+    "fact": "Relative imports (from .module import X) only work inside packages. Add __init__.py to make a directory a package.",
+    "id": "seed-11",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "py",
+    "tags": [
+      "pydantic",
+      "validation",
+      "fastapi"
+    ],
+    "fact": "Pydantic v2 uses model_validate() not parse_obj(). Field validators use @field_validator decorator.",
+    "id": "seed-12",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "py",
+    "tags": [
+      "sqlalchemy",
+      "session",
+      "database"
+    ],
+    "fact": "Always close SQLAlchemy sessions. Use context managers (with Session() as session:) or try/finally.",
+    "id": "seed-13",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "py",
+    "tags": [
+      "fastapi",
+      "dependency",
+      "injection"
+    ],
+    "fact": "FastAPI dependencies with yield are generators. Put cleanup code after yield. Use Depends() in route params.",
+    "id": "seed-14",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "py",
+    "tags": [
+      "jwt",
+      "auth",
+      "bearer"
+    ],
+    "fact": "python-jose: use jwt.encode() with algorithm='HS256'. Decode with jwt.decode() passing the secret and algorithms list.",
+    "id": "seed-15",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "java",
+    "tags": [
+      "null",
+      "npe",
+      "optional"
+    ],
+    "fact": "Use Optional<T> for nullable return values. Never return null from public methods. Use Objects.requireNonNull() for validation.",
+    "id": "seed-16",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "java",
+    "tags": [
+      "spring",
+      "bean",
+      "autowired"
+    ],
+    "fact": "Prefer constructor injection over @Autowired field injection. It makes dependencies explicit and testable.",
+    "id": "seed-17",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "java",
+    "tags": [
+      "jpa",
+      "lazy",
+      "transaction"
+    ],
+    "fact": "LazyInitializationException: add @Transactional to service methods or use JOIN FETCH in JPQL queries.",
+    "id": "seed-18",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "java",
+    "tags": [
+      "exception",
+      "handler",
+      "rest"
+    ],
+    "fact": "@ControllerAdvice + @ExceptionHandler creates global exception handlers. Return ResponseEntity with proper HTTP status.",
+    "id": "seed-19",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "java",
+    "tags": [
+      "lombok",
+      "boilerplate"
+    ],
+    "fact": "Use @Data, @Builder, @AllArgsConstructor, @NoArgsConstructor from Lombok to eliminate boilerplate. Add Lombok dependency to pom.xml.",
+    "id": "seed-20",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "springboot",
+    "tags": [
+      "security",
+      "jwt",
+      "filter"
+    ],
+    "fact": "JWT filter must extend OncePerRequestFilter. Add it to SecurityFilterChain BEFORE UsernamePasswordAuthenticationFilter.",
+    "id": "seed-21",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "springboot",
+    "tags": [
+      "cors",
+      "config",
+      "web"
+    ],
+    "fact": "Configure CORS in SecurityConfig.java using .cors(cors -> cors.configurationSource(...)). Don't use @CrossOrigin for global config.",
+    "id": "seed-22",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "springboot",
+    "tags": [
+      "circular",
+      "dependency",
+      "bean"
+    ],
+    "fact": "Circular dependency: use @Lazy on one of the injections, or refactor to introduce a third intermediary bean.",
+    "id": "seed-23",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "springboot",
+    "tags": [
+      "properties",
+      "config",
+      "yaml"
+    ],
+    "fact": "Use @ConfigurationProperties(prefix='app') with a @Configuration class for grouped settings. Type-safe and IDE-friendly.",
+    "id": "seed-24",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "springboot",
+    "tags": [
+      "validation",
+      "request",
+      "body"
+    ],
+    "fact": "Use @Valid on @RequestBody params. Add validation annotations (@NotNull, @Size, @Email) to DTO fields. Handle MethodArgumentNotValidException.",
+    "id": "seed-25",
+    "source": "built-in",
+    "useCount": 1,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "go",
+    "tags": [
+      "error",
+      "wrap",
+      "handling"
+    ],
+    "fact": "Wrap errors with fmt.Errorf('context: %w', err). Check with errors.Is() and errors.As() for type-safe error inspection.",
+    "id": "seed-26",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "go",
+    "tags": [
+      "goroutine",
+      "leak",
+      "context"
+    ],
+    "fact": "Always pass context.Context to goroutines. Use context.WithCancel() to signal shutdown. Goroutines without exit conditions leak.",
+    "id": "seed-27",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "go",
+    "tags": [
+      "interface",
+      "nil",
+      "pointer"
+    ],
+    "fact": "A nil pointer satisfying an interface is NOT nil as an interface. Always return explicit nil for interface return types.",
+    "id": "seed-28",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "rust",
+    "tags": [
+      "borrow",
+      "ownership",
+      "clone"
+    ],
+    "fact": "Borrow checker errors: use clone() if you need multiple owners, or restructure to pass references (&T) instead of values.",
+    "id": "seed-29",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "rust",
+    "tags": [
+      "result",
+      "option",
+      "unwrap"
+    ],
+    "fact": "Never use .unwrap() in production code. Use ?, match, if let, or .unwrap_or_else() for safe error handling.",
+    "id": "seed-30",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "docker",
+    "tags": [
+      "layer",
+      "cache",
+      "build"
+    ],
+    "fact": "Copy package.json and install dependencies BEFORE copying source code. This caches the node_modules layer and speeds up rebuilds.",
+    "id": "seed-31",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "docker",
+    "tags": [
+      "env",
+      "secret",
+      "build-arg"
+    ],
+    "fact": "Never put secrets in Dockerfile or build args — they appear in image history. Use runtime env vars or Docker secrets.",
+    "id": "seed-32",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "general",
+    "tags": [
+      "sql",
+      "injection",
+      "security"
+    ],
+    "fact": "NEVER concatenate user input into SQL queries. Always use parameterized queries / prepared statements.",
+    "id": "seed-33",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "general",
+    "tags": [
+      "env",
+      "secret",
+      "gitignore"
+    ],
+    "fact": ".env files must be in .gitignore. Rotate any secrets that were ever committed to git history.",
+    "id": "seed-34",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  },
+  {
+    "lang": "general",
+    "tags": [
+      "test",
+      "validation",
+      "run"
+    ],
+    "fact": "After every code generation: check that all imports resolve, all functions are called with correct argument counts, and no logic is left as pseudocode.",
+    "id": "seed-35",
+    "source": "built-in",
+    "useCount": 0,
+    "createdAt": "2026-03-06T10:54:29.972Z"
+  }
+]

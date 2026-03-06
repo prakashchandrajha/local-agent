@@ -1,179 +1,203 @@
-# 🚀 Supercharged Local Coding Agent
+# 🚀 Supercharged Local Coding Agent — v3
 
-A **fully local, offline coding agent** with persistent memory, multi-language knowledge, and an automatic run-and-fix loop.
+> **Elite local coding agent.** Plan → Code → Review → Run → Fix → Learn.  
+> Fully offline. No API keys. Gets smarter every session.
 
 ---
 
-## What's New (v2.0)
+## What's New in v3
 
-| Feature | v1 | v2 (Supercharged) |
+| System | v2 | v3 |
 |---|---|---|
-| Languages | JS only | JS, TS, Python, Java, Spring Boot, Go, Rust, C++, PHP, Bash |
-| Memory | Session only | **Persistent** across sessions (`.agent-memory/`) |
-| Run + Fix | Manual | **Automatic** — runs files, catches errors, fixes and re-runs |
-| Knowledge | None | **Language profiles** injected into every prompt |
-| Project scan | None | **Auto project map** built on startup |
-| Error learning | None | **Pattern tracking** — gets smarter over time |
-| Multi-file | Limited | **Full multi-file coordination** |
+| Complex tasks | Single LLM call | **Task Planner** — step-by-step execution |
+| Knowledge | Language profiles | **Knowledge Atoms** — TF-IDF semantic search |
+| Code quality | Write directly | **Self-Review** — validates before writing |
+| Web search | ❌ | **Web Search Fallback** — SO + DDG when stuck |
+| Web learning | ❌ | **Crystallization** — web fixes → permanent atoms |
+| File awareness | Basic | **Dependency Graph** — tracks import relationships |
+| Reasoning | ❌ | **Trace Log** — full audit of every decision |
+| Fix search | String match | **Scored keyword search** over fix history |
 
 ---
 
-## Architecture
-
-```
-agent.js                   ← Main loop + agentic orchestration
-├── tools/
-│   └── file.js            ← readFile, writeFile, listFiles, runFile, getDiffSummary
-├── knowledge/
-│   └── lang-profiles.js   ← Expert knowledge for 10+ languages
-└── memory/
-    └── index.js           ← Persistent fix history, error patterns, project map
-```
-
-### `.agent-memory/` (auto-created)
-```
-.agent-memory/
-├── fixes.json         ← Every successful fix stored here
-├── patterns.json      ← Recurring error types tracked per language
-├── project-map.json   ← File tree scan (refreshes every 5 min)
-└── session.json       ← Reserved for future session state
-```
-
----
-
-## Setup
+## Install & Run
 
 ```bash
 npm install
 node agent.js
-```
 
-Set a different model:
-```bash
-AGENT_MODEL=llama3:8b node agent.js
-```
-
-Debug raw LLM output:
-```bash
+# With debug output
 AGENT_DEBUG=1 node agent.js
+
+# Skip self-review (faster, less reliable)
+AGENT_REVIEW=0 node agent.js
+
+# Use a different model
+AGENT_MODEL=codellama:13b node agent.js
 ```
 
 ---
 
-## Commands
+## File Structure
 
-| Input | What happens |
+```
+agent.js                      ← Main loop + orchestration
+│
+├── core/
+│   ├── planner.js            ← Task decomposer — blueprints for OAuth2, REST APIs, etc.
+│   └── reviewer.js           ← Self-review pass + reasoning trace logger
+│
+├── tools/
+│   └── file.js               ← readFile, writeFile, runFile, getDiffSummary
+│
+├── knowledge/
+│   ├── lang-profiles.js      ← Expert profiles for 10+ languages
+│   └── templates/            ← Module scaffolding recipes (add your own!)
+│
+├── memory/
+│   ├── index.js              ← Fix history, error patterns, project map
+│   └── knowledge-store.js    ← Atom store + TF-IDF search + dependency graph
+│
+└── browser/
+    └── search.js             ← Web search (SO + DDG) + solution crystallization
+```
+
+### Persistent Storage (`.agent-memory/`)
+
+```
+.agent-memory/
+├── fixes.json          ← Every successful fix recorded here
+├── atoms.json          ← Knowledge facts (seeded + web-learned)
+├── patterns.json       ← Error frequency by language
+├── project-map.json    ← File tree + recent files
+├── graph.json          ← Import/dependency relationships
+└── reasoning.log       ← Full audit trail of agent decisions
+```
+
+---
+
+## Shell Commands
+
+| Command | What it does |
 |---|---|
-| `exit` | Saves memory and quits |
-| `history` | Shows this session's conversation |
-| `clear` | Resets session memory + active file |
-| `memory` | Shows persistent fix count and top error patterns |
-| `scan` | Re-scans project structure |
+| `exit` | Save memory and quit |
+| `history` | Show this session's conversation |
+| `clear` | Reset session context |
+| `memory` | Show fix count, atom count, top error patterns |
+| `atoms` | List last 20 knowledge atoms |
+| `trace` | Show last 15 reasoning trace entries |
+| `scan` | Re-scan and rebuild project map |
 
 ---
 
-## What It Can Do
+## How Complex Tasks Work (OAuth2 Example)
 
-### Fix errors in any language
 ```
-You: fix calculator.py
+You: create oauth2 implementation for express
 ```
-Agent reads the file → detects language → injects Python expert context + past fixes → writes corrected code.
 
-### Run files and auto-fix failures
+1. **Planner detects** this matches "OAuth2 / JWT Auth (Node.js)" blueprint
+2. **Displays 6-step plan** and asks for confirmation
+3. **Executes each step** as a focused LLM call:
+   - Step 1: `jwt.js` — token sign/verify/refresh
+   - Step 2: `user-model.js` — schema with password hash
+   - Step 3: `auth-service.js` — register/login/refresh business logic
+   - Step 4: `auth-middleware.js` — Bearer token validator
+   - Step 5: `auth-routes.js` — POST /auth/register, /login, /refresh
+   - Step 6: `app.js` — wires everything together
+4. **Each file gets self-reviewed** before writing
+5. **Knowledge atoms are injected** into each step (JWT secrets, bcrypt rounds, etc.)
+
+---
+
+## How Web Search + Learning Works
+
 ```
 You: run server.js
 ```
-Agent runs the file → captures output/errors → offers to auto-fix → fixes and re-runs.
-
-### Create new files
-```
-You: create a Spring Boot REST controller for /api/users
-```
-Agent knows Spring Boot conventions (beans, @RestController, ResponseEntity, etc.) and generates production-ready code.
-
-### Multi-file coordination
-```
-You: fix the import error across utils.py and main.py
-```
-Agent reads both → identifies cross-file dependency issue → writes both fixed files.
-
-### Review without changing
-```
-You: review auth.go
-```
-Agent reads → gives detailed analysis without writing → waits for your go-ahead.
-
-### Improve existing code
-```
-You: improve the error handling in api.js
-```
-Agent reads → applies language-specific best practices → writes improved version → records fix in memory.
+1. Agent runs the file → captures error output
+2. Tries to fix locally (up to 3 attempts) using knowledge atoms + past fixes
+3. **If still broken:** searches Stack Overflow + DuckDuckGo for the exact error
+4. Injects web results as context and generates a fix
+5. **If fix works:** crystallizes the solution as a new knowledge atom
+6. Next time this error appears — agent knows the answer locally
 
 ---
 
-## Language Knowledge
+## Self-Review Pass
 
-Every LLM call is enriched with expert context for the detected language:
+Before any file is written to disk, a review prompt is sent to the LLM checking:
 
-- **Common error patterns** (e.g. NullPointerException, borrow checker, async/await pitfalls)
-- **Fix strategies** specific to that language and framework
-- **Style conventions** (PEP8 for Python, SOLID for Java, etc.)
-- **Past fixes from memory** relevant to the current language and error type
+- All imports/requires resolve correctly
+- No placeholder or stub code
+- All async functions have error handling
+- Language-specific rules (semicolons, types, annotations)
+- No truncation or missing logic
 
-### Supported languages
-`JavaScript` · `TypeScript` · `Python` · `Java` · `Spring Boot` · `FastAPI` · `Go` · `Rust` · `C++` · `PHP` · `Bash`
-
----
-
-## Customizing Instructions
-
-Edit `README.md` in your project root. It's loaded fresh every time the agent starts — no restart needed.
-
-**Example additions:**
-```markdown
-## Project Context
-- This is a Spring Boot REST API for a fintech app
-- Database: PostgreSQL via JPA/Hibernate
-- Auth: JWT tokens in Authorization headers
-- All controllers return ResponseEntity<ApiResponse<T>>
-
-## Style
-- All services must implement an interface
-- Use Lombok @Builder and @Data annotations
-- Log all exceptions with logger.error()
-```
+If issues are found, they're auto-fixed in the review pass itself.
 
 ---
 
-## How Memory Works
+## Knowledge Atom System
 
-The agent saves every fix it applies:
+Atoms are discrete coding facts stored in `.agent-memory/atoms.json`:
 
 ```json
 {
-  "file": "UserService.java",
-  "lang": "java",
-  "errorType": "fix",
-  "description": "fix NullPointerException in findById when user not found",
-  "timestamp": "2025-03-06T10:22:00.000Z"
+  "lang": "springboot",
+  "tags": ["security", "jwt", "filter"],
+  "fact": "JWT filter must extend OncePerRequestFilter. Add it BEFORE UsernamePasswordAuthenticationFilter.",
+  "source": "built-in",
+  "useCount": 7
 }
 ```
 
-When you ask it to fix a Java file later, it recalls similar past fixes and uses them as additional context — getting smarter with every session.
+The agent ships with **35+ seed atoms** covering common mistakes in JS, TS, Python, Java, Spring Boot, Go, Rust, Docker.
+
+When you search for atoms via `atoms` command, you see which ones are used most. You can also manually add atoms by editing `.agent-memory/atoms.json`.
 
 ---
 
-## Agent Tool Reference
+## Adding Custom Knowledge
 
-The LLM can emit these tools:
+### Add project context to README.md
 
-| Tool | Purpose |
-|---|---|
-| `chat` | Respond to user with explanation or questions |
-| `list_files` | Show project structure |
-| `read_file` | Read a specific file |
-| `write_file` | Create or overwrite a file |
-| `run_file` | Execute a file and capture output |
-| `fix_error` | Analyze an error and fix the file |
-| `recall_fixes` | Query past fix memory |
+```markdown
+## Project Context
+- Spring Boot 3.2 REST API
+- PostgreSQL via JPA/Hibernate  
+- Auth: JWT Bearer tokens
+- All controllers return ResponseEntity<ApiResponse<T>>
+- Use Lombok @Data and @Builder everywhere
+```
+
+### Add custom knowledge atoms
+
+Edit `.agent-memory/atoms.json`:
+
+```json
+{
+  "lang": "springboot",
+  "tags": ["pattern", "response"],
+  "fact": "All endpoints in this project return ResponseEntity<ApiResponse<T>> where ApiResponse has status, message, data fields.",
+  "source": "project-custom"
+}
+```
+
+### Add language templates
+
+Create files in `knowledge/templates/` — they'll be auto-loaded for matching task types.
+
+---
+
+## Recommended Models (Ollama)
+
+| Model | Size | Best for |
+|---|---|---|
+| `deepseek-coder:6.7b` | 4GB | Good balance, default |
+| `deepseek-coder:33b` | 18GB | Best code quality |
+| `codellama:13b` | 7GB | Strong multi-language |
+| `qwen2.5-coder:14b` | 8GB | Excellent instruction following |
+| `llama3.1:8b` | 4.5GB | Good reasoning + code |
+
+Switch model: `AGENT_MODEL=qwen2.5-coder:14b node agent.js`

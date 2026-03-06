@@ -213,4 +213,8 @@ module.exports = {
   recordErrorPattern,
   getTopPatterns,
   readMemory,
+  // Aliases for agent.js compatibility
+  recordPattern: recordErrorPattern,
+  buildMemoryBlock: buildMemoryRecallBlock,
+  buildProjectBlock: buildProjectContextBlock,
 };
