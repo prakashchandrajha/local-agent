@@ -311,6 +311,7 @@ const parseToolBlocks = (response) => {
 
 // ─────────────────────────────────────────────────────────────
 // WRITE WITH OPTIONAL SELF-REVIEW
+// Keeps original as backup — restores if review output looks wrong
 // ─────────────────────────────────────────────────────────────
 const writeWithReview = async (filePath, code, lang) => {
   if (!ENABLE_REVIEW) { writeFile(filePath, code); return code; }
@@ -319,7 +320,12 @@ const writeWithReview = async (filePath, code, lang) => {
   if (approved) { process.stdout.write(" ✅\n"); writeFile(filePath, code); return code; }
   process.stdout.write(` ⚠️  ${issues.length} issue(s) — auto-fixed\n`);
   issues.slice(0, 3).forEach((i) => console.log(`     → ${i}`));
-  const final = fixedCode || code;
+
+  const candidate = fixedCode || code;
+  // Safety: reviewer must not shrink file to less than 60% — fall back to original code
+  const ratio = candidate.length / code.length;
+  const final = ratio >= 0.6 ? candidate : code;
+  if (ratio < 0.6) console.log(`     ⚠️  Reviewer output too short — using original`);
   writeFile(filePath, final);
   return final;
 };
@@ -353,7 +359,22 @@ const runAgentTurn = async (prompt, readmeContent, activeFile = null, errorCtx =
       if (before && !before.startsWith("ERROR")) {
         const ok = await keyInYN(`\n⚠️  ${op.path} exists. Overwrite?`);
         if (!ok) { console.log("⏭️  Skipped"); continue; }
+
+        // HALLUCINATION GUARD — protect existing files from being wiped
+        // If new content is less than 60% of original length, LLM truncated — reject
+        const ratio = op.content.length / before.length;
+        if (ratio < 0.6) {
+          console.log(`\n⚠️  Write rejected for ${op.path} — LLM output too short (${Math.round(ratio*100)}% of original). File preserved.`);
+          continue;
+        }
+        // Reject if output has no code signals (pure prose hallucination)
+        const hasCode = /\b(function|const|let|var|def |class |import |require|return|if |for )\b/.test(op.content);
+        if (!hasCode && op.content.split("\n").length < 5) {
+          console.log(`\n⚠️  Write rejected for ${op.path} — output looks like prose, not code. File preserved.`);
+          continue;
+        }
       }
+
       const lang  = detectLangFromFile(op.path) || "default";
       let   code  = op.content;
 

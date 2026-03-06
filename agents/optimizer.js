@@ -57,16 +57,19 @@ const OPTIMIZATION_CHECKLIST = {
 };
 
 // Analyzes and optimizes a single file
+// SAFETY: always validates output before writing — never wipes files
 const optimizeFile = async (filePath, lang = "default") => {
   if (!fileExists(filePath)) return null;
-  const content   = readFile(filePath);
+
+  const original  = readFile(filePath);
   const checklist = (OPTIMIZATION_CHECKLIST[lang] || OPTIMIZATION_CHECKLIST.default).join("\n- ");
+  const originalLines = original.split("\n").length;
 
   const prompt = `You are a senior performance engineer. Optimize this file.
 
 FILE: ${filePath}
 ---
-${content}
+${original}
 ---
 
 OPTIMIZATION CHECKLIST:
@@ -75,29 +78,60 @@ OPTIMIZATION CHECKLIST:
 Rules:
 1. Only apply optimizations that clearly improve the code
 2. Do NOT change behavior or logic — only style/performance
-3. Write the complete optimized file
+3. Write the COMPLETE optimized file — every line, nothing removed
+4. The output must be at least as long as the input (${originalLines} lines)
 
 If the code is already well-optimized, respond with exactly: ALREADY_OPTIMAL
 
-Otherwise respond with the complete optimized file only. No explanation.`;
+Otherwise respond with the complete optimized file only. No explanation, no markdown.`;
 
   try {
     const res = await postJSON(OLLAMA_URL, {
       model: MODEL,
       prompt,
       stream: false,
-      options: { temperature: 0.1, num_predict: 5000 },
+      options: { temperature: 0.1, num_predict: 8000 },
     });
 
     const raw = (res.response || "").trim();
+
+    // ── SAFETY CHECKS — reject bad LLM output before touching disk ──
+
+    // 1. Explicit "already optimal" signal
     if (raw === "ALREADY_OPTIMAL" || raw.includes("ALREADY_OPTIMAL")) return null;
 
+    // 2. Empty or tiny response
+    if (!raw || raw.length < 30) return null;
+
+    // Strip markdown fences
     const optimized = raw.replace(/^```[\w]*\n?/gm, "").replace(/^```$/gm, "").trim();
-    if (optimized && optimized.length > 50 && optimized !== content) {
-      writeFile(filePath, optimized);
-      return filePath;
+
+    // 3. No change
+    if (optimized === original) return null;
+
+    // 4. CRITICAL: output must be at least 60% the length of original
+    //    A 6.7B model hallucinating a summary will fail this
+    const ratio = optimized.length / original.length;
+    if (ratio < 0.6) {
+      if (process.env.AGENT_DEBUG === "1") {
+        console.log(`\n   ⚠️  Optimizer rejected output for ${filePath} (ratio: ${ratio.toFixed(2)} — likely truncated)`);
+      }
+      return null;
     }
-    return null;
+
+    // 5. Output must not be pure prose (no code keywords = hallucination)
+    const hasCodeSignals = /\b(function|const|let|var|def |class |import |require|return|if |for |while )\b/.test(optimized);
+    const isProseOnly    = !hasCodeSignals && optimized.split("\n").length < 5;
+    if (isProseOnly) return null;
+
+    // 6. Must have more content than a single explanation sentence
+    const outputLines = optimized.split("\n").length;
+    if (outputLines < Math.max(3, originalLines * 0.5)) return null;
+
+    // ── ALL CHECKS PASSED — safe to write ──
+    writeFile(filePath, optimized);
+    return filePath;
+
   } catch (_) {
     return null;
   }

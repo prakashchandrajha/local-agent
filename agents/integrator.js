@@ -113,7 +113,11 @@ Respond with the complete corrected file content only. No explanation, no markdo
       });
 
       const fixedCode = (res.response || "").trim().replace(/^```[\w]*\n?/gm, "").replace(/^```$/gm, "").trim();
-      if (fixedCode && fixedCode.length > 50) {
+
+      // SAFETY: reject if output is truncated or looks like prose
+      const ratio = fixedCode.length / content.length;
+      const hasCode = /\b(function|const|let|var|def |class |import |require|return)\b/.test(fixedCode);
+      if (fixedCode && fixedCode.length > 50 && ratio >= 0.6 && hasCode) {
         writeFile(fp, fixedCode);
         fixed.push(fp);
         console.log(`   🔗 Integration fix applied: ${fp}`);
