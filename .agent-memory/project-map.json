@@ -1,6 +1,6 @@
 {
-  "scannedAt": "2026-03-06T16:55:34.170Z",
-  "totalFiles": 53,
+  "scannedAt": "2026-03-06T16:57:39.218Z",
+  "totalFiles": 50,
   "byExtension": {
     ".md": [
       "README.md",
@@ -15,7 +15,6 @@
       "agents/qa.js",
       "agents/speculative.js",
       "browser/search.js",
-      "calculatorapp.js",
       "calor.js",
       "config/prompts.js",
       "core/clc.js",
@@ -62,12 +61,6 @@
       "package.json",
       "todo-api/package-lock.json",
       "todo-api/package.json"
-    ],
-    "no-ext": [
-      "mydemofile"
-    ],
-    ".txt": [
-      "output.txt"
     ]
   },
   "allFiles": [
@@ -80,7 +73,6 @@
     "agents/qa.js",
     "agents/speculative.js",
     "browser/search.js",
-    "calculatorapp.js",
     "calor.js",
     "config/prompts.js",
     "core/clc.js",
@@ -113,8 +105,6 @@
     "memory/fis.js",
     "memory/index.js",
     "memory/knowledge-store.js",
-    "mydemofile",
-    "output.txt",
     "package-lock.json",
     "package.json",
     "parsers/tool-parser.js",
@@ -126,15 +116,15 @@
     "tools/input.js"
   ],
   "recentFiles": [
-    "output.txt",
-    "calculatorapp.js",
-    "mydemofile",
+    "package-lock.json",
     "agent.js",
     "agents/architect.js",
     "agents/ceo.js",
     "agents/integrator.js",
     "agents/optimizer.js",
     "agents/qa.js",
-    "agents/speculative.js"
+    "agents/speculative.js",
+    "core/clc.js",
+    "knowledge/pattern-loader.js"
   ]
 }
