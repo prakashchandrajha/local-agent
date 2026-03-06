@@ -7,7 +7,7 @@ const memory = require("./tools/memory");
 const scanner = require("./tools/scanner");
 const knowledge = require("./tools/knowledge");
 const { planTask, needsPlanning, formatPlan } = require("./tools/simple_planner");
-const { reviewCode, needsReview, formatReview } = require("./tools/critic");
+const { refineCode, shouldRefine, formatRefinementResult } = require("./tools/refiner");
 const fs = require("fs");
 const path = require("path");
 
@@ -454,44 +454,51 @@ const runAgentLoop = async (userInput, systemPrompt, contextFile = null) => {
         lastWrittenFile = op.path;
         allSummaries.push(`Created/updated: ${op.path}`);
         
-        // STEP 2: CRITIC REVIEW - Check and improve code quality
-        if (needsReview(op.content)) {
-          console.log("🔍 Critic reviewing code quality...");
+        // STEP 2: SELF-REFINEMENT LOOP - Keep improving until quality is good
+        if (shouldRefine(op.content)) {
+          console.log("� Starting self-refinement loop...");
           try {
-            const review = await reviewCode(userInput, op.content, `File: ${op.path}`);
-            
-            if (review.issues && review.issues.length > 0) {
-              console.log(formatReview(review));
-              
-              // If critic provided improved code, use it
-              if (review.improved_code && review.improved_code !== op.content) {
-                console.log("🔧 Applying critic improvements...");
-                writeFile(op.path, review.improved_code);
-                
-                // Record the improvement
-                if (USE_MEMORY) {
-                  try {
-                    memory.addFix(
-                      op.path,
-                      "critic_review",
-                      `Critic improvement: ${review.issues.join(", ")}`,
-                      op.content,
-                      review.improved_code,
-                      "improvement",
-                      ["critic", "auto_improvement"]
-                    );
-                  } catch (err) {
-                    if (DEBUG) console.error("Memory recording error:", err.message);
-                  }
-                }
-                
-                console.log("✅ Code improved by critic");
+            const refinement = await refineCode(
+              userInput, 
+              op.content, 
+              `File: ${op.path}`,
+              {
+                maxIterations: 3,
+                targetScore: 8,
+                minImprovement: 1
               }
+            );
+            
+            console.log(formatRefinementResult(refinement));
+            
+            // If refinement improved the code, use it
+            if (refinement.finalCode !== op.content) {
+              console.log("🔧 Applying refined improvements...");
+              writeFile(op.path, refinement.finalCode);
+              
+              // Record the improvement
+              if (USE_MEMORY) {
+                try {
+                  memory.addFix(
+                    op.path,
+                    "self_refinement",
+                    `Refinement improvement: +${refinement.improvement} quality score over ${refinement.iterations} iterations`,
+                    op.content,
+                    refinement.finalCode,
+                    "improvement",
+                    ["refinement", "self_improvement", "quality_enhancement"]
+                  );
+                } catch (err) {
+                  if (DEBUG) console.error("Memory recording error:", err.message);
+                }
+              }
+              
+              console.log("✅ Code refined to production quality");
             } else {
-              console.log("✅ Code passed critic review");
+              console.log("✅ Code is already good enough");
             }
           } catch (err) {
-            console.log("⚠️  Critic review failed");
+            console.log("⚠️  Refinement failed, keeping original code");
           }
         }
         
@@ -524,44 +531,51 @@ const runAgentLoop = async (userInput, systemPrompt, contextFile = null) => {
         lastWrittenFile = filename;
         allSummaries.push(`Created: ${filename}`);
         
-        // STEP 2: CRITIC REVIEW - Check and improve code quality
-        if (needsReview(op.content)) {
-          console.log("🔍 Critic reviewing code quality...");
+        // STEP 2: SELF-REFINEMENT LOOP - Keep improving until quality is good
+        if (shouldRefine(op.content)) {
+          console.log("� Starting self-refinement loop...");
           try {
-            const review = await reviewCode(userInput, op.content, `File: ${filename}`);
-            
-            if (review.issues && review.issues.length > 0) {
-              console.log(formatReview(review));
-              
-              // If critic provided improved code, use it
-              if (review.improved_code && review.improved_code !== op.content) {
-                console.log("🔧 Applying critic improvements...");
-                writeFile(filename, review.improved_code);
-                
-                // Record the improvement
-                if (USE_MEMORY) {
-                  try {
-                    memory.addFix(
-                      filename,
-                      "critic_review",
-                      `Critic improvement: ${review.issues.join(", ")}`,
-                      op.content,
-                      review.improved_code,
-                      "improvement",
-                      ["critic", "auto_improvement"]
-                    );
-                  } catch (err) {
-                    if (DEBUG) console.error("Memory recording error:", err.message);
-                  }
-                }
-                
-                console.log("✅ Code improved by critic");
+            const refinement = await refineCode(
+              userInput, 
+              op.content, 
+              `File: ${filename}`,
+              {
+                maxIterations: 3,
+                targetScore: 8,
+                minImprovement: 1
               }
+            );
+            
+            console.log(formatRefinementResult(refinement));
+            
+            // If refinement improved the code, use it
+            if (refinement.finalCode !== op.content) {
+              console.log("🔧 Applying refined improvements...");
+              writeFile(filename, refinement.finalCode);
+              
+              // Record the improvement
+              if (USE_MEMORY) {
+                try {
+                  memory.addFix(
+                    filename,
+                    "self_refinement",
+                    `Refinement improvement: +${refinement.improvement} quality score over ${refinement.iterations} iterations`,
+                    op.content,
+                    refinement.finalCode,
+                    "improvement",
+                    ["refinement", "self_improvement", "quality_enhancement"]
+                  );
+                } catch (err) {
+                  if (DEBUG) console.error("Memory recording error:", err.message);
+                }
+              }
+              
+              console.log("✅ Code refined to production quality");
             } else {
-              console.log("✅ Code passed critic review");
+              console.log("✅ Code is already good enough");
             }
           } catch (err) {
-            console.log("⚠️  Critic review failed");
+            console.log("⚠️  Refinement failed, keeping original code");
           }
         }
         

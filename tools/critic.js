@@ -30,9 +30,7 @@ TASK: ${task}
 CONTEXT: ${context}
 
 CODE TO REVIEW:
-\`\`\`javascript
 ${code}
-\`\`\`
 
 Review the code for:
 1. Correctness - Does it work as intended?
@@ -43,11 +41,17 @@ Review the code for:
 6. Performance - Any obvious performance issues?
 7. Best practices - Follows conventions?
 
-Return JSON format exactly:
+Return ONLY JSON format exactly:
 {
   "issues": ["issue 1", "issue 2"],
   "improved_code": "improved version if needed, otherwise same code"
 }
+
+IMPORTANT:
+- No markdown code blocks
+- No explanations
+- Just the JSON object
+- Escape newlines in improved_code with \\n
 
 Common issues to check:
 - Missing input validation
@@ -72,34 +76,64 @@ Common issues to check:
     });
 
     const content = response.data.response || "";
+    console.log("Raw LLM response:", content);
     
     // Try to extract JSON more robustly
     let jsonStr = "";
     
-    // Look for JSON object pattern
-    const jsonMatch = content.match(/\{[\s\S]*?"issues"[\s\S]*?"improved_code"[\s\S]*?\}/);
+    // First remove outer markdown code blocks
+    let cleanContent = content.replace(/```(?:json)?\n?([\s\S]*?)```/g, '$1').trim();
+    
+    // Look for JSON object pattern - match from start of { to end of }
+    const jsonMatch = cleanContent.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       jsonStr = jsonMatch[0];
-    } else {
-      // Fallback: try to find any JSON-like structure
-      const fallbackMatch = content.match(/\{[\s\S]*\}/);
-      if (fallbackMatch) {
-        jsonStr = fallbackMatch[0];
-      }
     }
     
     if (jsonStr) {
       try {
-        const parsed = JSON.parse(jsonStr);
+        // Fix all newline characters first
+        let fixedJson = jsonStr;
+        
+        // Count how many unescaped newlines we have in quoted strings
+        let quoteCount = 0;
+        let inString = false;
+        const result = [];
+        
+        for (let i = 0; i < fixedJson.length; i++) {
+            const char = fixedJson[i];
+            
+            if (char === '"') {
+                inString = !inString;
+                result.push(char);
+                continue;
+            }
+            
+            if (inString && (char === '\n' || char === '\r')) {
+                result.push('\\n');
+            } else {
+                result.push(char);
+            }
+        }
+        
+        fixedJson = result.join('');
+        
+        const parsed = JSON.parse(fixedJson);
         
         // Ensure the structure is correct
         if (!parsed.issues) parsed.issues = [];
         if (!parsed.improved_code) parsed.improved_code = code;
         
+        // Final clean up of improved_code
+        if (parsed.improved_code) {
+            parsed.improved_code = parsed.improved_code.replace(/```javascript\n?/g, '').replace(/```/g, '').trim();
+        }
+        
         return parsed;
       } catch (e) {
         console.log("⚠️  Failed to parse critic JSON");
-        if (DEBUG) console.log("JSON string:", jsonStr);
+        console.log("JSON string:", jsonStr);
+        console.log("Error:", e);
       }
     }
     
