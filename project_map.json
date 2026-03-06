@@ -3,6 +3,7 @@
     "agent.js",
     "calculator.js",
     "config/index.js",
+    "democalc.js",
     "demojango.js",
     "filename.js",
     "src/agent.js",
@@ -18,12 +19,14 @@
     "tools/memory.js",
     "tools/planner.js",
     "tools/reviewer.js",
-    "tools/scanner.js"
+    "tools/scanner.js",
+    "tools/simple_planner.js"
   ],
   "recentlyModified": [
     "agent.js",
     "calculator.js",
     "config/index.js",
+    "democalc.js",
     "demojango.js",
     "filename.js",
     "src/agent.js",
@@ -38,19 +41,16 @@
     "tools/memory.js",
     "tools/planner.js",
     "tools/reviewer.js",
-    "tools/scanner.js"
+    "tools/scanner.js",
+    "tools/simple_planner.js"
   ],
-  "imports": {
-    "tools/reviewer.js": [
-      "tools/file.js",
-      "tools/memory.js"
-    ]
-  },
+  "imports": {},
   "languages": {
     "js": [
       "agent.js",
       "calculator.js",
       "config/index.js",
+      "democalc.js",
       "demojango.js",
       "filename.js",
       "src/agent.js",
@@ -66,35 +66,29 @@
       "tools/memory.js",
       "tools/planner.js",
       "tools/reviewer.js",
-      "tools/scanner.js"
+      "tools/scanner.js",
+      "tools/simple_planner.js"
     ]
   },
   "structures": {
-    "tools/planner.js": {
+    "democalc.js": {
       "functions": [
-        "generatePlan",
-        "buildPlanningPrompt",
-        "parsePlan",
-        "createFallbackPlan",
-        "needsPlanning",
-        "formatPlanForDisplay"
+        "add",
+        "subtract"
       ],
       "classes": [],
       "exports": []
     },
-    "tools/reviewer.js": {
+    "tools/simple_planner.js": {
       "functions": [
-        "reviewAndImprove",
-        "generateReview",
-        "buildReviewPrompt",
-        "parseReview",
-        "isSimpleFile",
-        "quickQualityCheck"
+        "planTask",
+        "needsPlanning",
+        "formatPlan"
       ],
       "classes": [],
       "exports": []
     }
   },
-  "lastScan": "2026-03-06T05:02:34.298Z",
+  "lastScan": "2026-03-06T05:35:38.454Z",
   "scanDuration": 2
 }

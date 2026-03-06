@@ -49,6 +49,9 @@
     "calculator.js": [
       "81e0ff39185a5d6cc90ace9dfbbb6a53",
       "c591e2168d6d3baa10bc3645d1ed3838"
+    ],
+    "democalc.js": [
+      "9be69a37e984302c5218f04561795bf0"
     ]
   },
   "byFunction": {
@@ -103,6 +106,9 @@
     ],
     "add": [
       "c591e2168d6d3baa10bc3645d1ed3838"
+    ],
+    "parseArguments": [
+      "9be69a37e984302c5218f04561795bf0"
     ]
   },
   "byTag": {
@@ -124,7 +130,8 @@
       "c08fe57069196358723ef33d93b8f530",
       "f8057cbbcb4639186e1a9d3381076449",
       "81e0ff39185a5d6cc90ace9dfbbb6a53",
-      "c591e2168d6d3baa10bc3645d1ed3838"
+      "c591e2168d6d3baa10bc3645d1ed3838",
+      "9be69a37e984302c5218f04561795bf0"
     ],
     "bug_fix": [
       "d1faf2a501761eedf140819c046c548b",
@@ -138,7 +145,8 @@
       "df41f3c12267980e10a683e5e58b5a7b",
       "f8057cbbcb4639186e1a9d3381076449",
       "81e0ff39185a5d6cc90ace9dfbbb6a53",
-      "c591e2168d6d3baa10bc3645d1ed3838"
+      "c591e2168d6d3baa10bc3645d1ed3838",
+      "9be69a37e984302c5218f04561795bf0"
     ],
     "txt": [
       "145e2ccca2c7c092eb5795ba8876d1c5"
@@ -354,6 +362,11 @@
       "file": "calculator.js",
       "function": "add",
       "timestamp": "2026-03-06T04:38:18.391Z"
+    },
+    "9be69a37e984302c5218f04561795bf0": {
+      "file": "democalc.js",
+      "function": "parseArguments",
+      "timestamp": "2026-03-06T05:36:12.917Z"
     }
   }
 }

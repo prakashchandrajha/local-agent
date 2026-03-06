@@ -6,7 +6,7 @@ const { readFile, writeFile, listFiles } = require("./tools/file");
 const memory = require("./tools/memory");
 const scanner = require("./tools/scanner");
 const knowledge = require("./tools/knowledge");
-const planner = require("./tools/planner");
+const { planTask, needsPlanning, formatPlan } = require("./tools/simple_planner");
 const reviewer = require("./tools/reviewer");
 const fs = require("fs");
 const path = require("path");
@@ -647,21 +647,80 @@ const run = async () => {
 
     // STEP 1: PLANNING PHASE (for complex tasks)
     let plan = null;
-    if (USE_PLANNING && planner.needsPlanning(userInput)) {
-      console.log("📋 Planning approach...");
+    if (USE_PLANNING && needsPlanning(userInput)) {
+      console.log("🧠 Planning task...");
       try {
-        const context = {
-          file: activeFile,
-          imports: activeFile && projectMap ? (projectMap.imports[activeFile] || []) : [],
-          structures: activeFile && projectMap ? projectMap.structures[activeFile] : null
-        };
-        plan = await planner.generatePlan(userInput, context);
-        console.log(planner.formatPlanForDisplay(plan));
+        // Build context string
+        let context = "";
+        if (activeFile && projectMap) {
+          context = `Active file: ${activeFile}\n`;
+          context += `Imports: ${(projectMap.imports[activeFile] || []).join(", ")}\n`;
+          if (projectMap.structures[activeFile]) {
+            const structures = projectMap.structures[activeFile];
+            context += `Functions: ${structures.functions?.join(", ") || "none"}\n`;
+            context += `Classes: ${structures.classes?.join(", ") || "none"}`;
+          }
+        }
         
-        // Add plan to prompt
-        userInput += "\n\nFOLLOW THIS PLAN:\n" + plan.steps.map((step, i) => `${i + 1}. ${step}`).join("\n");
+        plan = await planTask(userInput, context);
+        console.log(formatPlan(plan));
+        
+        // Execute steps one by one
+        console.log("🚀 Executing plan steps...\n");
+        for (let i = 0; i < plan.steps.length; i++) {
+          const step = plan.steps[i];
+          console.log(`\n--- Step ${i + 1}: ${step} ---`);
+          
+          // Build enhanced system prompt for this step
+          let stepPrompt = SYSTEM_PROMPT;
+          
+          // Add knowledge context
+          const knowledgeContext = buildKnowledgeContext(step, activeFile);
+          if (knowledgeContext) {
+            stepPrompt += knowledgeContext;
+          }
+          
+          // Add memory context
+          if (USE_MEMORY && activeFile) {
+            const memoryContext = buildMemoryContext(activeFile);
+            if (memoryContext) {
+              stepPrompt += memoryContext;
+            }
+          }
+          
+          // Add project context
+          if (activeFile && projectMap) {
+            const projectContext = injectProjectContext(activeFile);
+            if (projectContext) {
+              stepPrompt += `\n\n${projectContext}`;
+            }
+          }
+          
+          // Add plan context
+          stepPrompt += `\n\nCURRENT PLAN STEP: ${step}\n`;
+          stepPrompt += `OVERALL TASK: ${userInput}\n`;
+          
+          // Execute this step
+          const { summaries: stepSummaries, activeFile: stepFile } = await runAgentLoop(
+            step,
+            stepPrompt,
+            activeFile
+          );
+          
+          // Update active file if this step created one
+          if (stepFile) activeFile = stepFile;
+          
+          // Small delay between steps
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+        
+        console.log("\n✅ Plan execution completed!");
+        rememberTurn("assistant", `Completed task: ${userInput}`);
+        continue;
+        
       } catch (err) {
-        console.log("⚠️  Planning failed, proceeding without plan");
+        console.log("⚠️  Planning failed, proceeding normally");
+        console.error(err.message);
       }
     }
 

@@ -2,6 +2,7 @@
   "agent.js": "eb32892aaccf14af87fb6fb1c5108e97",
   "calculator.js": "d416a87014ade7b3654935de33f317d0",
   "config/index.js": "5aebb0611254eec906a8f1f2ece84f3a",
+  "democalc.js": "15d06093e120d560af314e71832e95a5",
   "demojango.js": "255ef9e685a74eb4596dd4d4e1487d6b",
   "filename.js": "e7ec6b508309895338bcddc5ac8cb61c",
   "src/agent.js": "c52b4db768e43dfee3d116da488343ea",
@@ -17,5 +18,6 @@
   "tools/memory.js": "41b10dd672a1276b7fec497d668cb567",
   "tools/planner.js": "1a2852bcdb36413396f40d75a8ffaf75",
   "tools/reviewer.js": "f4b072d7d8c29396f5cf2824f59c41ca",
-  "tools/scanner.js": "d6e970df0a30bc7a520e6943339fb168"
+  "tools/scanner.js": "d6e970df0a30bc7a520e6943339fb168",
+  "tools/simple_planner.js": "5352fc2d665264f4f6b11e36a690d1b6"
 }
