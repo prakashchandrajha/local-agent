@@ -172,8 +172,8 @@ const buildGenericPlan = (input) => {
         { id: 1, title: "Design and plan files",              focus: `List every file needed for: "${input}". Explain what each file does before writing any.` },
         { id: 2, title: "Create core logic",                  focus: `Create the main logic file(s). Include all business logic, no placeholders.` },
         { id: 3, title: "Create supporting files",            focus: `Create any models, utilities, configs, or helpers needed.` },
-        { id: 4, title: "Create entry point / wiring",      focus: `Create or update the main entry file to wire everything together.` },
-        { id: 5, title: "Verify completeness",               focus: `Review all created files. Check imports are correct, functions are complete, nothing is missing.` },
+        { id: 4, title: "Create entry point / wiring",        focus: `Create or update the main entry file to wire everything together.` },
+        { id: 5, title: "Verify completeness",                focus: `Review all created files. Check imports are correct, functions are complete, nothing is missing.` },
       ],
     };
   }

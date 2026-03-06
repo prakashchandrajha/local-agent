@@ -2,9 +2,9 @@
   "name": "supercharged-coding-agent",
   "version": "3.0.0",
   "description": "Elite local coding agent — plan, code, review, run, fix, learn",
-  "main": "agent/agent.js",
+  "main": "agent.js",
   "scripts": {
-    "start": "node agent/agent.js",
+    "start": "node agent.js",
     "dev":   "AGENT_DEBUG=1 node agent.js",
     "fast":  "AGENT_REVIEW=0 node agent.js"
   },

@@ -1,6 +1,6 @@
 "use strict";
 
-const axios = require("axios");
+const { postJSON } = require("../llm/client");
 
 // ─────────────────────────────────────────────────────────────
 // SELF-REVIEW ENGINE
@@ -113,14 +113,14 @@ END_FIXED_CODE
 Do NOT include any other text outside these formats.`;
 
   try {
-    const res = await axios.post(OLLAMA_URL, {
+    const res = await postJSON(OLLAMA_URL, {
       model: MODEL,
       prompt,
       stream: false,
-      options: { temperature: 0.05, max_tokens: 4000 },
+      options: { temperature: 0.05, num_predict: 4000 },
     });
 
-    const raw = res.data.response.trim();
+    const raw = (res.response || "").trim();
 
     if (raw.includes("REVIEW: APPROVED")) {
       return { approved: true, issues: [], fixedCode: null };

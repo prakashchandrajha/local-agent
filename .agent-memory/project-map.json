@@ -1,15 +1,13 @@
 {
-  "scannedAt": "2026-03-06T11:02:33.192Z",
-  "totalFiles": 42,
+  "scannedAt": "2026-03-06T16:11:25.377Z",
+  "totalFiles": 38,
   "byExtension": {
     ".md": [
       "README.md",
-      "docs/for-agent/AGENT_GUIDE.md",
-      "knowledge/design_patterns.md",
-      "knowledge/js_best_practices.md"
+      "docs/for-agent/AGENT_GUIDE.md"
     ],
     ".js": [
-      "agent/agent.js",
+      "agent.js",
       "browser/search.js",
       "calor.js",
       "config/prompts.js",
@@ -17,6 +15,7 @@
       "core/reviewer.js",
       "demoevemoji.js",
       "demovemo.js",
+      "demovemoji.js",
       "examples/agent_demo.js",
       "examples/bug.js",
       "examples/calculator.js",
@@ -30,15 +29,14 @@
       "examples/math.js",
       "index.js",
       "knowledge/lang-profiles.js",
-      "llm/ollama.js",
+      "llm/client.js",
       "memory/index.js",
       "memory/knowledge-store.js",
-      "memory/memory-manager.js",
       "parsers/tool-parser.js",
       "todo-api/server.js",
       "todo-api/test.js",
       "tools/file.js",
-      "tools/run-code.js"
+      "tools/input.js"
     ],
     ".css": [
       "examples/demojango.css"
@@ -46,11 +44,7 @@
     ".html": [
       "examples/demojango.html"
     ],
-    ".txt": [
-      "knowledge/architecture_guidelines.txt"
-    ],
     ".json": [
-      "knowledge/project_notes.json",
       "package-lock.json",
       "package.json",
       "todo-api/package-lock.json",
@@ -59,7 +53,7 @@
   },
   "allFiles": [
     "README.md",
-    "agent/agent.js",
+    "agent.js",
     "browser/search.js",
     "calor.js",
     "config/prompts.js",
@@ -67,6 +61,7 @@
     "core/reviewer.js",
     "demoevemoji.js",
     "demovemo.js",
+    "demovemoji.js",
     "docs/for-agent/AGENT_GUIDE.md",
     "examples/agent_demo.js",
     "examples/bug.js",
@@ -82,15 +77,10 @@
     "examples/legacy/legacy_agent.js",
     "examples/math.js",
     "index.js",
-    "knowledge/architecture_guidelines.txt",
-    "knowledge/design_patterns.md",
-    "knowledge/js_best_practices.md",
     "knowledge/lang-profiles.js",
-    "knowledge/project_notes.json",
-    "llm/ollama.js",
+    "llm/client.js",
     "memory/index.js",
     "memory/knowledge-store.js",
-    "memory/memory-manager.js",
     "package-lock.json",
     "package.json",
     "parsers/tool-parser.js",
@@ -99,6 +89,18 @@
     "todo-api/server.js",
     "todo-api/test.js",
     "tools/file.js",
-    "tools/run-code.js"
+    "tools/input.js"
+  ],
+  "recentFiles": [
+    "package-lock.json",
+    "demovemoji.js",
+    "demoevemoji.js",
+    "agent.js",
+    "browser/search.js",
+    "core/planner.js",
+    "core/reviewer.js",
+    "knowledge/lang-profiles.js",
+    "llm/client.js",
+    "memory/index.js"
   ]
 }
