@@ -1,8 +1,10 @@
-
 const fs = require('fs');
-// TYPO in variable name and missing close bracket
+
 function main() {
   const data = "hello world";
-  console.log(dat); 
+  console.log(data);
   if (true) {
     console.log("missing bracket");
+  }
+}
+main();

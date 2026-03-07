@@ -1,0 +1,6 @@
+{
+  "/home/vvd/local-agent/tests/swarm_demo.js:9 syntaxerror: unexpected end of input at wrapsafe (node:i": {
+    "fixCode": "const fs = require('fs');\n\nfunction main() {\n  const data = \"hello world\";\n  console.log(data);\n  if (true) {\n    console.log(\"missing bracket\");\n  }\n}\nmain();",
+    "ts": 1772898200476
+  }
+}

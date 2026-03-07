@@ -165,20 +165,19 @@ const speculateFix = async (filePath, errorOutput, lang = "") => {
   });
 
   // Test in sandboxes
-  console.log(`   �� Testing ${valid.length} variants...`);
+  console.log(`   🧪 Testing ${valid.length} variants...`);
   sandbox.initPool();
 
-  const results = [];
-  for (const v of valid) {
+  const results = (await Promise.all(valid.map(async (v) => {
     const sb = await sandbox.checkout(filePath);
-    if (!sb) continue;
+    if (!sb) return null;
     try {
       const evalResult = evaluateVariant(sb.id, filePath, v.type, content, v.code);
-      results.push({ ...v, ...evalResult });
+      return { ...v, ...evalResult };
     } finally {
       sandbox.release(sb.id);
     }
-  }
+  }))).filter(Boolean);
 
   if (!results.length) return { success: false, variants: [] };
 
