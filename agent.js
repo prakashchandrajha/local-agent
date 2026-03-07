@@ -1104,6 +1104,26 @@ const run = async () => {
     if (DEBUG) console.log(`[DEBUG] Intent: ${intent.intent} (${intent.confidence}), Complexity: ${complexity}`);
     logEvent({ type: "input", input, intent: intent.intent });
 
+    // If intent is unclear, ask a concise clarifying question instead of guessing.
+    if (intent.intent === "clarify" || intent.confidence < 0.55) {
+      const maybeFile = extractFilename(input);
+      const prompt = maybeFile
+        ? `Should I create, fix, or run ${maybeFile}?`
+        : `Tell me what to fix/create/run. Example: "fix demo.js" or "create demo.js with hello world".`;
+      console.log(`\n🤔 I didn't fully catch that. ${prompt}\n`);
+      continue;
+    }
+
+    // If user said "create <file>" with no spec, request the intended content/purpose.
+    if (intent.intent === "create") {
+      const maybeFile = extractFilename(input);
+      const lacksSpec = !/\b(with|containing|print|log|hello|function|class|template|scaffold|code|write|table|api|server|component)\b/i.test(lo);
+      if (maybeFile && lacksSpec) {
+        console.log(`\n🤔 You asked to create ${maybeFile}, but didn't describe the content. Tell me what it should do (e.g., "create ${maybeFile} that prints hello").\n`);
+        continue;
+      }
+    }
+
     // Chat
     if (intent.intent === "chat") {
       console.log(`\n🤖 Hi! Tell me what to build, fix, or run.\n`);

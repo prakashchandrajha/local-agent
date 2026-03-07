@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2026-03-07T18:16:58.661Z",
+  "scannedAt": "2026-03-07T18:21:39.140Z",
   "totalFiles": 86,
   "byExtension": {
     ".docx": [
@@ -37,7 +37,6 @@
       "core/root-cause-analyzer.js",
       "core/swarm.js",
       "core/telemetry.js",
-      "demo.js",
       "examples/agent_demo.js",
       "examples/bug.js",
       "examples/filename.js",
@@ -82,6 +81,11 @@
       "tools/input.js",
       "tools/sandbox.js"
     ],
+    ".py": [
+      "demo.py",
+      "path/to/demovemo.py",
+      "test_complex_python.py"
+    ],
     ".css": [
       "examples/demojango.css"
     ],
@@ -97,10 +101,6 @@
     ".txt": [
       "output.txt",
       "tests/tmp-regress.txt"
-    ],
-    ".py": [
-      "path/to/demovemo.py",
-      "test_complex_python.py"
     ]
   },
   "allFiles": [
@@ -130,7 +130,7 @@
     "core/root-cause-analyzer.js",
     "core/swarm.js",
     "core/telemetry.js",
-    "demo.js",
+    "demo.py",
     "docs/for-agent/AGENT_GUIDE.md",
     "examples/agent_demo.js",
     "examples/bug.js",
@@ -193,14 +193,14 @@
   ],
   "recentFiles": [
     "agent.js",
-    "demo.js",
+    "config/prompts.js",
+    "demo.py",
     "output.txt",
     "tests/tmp-regress.txt",
     "core/ere.js",
     "core/fix-planner.js",
     "tests/test-regression-guard.js",
     "core/regression-guard.js",
-    "tests/test-root-cause.js",
-    "core/project-graph.js"
+    "tests/test-root-cause.js"
   ]
 }

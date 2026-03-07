@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "indexedAt": "2026-03-07T18:16:58.677Z",
+  "indexedAt": "2026-03-07T18:21:39.157Z",
   "totalFiles": 82,
   "files": {
     "README.md": {
@@ -107,8 +107,8 @@
         "|def",
         "|require|return|module\\.exports)\\b/.test(op.content);"
       ],
-      "lineCount": 1242,
-      "mtime": 1772907410500
+      "lineCount": 1262,
+      "mtime": 1772907641300
     },
     "agents/architect.js": {
       "role": "other",
@@ -316,8 +316,8 @@
       ],
       "imports": [],
       "externalDeps": [],
-      "lineCount": 112,
-      "mtime": 1772893578078
+      "lineCount": 115,
+      "mtime": 1772907626963
     },
     "core/cce.js": {
       "role": "other",
@@ -795,20 +795,20 @@
       "lineCount": 19,
       "mtime": 1772877556118
     },
-    "demo.js": {
+    "demo.py": {
       "role": "other",
-      "description": "Prints the multiplication table of 2 (1–10) to stdout.",
+      "description": "exports: addNumbers",
       "functions": [
-        "printTableOfTwo"
+        "addNumbers"
       ],
       "signatures": [
-        "printTableOfTwo(limit = 10)"
+        "addNumbers(a, b)"
       ],
       "exports": [],
       "imports": [],
       "externalDeps": [],
-      "lineCount": 13,
-      "mtime": 1772907149505
+      "lineCount": 7,
+      "mtime": 1772907469714
     },
     "docs/for-agent/AGENT_GUIDE.md": {
       "role": "other",
