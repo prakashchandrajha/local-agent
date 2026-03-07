@@ -7,8 +7,8 @@
     "errorText": "/home/vvd/local-agent/tests/swarm_demo.js:9\n\n\n\nSyntaxError: Unexpected end of input\n    at wrapSafe (node:internal/modules/cjs/loader:1638:18)\n    at Module._compile (node:internal/modules/cjs/loader:1680:20)\n    at Object..js (node:internal/modules/cjs/loader:1839:10)\n    at Module.load (node:inter",
     "fix": "LLM attempt 1",
     "codeAfter": "const fs = require('fs');\n\nfunction main() {\n  const data = \"hello world\";\n  console.log(data);\n  if (true) {\n    console.log(\"missing bracket\");\n  }\n}\nmain();",
-    "seenCount": 1,
+    "seenCount": 2,
     "firstSeen": "2026-03-07T15:43:20.477Z",
-    "lastSeen": "2026-03-07T15:43:20.477Z"
+    "lastSeen": "2026-03-07T15:47:08.975Z"
   }
 ]

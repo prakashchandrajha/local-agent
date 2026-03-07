@@ -60,7 +60,7 @@ const fingerprint = (errorText) =>
 // RECORD A FAILURE + FIX
 // Called after a successful fix cycle
 // ─────────────────────────────────────────────────────────────
-const recordFailure = ({ lang, file, errorText, cause, fix, codeAfter }) => {
+const recordFailure = ({ lang, file, errorText, cause, fix, codeAfter, errorType }) => {
   const entries = load();
   const key     = fingerprint(errorText);
 
@@ -83,6 +83,7 @@ const recordFailure = ({ lang, file, errorText, cause, fix, codeAfter }) => {
     cause:     cause?.slice(0, 200),
     fix:       fix?.slice(0, 500),
     codeAfter: codeAfter?.slice(0, 400),
+    errorType,
     seenCount: 1,
     firstSeen: new Date().toISOString(),
     lastSeen:  new Date().toISOString(),

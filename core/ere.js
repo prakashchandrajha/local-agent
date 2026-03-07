@@ -7,6 +7,7 @@ const { execSync } = require("child_process");
 const { readFile, writeFile, fileExists, runFile } = require("../tools/file");
 const { postJSON }         = require("../llm/client");
 const fis                  = require("../memory/fis");
+const { classify }         = require("./error-classifier");
 
 const OLLAMA_URL = process.env.OLLAMA_URL  || "http://localhost:11434/api/generate";
 const MODEL      = process.env.AGENT_MODEL || "deepseek-coder:6.7b";
@@ -92,7 +93,16 @@ const QUICK_FIX_PATTERNS = [
 ];
 
 const tryQuickFix = (errorOutput, filePath) => {
-  for (const p of QUICK_FIX_PATTERNS) {
+  const cls = classify(errorOutput);
+  const targeted = QUICK_FIX_PATTERNS.filter((p) => {
+    if (cls.type === "missing-dependency") return p.name.includes("missing_");
+    if (cls.type === "missing-file") return p.name === "missing_directory";
+    if (cls.type === "permission") return p.name === "permission_denied";
+    if (cls.type === "port-in-use") return p.name === "port_in_use";
+    return true; // fallback: try all
+  });
+
+  for (const p of targeted) {
     const match = p.test(errorOutput);
     if (match) { const r = p.fix(match, filePath); if (r.fixed) return r; }
   }
@@ -228,6 +238,7 @@ const executeAndRecover = async (filePath, lang = "") => {
   }
 
   const originalError = result.output;
+  const errorClass = classify(originalError, lang);
   const backup = readFile(filePath);
   console.log(`   ❌ Error: ${originalError.split("\n")[0].slice(0, 100)}`);
 
@@ -247,7 +258,7 @@ const executeAndRecover = async (filePath, lang = "") => {
     writeFile(filePath, fisEntry.codeAfter);
     const v = validateFixOutput(filePath);
     if (v.valid) {
-      fis.recordFailure({ lang, file: filePath, errorText: originalError, fix: fisEntry.fix, cause: "fis" });
+      fis.recordFailure({ lang, file: filePath, errorText: originalError, fix: fisEntry.fix, cause: "fis", errorType: errorClass?.type });
       return { success: true, attempts: 1, fixSource: "fis", error: null, actions, output: v.output };
     }
     writeFile(filePath, backup); // rollback
@@ -279,8 +290,8 @@ const executeAndRecover = async (filePath, lang = "") => {
       const v = validateFixOutput(filePath);
       if (v.valid) {
         console.log(`   ✅ Fixed by LLM (attempt ${attempt})`);
-        cacheFix(fp, fix.code);
-        fis.recordFailure({ lang, file: filePath, errorText: originalError, fix: `LLM attempt ${attempt}`, codeAfter: fix.code.slice(0, 400) });
+      cacheFix(fp, fix.code);
+      fis.recordFailure({ lang, file: filePath, errorText: originalError, fix: `LLM attempt ${attempt}`, codeAfter: fix.code.slice(0, 400), errorType: errorClass?.type });
         return { success: true, attempts: attempt, fixSource: "llm", error: null, actions, output: v.output };
       }
       console.log(`   ⚠️  Attempt ${attempt}: ${v.reason || "still broken"}`);

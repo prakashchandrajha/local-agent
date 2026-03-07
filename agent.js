@@ -38,6 +38,7 @@ const { isSafePath, enforceSafePath }                         = require("./core/
 const { logEvent }                                            = require("./core/telemetry");
 const { buildRetryPrompt, TOOL_EXAMPLES }                     = require("./config/prompts");
 const { searchForFix }                                        = require("./browser/search");
+const { classify }                                            = require("./core/error-classifier");
 
 // ─────────────────────────────────────────────────────────────
 // CONFIG
@@ -616,11 +617,15 @@ const runAgentTurn = async (prompt, readmeContent, activeFile = null, errorCtx =
 // FIX PROMPT BUILDER
 // For 6.7B: error → content → WRITE NOW (last instruction wins)
 // ─────────────────────────────────────────────────────────────
-const buildFixPrompt = (filePath, content, errorDesc, userContext = "") => {
+const buildFixPrompt = (filePath, content, errorDesc, userContext = "", errorClass = null) => {
   const parts = [];
 
   parts.push(`ERROR in ${filePath}:`);
   if (errorDesc) parts.push(`\`\`\`\n${errorDesc.slice(0, 500)}\n\`\`\``);
+  if (errorClass) {
+    const hintDetail = errorClass.detail ? ` (${errorClass.detail})` : "";
+    parts.push(`DETECTED ERROR TYPE: ${errorClass.type}${hintDetail} [${Math.round((errorClass.confidence || 0)*100)}%]`);
+  }
   if (userContext) parts.push(`USER FEEDBACK: ${userContext}`);
 
   if (sessionCtx.failedAttempts > 0) {
@@ -692,10 +697,13 @@ const runSmartFix = async (filePath, readmeContent, userContext = "") => {
   const runResult = runFile(filePath);
 
   let errorDesc = "";
+  let errorClass = null;
 
   if (!runResult.success) {
     errorDesc = runResult.output;
+    errorClass = classify(errorDesc, lang);
     console.log(`\n💥 Error captured:\n${errorDesc.slice(0, 300)}\n`);
+    if (errorClass) console.log(`🔎 Detected: ${errorClass.type}${errorClass.detail ? ` (${errorClass.detail})` : ""}`);
   } else {
     const v = validateOutput(runResult.output);
     if (v.valid && !userContext) {
@@ -719,7 +727,7 @@ const runSmartFix = async (filePath, readmeContent, userContext = "") => {
   sessionCtx.lastAction = "fix";
 
   // Step 2: Build fix prompt and send to LLM
-  const fixPrompt = buildFixPrompt(filePath, content, errorDesc, userContext);
+  const fixPrompt = buildFixPrompt(filePath, content, errorDesc, userContext, errorClass);
   console.log(`🔧 Fixing ${filePath}...\n`);
 
   let t = await runAgentTurn(fixPrompt, readmeContent, filePath, errorDesc);
@@ -778,7 +786,7 @@ WRITE THE COMPLETE FIXED FILE NOW. Start with "TOOL: write_file"`;
         console.log(`✅ Fix verified! Output:\n${verify.output.slice(0, 300)}\n`);
         sessionCtx.failedAttempts = 0;
         sessionCtx.lastError = null;
-        fis.recordFailure({ lang, file: filePath, errorText: errorDesc.slice(0, 200), fix: "Agent fixed", codeAfter: readFile(filePath).slice(0, 400) });
+        fis.recordFailure({ lang, file: filePath, errorText: errorDesc.slice(0, 200), fix: "Agent fixed", codeAfter: readFile(filePath).slice(0, 400), errorType: errorClass?.type });
         return { summaries: [`Fixed: ${filePath}`], activeFile: filePath };
       } else {
         console.log(`⚠️  Still has issues: ${v.issues.join(", ")}`);

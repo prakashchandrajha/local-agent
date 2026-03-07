@@ -20,6 +20,7 @@ const {
   cacheFix,
   QUICK_FIX_PATTERNS,
 } = require("../core/ere");
+const { classify } = require("../core/error-classifier");
 
 let passed = 0;
 let failed = 0;
@@ -140,6 +141,10 @@ assert(unknownResult.fixed === false, "Returns fixed:false for unknown errors");
 // Should not crash on empty input
 const emptyResult = tryQuickFix("", "");
 assert(emptyResult.fixed === false, "Handles empty input gracefully");
+
+// Classifier smoke test (wiring)
+const cls = classify("Error: Cannot find module 'redis'");
+assert(cls.type === "missing-dependency", "Classifier detects missing dependency");
 
 // ─────────────────────────────────────────────────────────────
 // RESULTS
