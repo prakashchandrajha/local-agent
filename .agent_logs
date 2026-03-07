@@ -37,3 +37,12 @@
 [2026-03-07T11:49:34.613Z] {"type":"task_start","input":"create demo.py","usePipeline":false,"complexity":0.1}
 [2026-03-07T11:49:36.387Z] {"type":"task_complete","input":"create demo.py","summaries":["Written: demo.py, demo.py"],"activeFile":"demo.py"}
 [2026-03-07T11:49:59.446Z] {"type":"user_feedback","input":"create demo.py","confirmed":true}
+[2026-03-07T12:13:27.659Z] {"timestamp":"2026-03-07T12:13:27.659Z","type":"user_input","input":"grep -n \"timeout\" llm/client.js && echo \"---\" && grep -n \"num_predict\\|temperature\" agent.js | head -5 && echo \"---\" && curl -o /dev/null -s -w \"%{time_total}\" http://localhost:11434/api/generate -d '{\"model\":\"deepseek-coder:6.7b\",\"prompt\":\"say hi\",\"stream\":false}'","intent":"chat","confidence":0.9,"complexity":0.6}
+[2026-03-07T12:13:44.813Z] {"timestamp":"2026-03-07T12:13:44.813Z","type":"user_input","input":"create dummy.js file","intent":"coding_task","confidence":0.85,"complexity":0.1}
+[2026-03-07T12:13:44.813Z] {"type":"task_start","input":"create dummy.js file","usePipeline":false,"complexity":0.1}
+[2026-03-07T12:13:50.936Z] {"type":"task_complete","input":"create dummy.js file","summaries":["Written: dummy.js"],"activeFile":"dummy.js"}
+[2026-03-07T12:14:03.314Z] {"type":"user_feedback","input":"create dummy.js file","confirmed":true}
+[2026-03-07T12:14:11.174Z] {"timestamp":"2026-03-07T12:14:11.174Z","type":"user_input","input":"remove it","intent":"file_op","confidence":0.7,"complexity":0.1}
+[2026-03-07T12:14:11.174Z] {"type":"task_start","input":"remove it","usePipeline":false,"complexity":0.1}
+[2026-03-07T12:14:14.748Z] {"type":"task_complete","input":"remove it","summaries":["Written: dummy.js"],"activeFile":"dummy.js"}
+[2026-03-07T12:14:26.799Z] {"type":"user_feedback","input":"remove it","confirmed":true}

@@ -1,6 +1,6 @@
 {
-  "scannedAt": "2026-03-07T11:48:58.249Z",
-  "totalFiles": 64,
+  "scannedAt": "2026-03-07T12:13:25.564Z",
+  "totalFiles": 66,
   "byExtension": {
     ".docx": [
       "APEX_Upgrade_Roadmap.docx"
@@ -8,6 +8,7 @@
     ".md": [
       "README.md",
       "docs/for-agent/AGENT_GUIDE.md",
+      "projectDemo.md",
       "projectover.md",
       "research.md"
     ],
@@ -52,6 +53,7 @@
       "swarm_demo.js",
       "swarm_test_simple.js",
       "tango.js",
+      "tests/selftest.js",
       "tests/test-cce.js",
       "tests/test-ere.js",
       "tests/test-swarm-integration.js",
@@ -128,6 +130,7 @@
     "path/to/demovemo.py",
     "path/to/index.js",
     "path/to/server.js",
+    "projectDemo.md",
     "projectover.md",
     "research.md",
     "src/agent.js",
@@ -136,6 +139,7 @@
     "swarm_test_simple.js",
     "tango.js",
     "test_complex_python.py",
+    "tests/selftest.js",
     "tests/test-cce.js",
     "tests/test-ere.js",
     "tests/test-swarm-integration.js",
@@ -148,15 +152,15 @@
     "tools/sandbox.js"
   ],
   "recentFiles": [
+    "projectDemo.md",
+    "package-lock.json",
+    "package.json",
+    "tests/selftest.js",
+    "tango.js",
     "agent.js",
     "config/prompts.js",
     "llm/client.js",
     "APEX_Upgrade_Roadmap.docx",
-    "package-lock.json",
-    "todo-api/package-lock.json",
-    "todo-api/package.json",
-    "todo-api/server.js",
-    "todo-api/test.js",
-    "tools/file.js"
+    "todo-api/package-lock.json"
   ]
 }

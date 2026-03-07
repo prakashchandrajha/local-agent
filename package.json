@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node agent.js",
     "dev":   "AGENT_DEBUG=1 node agent.js",
-    "fast":  "AGENT_REVIEW=0 node agent.js"
+    "fast":  "AGENT_REVIEW=0 node agent.js",
+    "test":  "node tests/selftest.js"
   },
   "keywords": ["ai", "agent", "coding", "local-llm", "ollama"],
   "license": "ISC",

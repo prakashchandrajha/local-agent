@@ -127,5 +127,11 @@
     "exports": [],
     "role": "module",
     "updatedAt": "2026-03-07T11:49:36.387Z"
+  },
+  "dummy.js": {
+    "imports": [],
+    "exports": [],
+    "role": "module",
+    "updatedAt": "2026-03-07T12:13:50.935Z"
   }
 }

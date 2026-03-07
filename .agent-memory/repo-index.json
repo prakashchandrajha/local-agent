@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "indexedAt": "2026-03-07T11:48:58.272Z",
-  "totalFiles": 61,
+  "indexedAt": "2026-03-07T12:13:25.615Z",
+  "totalFiles": 63,
   "files": {
     "README.md": {
       "role": "other",
@@ -1126,7 +1126,7 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 309,
-      "mtime": 1772882577360
+      "mtime": 1772885521469
     },
     "package.json": {
       "role": "other",
@@ -1136,8 +1136,8 @@
       "exports": [],
       "imports": [],
       "externalDeps": [],
-      "lineCount": 21,
-      "mtime": 1772877556121
+      "lineCount": 22,
+      "mtime": 1772885237271
     },
     "parsers/tool-parser.js": {
       "role": "other",
@@ -1202,6 +1202,17 @@
       ],
       "lineCount": 9,
       "mtime": 1772877556121
+    },
+    "projectDemo.md": {
+      "role": "other",
+      "description": "Project Demo — Supercharged Local Coding Agent",
+      "functions": [],
+      "signatures": [],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 35,
+      "mtime": 1772885604222
     },
     "projectover.md": {
       "role": "other",
@@ -1304,7 +1315,7 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 25,
-      "mtime": 1772877556121
+      "mtime": 1772885074842
     },
     "test_complex_python.py": {
       "role": "other",
@@ -1323,6 +1334,29 @@
       ],
       "lineCount": 12,
       "mtime": 1772877556121
+    },
+    "tests/selftest.js": {
+      "role": "other",
+      "description": "Lightweight smoke test for the local agent. Keeps runtime short and avoids network calls.",
+      "functions": [
+        "record",
+        "failed"
+      ],
+      "signatures": [
+        "record(name, fn)",
+        "failed(results.filter((r)"
+      ],
+      "exports": [],
+      "imports": [
+        "../core/repo-indexer",
+        "../config/prompts",
+        "../core/fileGuard"
+      ],
+      "externalDeps": [
+        "assert"
+      ],
+      "lineCount": 53,
+      "mtime": 1772885229826
     },
     "tests/test-cce.js": {
       "role": "test",
