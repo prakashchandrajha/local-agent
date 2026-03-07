@@ -39,6 +39,7 @@ const { logEvent }                                            = require("./core/
 const { buildRetryPrompt, TOOL_EXAMPLES }                     = require("./config/prompts");
 const { searchForFix }                                        = require("./browser/search");
 const { classify }                                            = require("./core/error-classifier");
+const patternLearner                                          = require("./memory/pattern-learner");
 
 // ─────────────────────────────────────────────────────────────
 // CONFIG
@@ -726,6 +727,31 @@ const runSmartFix = async (filePath, readmeContent, userContext = "") => {
   sessionCtx.lastOutput = runResult.output;
   sessionCtx.lastAction = "fix";
 
+  // Step 1.5: Try pattern learner shortcut with similarity + safe rollback
+  const pattern = patternLearner.lookup(errorDesc || "");
+  if (pattern && pattern.confidence >= 0.7) {
+    const sim = patternLearner.fingerprintSimilarity(errorDesc || "", pattern.errorSample || pattern.key || "");
+    if (sim >= 0.75) {
+      console.log(`🧠 Pattern match (${(sim * 100).toFixed(0)}%): ${pattern.errorSample?.slice(0, 60) || pattern.key}`);
+      const backup = content;
+      writeFile(filePath, pattern.fix);
+      const verify = runFile(filePath);
+      if (verify.success) {
+        const v = validateOutput(verify.output);
+        if (v.valid && (pattern.fix || "").length > 40) {
+          console.log(`✅ Pattern fix worked — skipping LLM`);
+          patternLearner.learn(errorDesc, pattern.fix, { errorType: errorClass?.type });
+          sessionCtx.failedAttempts = 0;
+          sessionCtx.lastError = null;
+          return { summaries: [`Pattern fix: ${filePath}`], activeFile: filePath };
+        }
+      }
+      // rollback on failure
+      writeFile(filePath, backup);
+      console.log(`↩️  Pattern fix reverted (validation failed)`);
+    }
+  }
+
   // Step 2: Build fix prompt and send to LLM
   const fixPrompt = buildFixPrompt(filePath, content, errorDesc, userContext, errorClass);
   console.log(`🔧 Fixing ${filePath}...\n`);
@@ -786,7 +812,16 @@ WRITE THE COMPLETE FIXED FILE NOW. Start with "TOOL: write_file"`;
         console.log(`✅ Fix verified! Output:\n${verify.output.slice(0, 300)}\n`);
         sessionCtx.failedAttempts = 0;
         sessionCtx.lastError = null;
-        fis.recordFailure({ lang, file: filePath, errorText: errorDesc.slice(0, 200), fix: "Agent fixed", codeAfter: readFile(filePath).slice(0, 400), errorType: errorClass?.type });
+        const finalCode = readFile(filePath);
+        fis.recordFailure({ lang, file: filePath, errorText: errorDesc.slice(0, 200), fix: "Agent fixed", codeAfter: finalCode.slice(0, 400), errorType: errorClass?.type });
+
+        // Safe learn: only when output is valid and code length is reasonable
+        if (verify.output !== undefined) {
+          const safeToLearn = v.valid && (finalCode.length > 40) && !/Error|TypeError|ReferenceError/.test(verify.output);
+          if (safeToLearn) {
+            patternLearner.learn(errorDesc, finalCode, { errorType: errorClass?.type });
+          }
+        }
         return { summaries: [`Fixed: ${filePath}`], activeFile: filePath };
       } else {
         console.log(`⚠️  Still has issues: ${v.issues.join(", ")}`);

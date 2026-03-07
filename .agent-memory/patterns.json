@@ -30,5 +30,16 @@
     "count": 1,
     "firstSeen": "2026-03-06T21:51:45.140Z",
     "lastSeen": "2026-03-06T21:51:45.140Z"
+  },
+  {
+    "id": "pat-1772899010934",
+    "key": "cannot find module express",
+    "errorSample": "Cannot find module 'express'",
+    "fix": "npm install express",
+    "errorType": null,
+    "confidence": 0.6,
+    "count": 1,
+    "firstSeen": "2026-03-07T15:56:50.934Z",
+    "lastSeen": "2026-03-07T15:56:50.934Z"
   }
 ]
