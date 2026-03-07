@@ -286,15 +286,22 @@ const executeAndRecover = async (filePath, lang = "") => {
   for (let attempt = 1; attempt <= MAX_FIX_ATTEMPTS; attempt++) {
     const fix = await llmFix(filePath, originalError, attempt, known);
     if (fix.fixed && fix.code) {
-      writeFile(filePath, fix.code);
-      const v = validateFixOutput(filePath);
-      if (v.valid) {
+      const guardCtx = { file: filePath, errorType: errorClass?.type || lang || "", blastRadius: 0 };
+      const guarded = await runGuardedFix(
+        guardCtx,
+        async () => { writeFile(filePath, fix.code); return { success: true }; },
+        async () => {
+          const v = validateFixOutput(filePath);
+          return { success: v.valid, output: v.output, reason: v.reason };
+        }
+      );
+      if (guarded.success) {
         console.log(`   ✅ Fixed by LLM (attempt ${attempt})`);
-      cacheFix(fp, fix.code);
-      fis.recordFailure({ lang, file: filePath, errorText: originalError, fix: `LLM attempt ${attempt}`, codeAfter: fix.code.slice(0, 400), errorType: errorClass?.type });
-        return { success: true, attempts: attempt, fixSource: "llm", error: null, actions, output: v.output };
+        cacheFix(fp, fix.code);
+        fis.recordFailure({ lang, file: filePath, errorText: originalError, fix: `LLM attempt ${attempt}`, codeAfter: fix.code.slice(0, 400), errorType: errorClass?.type });
+        return { success: true, attempts: attempt, fixSource: "llm", error: null, actions, output: guarded.output };
       }
-      console.log(`   ⚠️  Attempt ${attempt}: ${v.reason || "still broken"}`);
+      console.log(`   ⚠️  Attempt ${attempt}: ${guarded.reason || "still broken"}`);
     }
     // Reset for next attempt
     writeFile(filePath, backup);
@@ -308,14 +315,21 @@ const executeAndRecover = async (filePath, lang = "") => {
       writeFile(filePath, backup); // ensure clean state
       const sr = await swarm.speculateFix(filePath, originalError, lang);
       if (sr.success && sr.winner && sr.winner.score > 0) { // KEY: only accept POSITIVE scores
-        writeFile(filePath, sr.winner.code);
-        const v = validateFixOutput(filePath);
-        if (v.valid) {
+        const guardCtx = { file: filePath, errorType: errorClass?.type || lang || "", blastRadius: 0 };
+        const res = await runGuardedFix(
+          guardCtx,
+          async () => { writeFile(filePath, sr.winner.code); return { success: true }; },
+          async () => {
+            const v = validateFixOutput(filePath);
+            return { success: v.valid, output: v.output, reason: v.reason };
+          }
+        );
+        if (res.success) {
           console.log(`   ✅ Swarm winner: ${sr.winner.type}`);
           cacheFix(fp, sr.winner.code);
-          return { success: true, attempts: 1, fixSource: `swarm:${sr.winner.type}`, error: null, actions, output: v.output };
+          return { success: true, attempts: 1, fixSource: `swarm:${sr.winner.type}`, error: null, actions, output: res.output };
         }
-        writeFile(filePath, backup);
+        console.log(`   ↩️  Swarm candidate reverted (Regression Guard)`);
       }
     }
   } catch (_) {}

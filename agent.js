@@ -779,6 +779,7 @@ const runSmartFix = async (filePath, readmeContent, userContext = "") => {
   const fixPrompt = buildFixPrompt(filePath, content, errorDesc, userContext, errorClass, rootReport, fixPlanContext);
   console.log(`🔧 Fixing ${filePath}...\n`);
 
+  const llmSnapshot = snapshotFile(filePath);
   let t = await runAgentTurn(fixPrompt, readmeContent, filePath, errorDesc);
 
   // Step 3: If LLM only chatted (explained but didn't write), FORCE a write
@@ -849,12 +850,14 @@ WRITE THE COMPLETE FIXED FILE NOW. Start with "TOOL: write_file"`;
       } else {
         console.log(`⚠️  Still has issues: ${v.issues.join(", ")}`);
         console.log(`   Output: ${verify.output.slice(0, 200)}\n`);
+        restoreSnapshot(filePath, llmSnapshot.content);
         sessionCtx.lastOutput = verify.output;
         sessionCtx.lastError = v.issues.join("; ");
         sessionCtx.failedAttempts++;
       }
     } else {
       console.log(`💥 Still broken:\n${verify.output.slice(0, 200)}\n`);
+      restoreSnapshot(filePath, llmSnapshot.content);
       sessionCtx.lastError = verify.output;
       sessionCtx.failedAttempts++;
 
@@ -873,6 +876,7 @@ WRITE THE COMPLETE FIXED FILE NOW. Start with "TOOL: write_file"`;
   // Step 6: Handle run errors from LLM's own run_file
   if (t.runError) {
     console.log(`\n⚡ ERE: Auto-recovering ${filePath}...`);
+    restoreSnapshot(filePath, llmSnapshot.content);
     const ereResult = await executeAndRecover(filePath, lang);
     if (ereResult.success) {
       console.log(`✅ ERE fixed via ${ereResult.fixSource}`);
