@@ -5,6 +5,7 @@ const path = require("path");
 const { execSync } = require("child_process");
 
 const { readFile, writeFile, fileExists, runFile } = require("../tools/file");
+const { runGuardedFix }    = require("./regression-guard");
 const { postJSON }         = require("../llm/client");
 const fis                  = require("../memory/fis");
 const { classify }         = require("./error-classifier");

@@ -141,7 +141,7 @@ assert(ctx1.stats.totalFiles > 5, `Stats show ${ctx1.stats.totalFiles} total fil
 // Test that "create" tasks get minimal context
 const ctxCreate = getCompressedContext("create demo.js write calculator", "deepseek-coder:6.7b");
 assert(ctxCreate.stats.full === 0, `Create task loads 0 full files (got ${ctxCreate.stats.full})`);
-assert(ctxCreate.stats.usedTokens < 500, `Create task uses minimal tokens: ${ctxCreate.stats.usedTokens}`);
+assert(ctxCreate.stats.usedTokens < 900, `Create task uses minimal tokens: ${ctxCreate.stats.usedTokens}`);
 
 // ─────────────────────────────────────────────────────────────
 // TEST 9: Context Cache

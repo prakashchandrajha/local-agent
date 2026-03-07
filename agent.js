@@ -39,7 +39,7 @@ const { logEvent }                                            = require("./core/
 const { buildRetryPrompt, TOOL_EXAMPLES }                     = require("./config/prompts");
 const { searchForFix }                                        = require("./browser/search");
 const { classify }                                            = require("./core/error-classifier");
-const { buildDependencyGraph }                                = require("./core/project-graph");
+const { buildDependencyGraph, findDependents }                = require("./core/project-graph");
 const { analyzeRootCause }                                    = require("./core/root-cause-analyzer");
 const { formatPlanForPrompt, simulateFix }                    = require("./core/fix-planner");
 const { runGuardedFix, snapshotFile, restoreSnapshot }        = require("./core/regression-guard");
@@ -63,6 +63,7 @@ const ENABLE_STREAM      = process.env.AGENT_STREAM     !== "0";
 const MAX_TOKENS         = Number(process.env.AGENT_MAX_TOKENS || 1200);
 const LLM_TIMEOUT_MS     = Number(process.env.AGENT_TIMEOUT_MS || 65000);
 const ALLOW_SHORT_WRITES = process.env.AGENT_ALLOW_SHORT_WRITES === "1";
+const ENABLE_GUARD       = process.env.AGENT_REGRESSION_GUARD === "1";
 
 // ─────────────────────────────────────────────────────────────
 // SESSION STATE
@@ -250,6 +251,35 @@ const buildDynamicPrompt = (userInput, readmeContent, activeFile = null, errorCo
     atomBlock, memoryBlock, projectBlock, patternBlock, fisBlock,
     readmeContent: includeCtx ? readmeContent : "",
   }, { includeExamples: tier !== "INSTANT" });
+};
+
+// ─────────────────────────────────────────────────────────────
+// REGRESSION GUARD (lightweight)
+// ─────────────────────────────────────────────────────────────
+const runGuardForFile = (filePath, snap) => {
+  if (!ENABLE_GUARD || !snap) return { guarded: false };
+
+  // Run the touched file
+  const selfRun = runFile(filePath);
+  if (!selfRun.success) {
+    restoreSnapshot(filePath, snap.content);
+    console.log(`\n↩️  Regression Guard: reverted ${filePath} (self-run failed)\n${selfRun.output.slice(0, 200)}`);
+    return { guarded: true, reverted: true };
+  }
+
+  // Optionally run a few dependents to catch splash damage
+  const dependents = global.projectGraph ? findDependents(global.projectGraph, path.resolve(process.cwd(), filePath)) : [];
+  for (const dep of dependents.slice(0, 3)) {
+    const rel = path.relative(process.cwd(), dep);
+    const r = runFile(rel);
+    if (!r.success) {
+      restoreSnapshot(filePath, snap.content);
+      console.log(`\n↩️  Regression Guard: reverted ${filePath} (dependent failed: ${rel})\n${r.output.slice(0, 200)}`);
+      return { guarded: true, reverted: true };
+    }
+  }
+
+  return { guarded: true, reverted: false };
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -513,6 +543,7 @@ const runAgentTurn = async (prompt, readmeContent, activeFile = null, errorCtx =
     } else if (op.tool === "write_file") {
       try { enforceSafePath(op.path); } catch (e) { console.log(`\n❌ Write denied: ${op.path}`); continue; }
       const before = fileExists(op.path) ? readFile(op.path) : "";
+      const snap   = ENABLE_GUARD ? snapshotFile(op.path) : null;
 
       if (before && !before.startsWith("ERROR")) {
         // Skip identical writes
@@ -558,6 +589,13 @@ const runAgentTurn = async (prompt, readmeContent, activeFile = null, errorCtx =
       const final = await writeWithReview(op.path, op.content, lang);
       console.log(`\n✅ Written: ${op.path}  (${getDiffSummary(before, final) || "new file"})`);
       written.push(op.path);
+
+      // Regression guard: auto-verify and rollback on failure
+      const guardResult = runGuardForFile(op.path, snap);
+      if (guardResult.reverted) {
+        // Skip further processing for this op
+        continue;
+      }
 
     } else if (op.tool === "run_file") {
       try { enforceSafePath(op.path); } catch (e) { console.log(`\n❌ Run denied: ${op.path}`); continue; }

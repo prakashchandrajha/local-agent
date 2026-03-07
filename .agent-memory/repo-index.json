@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "indexedAt": "2026-03-07T18:21:39.157Z",
+  "indexedAt": "2026-03-07T18:33:24.376Z",
   "totalFiles": 82,
   "files": {
     "README.md": {
@@ -23,6 +23,7 @@
         "rememberTurn",
         "formatHistory",
         "resetSession",
+        "runGuardForFile",
         "loadReadme",
         "cleanFences",
         "extractFilename",
@@ -47,6 +48,7 @@
         "rememberTurn(role, content)",
         "formatHistory()",
         "resetSession()",
+        "runGuardForFile(filePath, snap)",
         "loadReadme()",
         "cleanFences(s)",
         "extractFilename(input)",
@@ -107,8 +109,8 @@
         "|def",
         "|require|return|module\\.exports)\\b/.test(op.content);"
       ],
-      "lineCount": 1262,
-      "mtime": 1772907641300
+      "lineCount": 1300,
+      "mtime": 1772907987812
     },
     "agents/architect.js": {
       "role": "other",
@@ -442,6 +444,7 @@
       ],
       "imports": [
         "../tools/file",
+        "./regression-guard",
         "../llm/client",
         "../memory/fis",
         "./error-classifier",
@@ -452,8 +455,8 @@
         "path",
         "child_process"
       ],
-      "lineCount": 403,
-      "mtime": 1772903807338
+      "lineCount": 404,
+      "mtime": 1772908391460
     },
     "core/error-classifier.js": {
       "role": "other",
@@ -794,21 +797,6 @@
       ],
       "lineCount": 19,
       "mtime": 1772877556118
-    },
-    "demo.py": {
-      "role": "other",
-      "description": "exports: addNumbers",
-      "functions": [
-        "addNumbers"
-      ],
-      "signatures": [
-        "addNumbers(a, b)"
-      ],
-      "exports": [],
-      "imports": [],
-      "externalDeps": [],
-      "lineCount": 7,
-      "mtime": 1772907469714
     },
     "docs/for-agent/AGENT_GUIDE.md": {
       "role": "other",
@@ -1484,7 +1472,7 @@
         "fs"
       ],
       "lineCount": 9,
-      "mtime": 1772898367118
+      "mtime": 1772908328892
     },
     "swarm_test_simple.js": {
       "role": "other",
@@ -1529,6 +1517,25 @@
       ],
       "lineCount": 12,
       "mtime": 1772877556121
+    },
+    "tests/all-tests.js": {
+      "role": "other",
+      "description": "Master test runner — executes all test/*.js files sequentially.",
+      "functions": [
+        "failed"
+      ],
+      "signatures": [
+        "failed(results.filter((r)"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [
+        "fs",
+        "path",
+        "child_process"
+      ],
+      "lineCount": 66,
+      "mtime": 1772908176731
     },
     "tests/fixtures/async_bug.js": {
       "role": "other",
@@ -1670,7 +1677,7 @@
         "path"
       ],
       "lineCount": 189,
-      "mtime": 1772877556121
+      "mtime": 1772908247515
     },
     "tests/test-core-loop.js": {
       "role": "test",
