@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "indexedAt": "2026-03-07T14:49:00.696Z",
-  "totalFiles": 65,
+  "indexedAt": "2026-03-07T15:26:42.993Z",
+  "totalFiles": 71,
   "files": {
     "README.md": {
       "role": "other",
@@ -443,8 +443,8 @@
         "path",
         "child_process"
       ],
-      "lineCount": 323,
-      "mtime": 1772894634637
+      "lineCount": 378,
+      "mtime": 1772896877344
     },
     "core/fileGuard.js": {
       "role": "module",
@@ -690,7 +690,7 @@
         "fs"
       ],
       "lineCount": 82,
-      "mtime": 1772894669671
+      "mtime": 1772895550782
     },
     "docs/for-agent/AGENT_GUIDE.md": {
       "role": "other",
@@ -1374,6 +1374,75 @@
       "lineCount": 12,
       "mtime": 1772877556121
     },
+    "tests/fixtures/async_bug.js": {
+      "role": "other",
+      "description": "exports: main",
+      "functions": [
+        "main"
+      ],
+      "signatures": [
+        "main()"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 9,
+      "mtime": 1772896833614
+    },
+    "tests/fixtures/division_by_zero.js": {
+      "role": "other",
+      "description": "exports: divide",
+      "functions": [
+        "divide"
+      ],
+      "signatures": [
+        "divide(a, b)"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 14,
+      "mtime": 1772896823581
+    },
+    "tests/fixtures/missing_file.js": {
+      "role": "other",
+      "description": "Should trigger ENOENT",
+      "functions": [],
+      "signatures": [],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [
+        "fs"
+      ],
+      "lineCount": 7,
+      "mtime": 1772896829623
+    },
+    "tests/fixtures/syntax_error.js": {
+      "role": "other",
+      "description": "exports: broken",
+      "functions": [
+        "broken"
+      ],
+      "signatures": [
+        "broken()"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 8,
+      "mtime": 1772896831567
+    },
+    "tests/fixtures/undefined_var.js": {
+      "role": "other",
+      "description": "Intentional ReferenceError",
+      "functions": [],
+      "signatures": [],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 5,
+      "mtime": 1772896826549
+    },
     "tests/selftest.js": {
       "role": "other",
       "description": "Lightweight smoke test for the local agent. Keeps runtime short and avoids network calls.",
@@ -1429,6 +1498,26 @@
       ],
       "lineCount": 189,
       "mtime": 1772877556121
+    },
+    "tests/test-core-loop.js": {
+      "role": "test",
+      "description": "Phase 1 stability check: ensure runFile captures common failures clearly.",
+      "functions": [
+        "record"
+      ],
+      "signatures": [
+        "record(name, fn)"
+      ],
+      "exports": [],
+      "imports": [
+        "../tools/file"
+      ],
+      "externalDeps": [
+        "path",
+        "assert"
+      ],
+      "lineCount": 51,
+      "mtime": 1772896842217
     },
     "tests/test-ere.js": {
       "role": "test",
@@ -1546,8 +1635,9 @@
     },
     "tools/file.js": {
       "role": "other",
-      "description": "Writes a file, creating parent directories as needed",
+      "description": "Resolve base directory at call time so tests can change cwd safely",
       "functions": [
+        "getBaseDir",
         "readFile",
         "writeFile",
         "readFiles",
@@ -1558,6 +1648,7 @@
         "deleteDir"
       ],
       "signatures": [
+        "getBaseDir()",
         "readFile(filePath)",
         "writeFile(filePath, content)",
         "readFiles(filePaths)",
@@ -1585,8 +1676,8 @@
         "path",
         "child_process"
       ],
-      "lineCount": 152,
-      "mtime": 1772877556122
+      "lineCount": 171,
+      "mtime": 1772897064625
     },
     "tools/input.js": {
       "role": "module",

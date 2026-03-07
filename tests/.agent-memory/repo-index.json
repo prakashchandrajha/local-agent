@@ -1,0 +1,208 @@
+{
+  "version": 1,
+  "indexedAt": "2026-03-07T15:23:37.507Z",
+  "totalFiles": 10,
+  "files": {
+    "fixtures/async_bug.js": {
+      "role": "other",
+      "description": "exports: main",
+      "functions": [
+        "main"
+      ],
+      "signatures": [
+        "main()"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 9,
+      "mtime": 1772896833614
+    },
+    "fixtures/division_by_zero.js": {
+      "role": "other",
+      "description": "exports: divide",
+      "functions": [
+        "divide"
+      ],
+      "signatures": [
+        "divide(a, b)"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 14,
+      "mtime": 1772896823581
+    },
+    "fixtures/missing_file.js": {
+      "role": "other",
+      "description": "Should trigger ENOENT",
+      "functions": [],
+      "signatures": [],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [
+        "fs"
+      ],
+      "lineCount": 7,
+      "mtime": 1772896829623
+    },
+    "fixtures/syntax_error.js": {
+      "role": "other",
+      "description": "exports: broken",
+      "functions": [
+        "broken"
+      ],
+      "signatures": [
+        "broken()"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 8,
+      "mtime": 1772896831567
+    },
+    "fixtures/undefined_var.js": {
+      "role": "other",
+      "description": "Intentional ReferenceError",
+      "functions": [],
+      "signatures": [],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 5,
+      "mtime": 1772896826549
+    },
+    "selftest.js": {
+      "role": "other",
+      "description": "Lightweight smoke test for the local agent. Keeps runtime short and avoids network calls.",
+      "functions": [
+        "record",
+        "failed"
+      ],
+      "signatures": [
+        "record(name, fn)",
+        "failed(results.filter((r)"
+      ],
+      "exports": [],
+      "imports": [
+        "../core/repo-indexer",
+        "../config/prompts",
+        "../core/fileGuard"
+      ],
+      "externalDeps": [
+        "assert"
+      ],
+      "lineCount": 53,
+      "mtime": 1772885229826
+    },
+    "test-cce.js": {
+      "role": "test",
+      "description": "Tests the Context Compression Engine against its own codebase",
+      "functions": [
+        "assert",
+        "callLLM",
+        "buildSystemPrompt",
+        "run",
+        "foo",
+        "bar"
+      ],
+      "signatures": [
+        "assert(condition, name)",
+        "callLLM(prompt, systemPrompt)",
+        "buildSystemPrompt({ langProfile, atomBlock })",
+        "run()",
+        "foo()",
+        "bar()"
+      ],
+      "exports": [
+        "foo",
+        "bar"
+      ],
+      "imports": [
+        "../core/repo-indexer",
+        "../core/cce"
+      ],
+      "externalDeps": [
+        "path"
+      ],
+      "lineCount": 189,
+      "mtime": 1772877556121
+    },
+    "test-core-loop.js": {
+      "role": "test",
+      "description": "Phase 1 stability check: ensure runFile captures common failures clearly.",
+      "functions": [
+        "record"
+      ],
+      "signatures": [
+        "record(name, fn)"
+      ],
+      "exports": [],
+      "imports": [
+        "../tools/file"
+      ],
+      "externalDeps": [
+        "path",
+        "assert"
+      ],
+      "lineCount": 51,
+      "mtime": 1772896842217
+    },
+    "test-ere.js": {
+      "role": "test",
+      "description": "Tests the Execution & Recovery Engine",
+      "functions": [
+        "assert",
+        "npmMatch",
+        "pyMatch",
+        "portMatch",
+        "dirMatch",
+        "permMatch",
+        "sampleCode"
+      ],
+      "signatures": [
+        "assert(condition, name)",
+        "npmMatch(QUICK_FIX_PATTERNS.find((p)",
+        "pyMatch(QUICK_FIX_PATTERNS.find((p)",
+        "portMatch(QUICK_FIX_PATTERNS.find((p)",
+        "dirMatch(QUICK_FIX_PATTERNS.find((p)",
+        "permMatch(QUICK_FIX_PATTERNS.find((p)",
+        "sampleCode(Array.from({ length: 50 }, (_, i)"
+      ],
+      "exports": [],
+      "imports": [
+        "../core/ere"
+      ],
+      "externalDeps": [
+        "path",
+        "fs"
+      ],
+      "lineCount": 152,
+      "mtime": 1772877556121
+    },
+    "test-swarm-integration.js": {
+      "role": "test",
+      "description": "TYPO in variable name and missing close bracket",
+      "functions": [
+        "test",
+        "main"
+      ],
+      "signatures": [
+        "test()",
+        "main()"
+      ],
+      "exports": [],
+      "imports": [
+        "../core/ere",
+        "../tools/file"
+      ],
+      "externalDeps": [
+        "fs",
+        "path",
+        "fs"
+      ],
+      "lineCount": 47,
+      "mtime": 1772877556121
+    }
+  }
+}

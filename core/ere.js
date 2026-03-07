@@ -70,6 +70,25 @@ const QUICK_FIX_PATTERNS = [
       } catch (_) { return { fixed: false }; }
     },
   },
+  {
+    name: "permission_denied",
+    test: (err) => {
+      const m = err.match(/EACCES: permission denied[^]*?'?([^'\\n]+)'?/i);
+      return m ? (m[1] || true) : null;
+    },
+    fix: (target) => {
+      try {
+        if (target && fs.existsSync(target)) {
+          const stat = fs.statSync(target);
+          // If directory, open up traversal; if file, make it executable/readable by user
+          const mode = stat.isDirectory() ? 0o755 : 0o644;
+          fs.chmodSync(target, mode);
+          return { fixed: true, action: `chmod ${mode.toString(8)} ${target}`, type: "quick-fix" };
+        }
+      } catch (_) { /* fallthrough */ }
+      return { fixed: false };
+    },
+  },
 ];
 
 const tryQuickFix = (errorOutput, filePath) => {
@@ -318,6 +337,41 @@ const displayEREStats = () => {
 };
 
 const runTargeted = (filePath, timeout = 20000) => runFile(filePath, timeout);
-const buildErrorOnlyPrompt = (fp, err, content) => `Fix ${fp}:\n${err}\n\n${content}`;
+
+const highlightSnippet = (lines, lineNum, radius = 5) => {
+  const start = Math.max(0, lineNum - radius - 1);
+  const end = Math.min(lines.length, lineNum + radius);
+  const width = Math.max(3, String(end).length);
+  return lines.slice(start, end).map((line, idx) => {
+    const n = start + idx + 1;
+    const prefix = n === lineNum ? ">>> " : "    ";
+    const label = n === lineNum ? String(n) : String(n).padStart(width, " ");
+    return `${prefix}${label}: ${line}`;
+  }).join("\n");
+};
+
+const buildErrorOnlyPrompt = (fp, err, content) => {
+  const safeErr = (err || "").trim();
+  const lines = (content || "").split("\n");
+  const lineNum = extractErrorLine(safeErr);
+
+  let body;
+  if (lineNum) {
+    body = `Relevant lines:\n${highlightSnippet(lines, lineNum)}`;
+  } else {
+    const preview = lines.slice(0, 30).map((l, i) => `    ${String(i + 1).padStart(3, " ")}: ${l}`).join("\n");
+    body = `File preview:\n${preview}`;
+  }
+
+  const prompt = [
+    `ERROR in ${fp}:`,
+    safeErr || "(no error text captured)",
+    body,
+    "Fix the error. Keep existing behavior; only address the failing logic.",
+  ].join("\n\n");
+
+  // Ensure compactness for LLM budget
+  return prompt.slice(0, 2000);
+};
 
 module.exports = { executeAndRecover, tryQuickFix, buildErrorOnlyPrompt, extractErrorLine, displayEREStats, runTargeted, getCachedFix, cacheFix, QUICK_FIX_PATTERNS };

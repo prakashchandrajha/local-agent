@@ -9,7 +9,7 @@
     "fact": "Always wrap await calls in try/catch. Unhandled promise rejections crash Node.js.",
     "id": "seed-0",
     "source": "built-in",
-    "useCount": 46,
+    "useCount": 49,
     "createdAt": "2026-03-06T10:54:29.971Z"
   },
   {
@@ -35,7 +35,7 @@
     "fact": "In Node.js ESM, use import/export. In CommonJS, use require/module.exports. Never mix them in the same file.",
     "id": "seed-2",
     "source": "built-in",
-    "useCount": 42,
+    "useCount": 44,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -126,7 +126,7 @@
     "fact": "Async functions always return Promise<T>. Annotate return type as Promise<void>, Promise<string>, etc.",
     "id": "seed-9",
     "source": "built-in",
-    "useCount": 30,
+    "useCount": 32,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -139,7 +139,7 @@
     "fact": "Use asyncio.run(main()) as entry point. Never call loop.run_until_complete() in newer Python (3.10+).",
     "id": "seed-10",
     "source": "built-in",
-    "useCount": 15,
+    "useCount": 17,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -346,7 +346,7 @@
     "fact": "Wrap errors with fmt.Errorf('context: %w', err). Check with errors.Is() and errors.As() for type-safe error inspection.",
     "id": "seed-26",
     "source": "built-in",
-    "useCount": 28,
+    "useCount": 31,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -411,7 +411,7 @@
     "fact": "Copy package.json and install dependencies BEFORE copying source code. This caches the node_modules layer and speeds up rebuilds.",
     "id": "seed-31",
     "source": "built-in",
-    "useCount": 20,
+    "useCount": 22,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {

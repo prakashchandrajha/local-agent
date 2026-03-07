@@ -4,12 +4,13 @@ const fs = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
 
-const BASE_DIR = process.cwd();
+// Resolve base directory at call time so tests can change cwd safely
+const getBaseDir = () => process.cwd();
 
 // Reads a file safely
 const readFile = (filePath) => {
   try {
-    return fs.readFileSync(path.join(BASE_DIR, filePath), "utf8");
+    return fs.readFileSync(path.join(getBaseDir(), filePath), "utf8");
   } catch (err) {
     return `ERROR: ${err.message}`;
   }
@@ -18,7 +19,7 @@ const readFile = (filePath) => {
 // Writes a file, creating parent directories as needed
 const writeFile = (filePath, content) => {
   try {
-    const full = path.join(BASE_DIR, filePath);
+    const full = path.join(getBaseDir(), filePath);
     fs.mkdirSync(path.dirname(full), { recursive: true });
     fs.writeFileSync(full, content, "utf8");
     return true;
@@ -29,7 +30,7 @@ const writeFile = (filePath, content) => {
 };
 
 // Lists files as a pretty tree
-const listFiles = (dir = BASE_DIR, depth = 0, prefix = "") => {
+const listFiles = (dir = getBaseDir(), depth = 0, prefix = "") => {
   const SKIP = new Set(["node_modules", ".git", ".agent-memory", "dist", "build", "__pycache__", "target", "venv"]);
   const lines = [];
   try {
@@ -56,13 +57,13 @@ const readFiles = (filePaths) => {
 // Checks file existence
 const fileExists = (filePath) => {
   try {
-    return fs.existsSync(path.join(BASE_DIR, filePath));
+    return fs.existsSync(path.join(getBaseDir(), filePath));
   } catch (_) {
     return false;
   }
 };
 
-// Runs a file and returns { success, output, exitCode }
+// Runs a file and returns { success, output, exitCode, timedOut, signal, durationMs }
 const RUNNERS = {
   ".js":  (f) => `node "${f}"`,
   ".ts":  (f) => `npx ts-node "${f}"`,
@@ -79,19 +80,37 @@ const runFile = (filePath, timeoutMs = 20000) => {
   const cmdFn = RUNNERS[ext];
   if (!cmdFn) return { success: false, output: `No runner for ${ext}` };
 
+  const cwd = getBaseDir();
+  const resolved = path.resolve(cwd, filePath);
+  if (!resolved.startsWith(cwd)) {
+    return { success: false, output: `SecurityError: ${filePath} is outside project root` };
+  }
+
+  const start = Date.now();
   try {
     const output = execSync(cmdFn(filePath), {
-      cwd: BASE_DIR,
+      cwd,
       timeout: timeoutMs,
       encoding: "utf8",
       stdio: ["pipe", "pipe", "pipe"],
     });
-    return { success: true, output: output.trim() };
+    return { success: true, output: output.trim(), exitCode: 0, durationMs: Date.now() - start };
   } catch (err) {
+    const parts = [];
+    if (err.stdout) parts.push(err.stdout.toString());
+    if (err.stderr) parts.push(err.stderr.toString());
+    if (!parts.length && err.message) parts.push(err.message);
+
+    const combined = parts.join("\n").trim();
+    const timedOut = err.killed === true || err.signal === "SIGTERM" || err.code === "ETIMEDOUT" || err.timedOut === true;
+
     return {
       success: false,
-      output: (err.stderr || err.stdout || err.message || "").trim(),
-      exitCode: err.status || 1,
+      output: combined || "Unknown error",
+      exitCode: typeof err.status === "number" ? err.status : 1,
+      signal: err.signal || null,
+      timedOut,
+      durationMs: Date.now() - start,
     };
   }
 };
@@ -113,7 +132,7 @@ const getDiffSummary = (before, after) => {
 // Deletes a file. Returns { success, message }
 const deleteFile = (filePath) => {
   try {
-    const full = path.join(BASE_DIR, filePath);
+    const full = path.join(getBaseDir(), filePath);
     if (!fs.existsSync(full)) return { success: false, message: `File not found: ${filePath}` };
     fs.unlinkSync(full);
     return { success: true, message: `Deleted: ${filePath}` };
@@ -125,8 +144,8 @@ const deleteFile = (filePath) => {
 // Renames or moves a file. Returns { success, message }
 const renameFile = (fromPath, toPath) => {
   try {
-    const from = path.join(BASE_DIR, fromPath);
-    const to   = path.join(BASE_DIR, toPath);
+    const from = path.join(getBaseDir(), fromPath);
+    const to   = path.join(getBaseDir(), toPath);
     if (!fs.existsSync(from)) return { success: false, message: `Source not found: ${fromPath}` };
     fs.mkdirSync(path.dirname(to), { recursive: true });
     fs.renameSync(from, to);
@@ -139,7 +158,7 @@ const renameFile = (fromPath, toPath) => {
 // Deletes an entire directory recursively
 const deleteDir = (dirPath) => {
   try {
-    const full = path.join(BASE_DIR, dirPath);
+    const full = path.join(getBaseDir(), dirPath);
     if (!fs.existsSync(full)) return { success: false, message: `Directory not found: ${dirPath}` };
     fs.rmSync(full, { recursive: true, force: true });
     return { success: true, message: `Deleted directory: ${dirPath}` };

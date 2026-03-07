@@ -1,6 +1,6 @@
 {
-  "scannedAt": "2026-03-07T14:49:00.683Z",
-  "totalFiles": 68,
+  "scannedAt": "2026-03-07T15:26:42.979Z",
+  "totalFiles": 74,
   "byExtension": {
     ".docx": [
       "APEX_Upgrade_Roadmap.docx"
@@ -55,8 +55,14 @@
       "swarm_demo.js",
       "swarm_test_simple.js",
       "tango.js",
+      "tests/fixtures/async_bug.js",
+      "tests/fixtures/division_by_zero.js",
+      "tests/fixtures/missing_file.js",
+      "tests/fixtures/syntax_error.js",
+      "tests/fixtures/undefined_var.js",
       "tests/selftest.js",
       "tests/test-cce.js",
+      "tests/test-core-loop.js",
       "tests/test-ere.js",
       "tests/test-swarm-integration.js",
       "todo-api/server.js",
@@ -143,8 +149,14 @@
     "swarm_test_simple.js",
     "tango.js",
     "test_complex_python.py",
+    "tests/fixtures/async_bug.js",
+    "tests/fixtures/division_by_zero.js",
+    "tests/fixtures/missing_file.js",
+    "tests/fixtures/syntax_error.js",
+    "tests/fixtures/undefined_var.js",
     "tests/selftest.js",
     "tests/test-cce.js",
+    "tests/test-core-loop.js",
     "tests/test-ere.js",
     "tests/test-swarm-integration.js",
     "todo-api/package-lock.json",
@@ -156,15 +168,15 @@
     "tools/sandbox.js"
   ],
   "recentFiles": [
-    "agent.js",
-    "demo.js",
+    "tools/file.js",
     "core/ere.js",
-    "file.js",
-    "core/swarm.js",
-    "config/prompts.js",
-    "core/reviewer.js",
-    "package-lock.json",
-    "package.json",
-    "projectDemo.md"
+    "tests/test-core-loop.js",
+    "tests/fixtures/async_bug.js",
+    "tests/fixtures/syntax_error.js",
+    "tests/fixtures/missing_file.js",
+    "tests/fixtures/undefined_var.js",
+    "tests/fixtures/division_by_zero.js",
+    "demo.js",
+    "output.txt"
   ]
 }
