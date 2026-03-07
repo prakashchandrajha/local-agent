@@ -41,6 +41,8 @@ const { searchForFix }                                        = require("./brows
 const { classify }                                            = require("./core/error-classifier");
 const { buildDependencyGraph }                                = require("./core/project-graph");
 const { analyzeRootCause }                                    = require("./core/root-cause-analyzer");
+const { formatPlanForPrompt, simulateFix }                    = require("./core/fix-planner");
+const { runGuardedFix, snapshotFile, restoreSnapshot }        = require("./core/regression-guard");
 const patternLearner                                          = require("./memory/pattern-learner");
 
 // ─────────────────────────────────────────────────────────────
@@ -620,7 +622,7 @@ const runAgentTurn = async (prompt, readmeContent, activeFile = null, errorCtx =
 // FIX PROMPT BUILDER
 // For 6.7B: error → content → WRITE NOW (last instruction wins)
 // ─────────────────────────────────────────────────────────────
-const buildFixPrompt = (filePath, content, errorDesc, userContext = "", errorClass = null, rootReport = null) => {
+const buildFixPrompt = (filePath, content, errorDesc, userContext = "", errorClass = null, rootReport = null, fixPlanContext = "") => {
   const parts = [];
 
   parts.push(`ERROR in ${filePath}:`);
@@ -633,7 +635,8 @@ const buildFixPrompt = (filePath, content, errorDesc, userContext = "", errorCla
     const chain = (rootReport.dependencyChain || []).slice(0, 5).map(f => path.basename(f)).join(" → ");
     parts.push(`ROOT ANALYSIS: Severity=${rootReport.severity}, BlastRadius=${rootReport.blastRadius}${chain ? `, Chain: ${chain}` : ""}`);
   }
-  if (userContext) parts.push(`USER FEEDBACK: ${userContext}`);
+  const mergedContext = [userContext, fixPlanContext].filter(Boolean).join("\n");
+  if (mergedContext) parts.push(`USER FEEDBACK: ${mergedContext}`);
 
   if (sessionCtx.failedAttempts > 0) {
     parts.push(`⚠️ ${sessionCtx.failedAttempts} previous fix(es) FAILED. Use a COMPLETELY DIFFERENT approach.`);
@@ -741,34 +744,39 @@ const runSmartFix = async (filePath, readmeContent, userContext = "") => {
       console.log(`🌐 Blast radius: ${rootReport.severity} (edges ${rootReport.blastRadius})`);
     }
   }
+  const sim = simulateFix({ blastRadius: rootReport?.blastRadius || 0, errorType: errorClass?.type || "" });
+  const fixPlanContext = formatPlanForPrompt(rootReport, sim?.predictedRisk);
 
-  // Step 1.5: Try pattern learner shortcut with similarity + safe rollback
+  // Step 1.5: Try pattern learner shortcut with similarity + safe rollback via regression guard
   const pattern = patternLearner.lookup(errorDesc || "");
   if (pattern && pattern.confidence >= 0.7) {
     const sim = patternLearner.fingerprintSimilarity(errorDesc || "", pattern.errorSample || pattern.key || "");
     if (sim >= 0.75) {
       console.log(`🧠 Pattern match (${(sim * 100).toFixed(0)}%): ${pattern.errorSample?.slice(0, 60) || pattern.key}`);
-      const backup = content;
-      writeFile(filePath, pattern.fix);
-      const verify = runFile(filePath);
-      if (verify.success) {
-        const v = validateOutput(verify.output);
-        if (v.valid && (pattern.fix || "").length > 40) {
-          console.log(`✅ Pattern fix worked — skipping LLM`);
-          patternLearner.learn(errorDesc, pattern.fix, { errorType: errorClass?.type });
-          sessionCtx.failedAttempts = 0;
-          sessionCtx.lastError = null;
-          return { summaries: [`Pattern fix: ${filePath}`], activeFile: filePath };
+      const guardCtx = { file: filePath, errorType: errorClass?.type || "", blastRadius: rootReport?.blastRadius || 0 };
+      const guarded = await runGuardedFix(
+        guardCtx,
+        async () => { writeFile(filePath, pattern.fix); return { success: true }; },
+        async () => {
+          const verify = runFile(filePath);
+          if (!verify.success) return { success: false, output: verify.output };
+          const v = validateOutput(verify.output);
+          return { success: v.valid, output: verify.output };
         }
+      );
+      if (guarded.success) {
+        console.log(`✅ Pattern fix worked — skipping LLM (risk: ${guardCtx.predictedRisk || "n/a"})`);
+        patternLearner.learn(errorDesc, pattern.fix, { errorType: errorClass?.type });
+        sessionCtx.failedAttempts = 0;
+        sessionCtx.lastError = null;
+        return { summaries: [`Pattern fix: ${filePath}`], activeFile: filePath };
       }
-      // rollback on failure
-      writeFile(filePath, backup);
-      console.log(`↩️  Pattern fix reverted (validation failed)`);
+      console.log(`↩️  Pattern fix reverted (Regression Guard)`);
     }
   }
 
   // Step 2: Build fix prompt and send to LLM
-  const fixPrompt = buildFixPrompt(filePath, content, errorDesc, userContext, errorClass, rootReport);
+  const fixPrompt = buildFixPrompt(filePath, content, errorDesc, userContext, errorClass, rootReport, fixPlanContext);
   console.log(`🔧 Fixing ${filePath}...\n`);
 
   let t = await runAgentTurn(fixPrompt, readmeContent, filePath, errorDesc);
