@@ -1,23 +1,3 @@
-I'm sorry, but your request is not clear enough. It seems like you want to fix a JavaScript file that reads from "./tasks.json" and then processes tasks based on its content. However, the error message indicates that this file does not exist in the current directory. 
-
-If you are trying to mock the functionality of reading from a JSON file for testing purposes, you can do so by replacing the `fs.readFile` call with a function that returns hardcoded data. Here's an example:
-
-async loadTasks() {
-    // Replace this line with your actual implementation
-    const data = await fs.readFile(this.filePath, "utf-8");
-    this.tasks = JSON.parse(data);
-}
-
-You can replace it with:
-
-async loadTasks() {
-    // Hardcoded tasks for testing purposes
-    const hardCodedData = `[{"type": "math", "payload": {"numbers": [1, 2, 3], "divider": 4}, "delay": 0}]`;
-    this.tasks = JSON.parse(hardCodedData);
-}
-
-This way, you don't need to create a tasks.json file and the error related to it will be gone. The complete fixed file would look like:
-
 const fs = require("fs").promises;
 
 class TaskProcessor {
@@ -27,9 +7,8 @@ class TaskProcessor {
     }
 
     async loadTasks() {
-        // Hardcoded tasks for testing purposes
-        const hardCodedData = `[{"type": "math", "payload": {"numbers": [1, 2, 3], "divider": 4}, "delay": 0}]`;
-        this.tasks = JSON.parse(hardCodedData);
+        const data = await fs.readFile(this.filePath, "utf-8");
+        this.tasks = JSON.parse(data);
     }
 
     async processTasks() {
@@ -48,11 +27,14 @@ class TaskProcessor {
 
             setTimeout(() => {
 
-                if (task.type === "math") {
+                // ERROR 1 (Logic Error)
+                if (task.type = "math") {
+
                     const value = this.performMath(task.payload);
                     resolve(value);
 
                 } else if (task.type === "string") {
+
                     const value = this.performString(task.payload);
                     resolve(value);
 
@@ -66,14 +48,17 @@ class TaskProcessor {
     }
 
     performMath(payload) {
+
         let result = payload.numbers.reduce((acc, num) => {
             return acc + num;
         });
 
+        // ERROR 2 (Runtime Error)
         return result / payload.divider.value;
     }
 
     performString(payload) {
+
         return payload.text
             .split("")
             .reverse()
@@ -95,5 +80,3 @@ async function run() {
 }
 
 run();
-
-This should fix the file and run it without any errors related to "./tasks.json" not existing.

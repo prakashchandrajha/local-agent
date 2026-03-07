@@ -1,47 +1,23 @@
 "use strict";
 
-// ─────────────────────────────────────────────────────────────
-// SWARM COORDINATOR
-// Manages parallel speculative fix cycles.
-// ─────────────────────────────────────────────────────────────
-
 const path = require("path");
 const { postJSON } = require("../llm/client");
 const { readFile, writeFile, fileExists } = require("../tools/file");
 const sandbox = require("../tools/sandbox");
 const fis = require("../memory/fis");
-const { searchForFix } = require("../browser/search");
 
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://localhost:11434/api/generate";
 const MODEL = process.env.AGENT_MODEL || "deepseek-coder:6.7b";
 
-/**
- * ADAPTIVE VARIANT COUNT (Dynamic Swarm Sizing)
- * Simple error? 2 variants.
- * Complex? Up to 5.
- */
 const getVariantCount = (errorOutput) => {
   const lo = (errorOutput || "").toLowerCase();
-  
-  // High complexity: trace with many lines or fundamental errors
-  if (lo.split("\n").length > 10 || lo.includes("syntaxerror")) return 5;
-  
-  // Medium complexity: unexpected behavior or missing core files
+  if (lo.split("\n").length > 10 || lo.includes("syntaxerror")) return 4;
   if (lo.includes("modulenotfound") || lo.includes("typeerror")) return 3;
-  
-  // Low complexity: simple undefined or typo
-  if (lo.includes("not defined") || lo.includes("cannot find module")) return 2;
-  
-  return 3; // Default
+  return 2;
 };
 
-/**
- * CLEAN CODE
- * Strips markdown backticks and yapping.
- */
 const cleanCode = (text) => {
   let code = text.trim();
-  // Remove markdown blocks if present
   if (code.includes("```")) {
     const match = code.match(/```(?:[\w]*)\n([\s\S]*?)\n```/);
     if (match) code = match[1];
@@ -50,299 +26,175 @@ const cleanCode = (text) => {
   return code.trim();
 };
 
-/**
- * CALCULATE SIMILARITY
- * Checks how much of the original core structure remains.
- * Prevents "hallucinating" completely new functions/imports.
- */
+// KEY FIX: Better similarity that actually works
 const calculateSimilarity = (original, fixed) => {
-  // Strip all whitespace and split into words/tokens
-  const oTokens = original.replace(/[^a-zA-Z0-9{};=]/g, "");
-  const fTokens = fixed.replace(/[^a-zA-Z0-9{};=]/g, "");
-  
-  if (oTokens.length === 0) return 100;
-  if (fTokens.length === 0) return 0;
-
-  // Use simple Longest Common Subsequence or chunky overlap
-  // For speed, just check how many of the original tokens appear in the fixed
+  if (!original || !fixed) return 0;
+  const oWords = original.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+  const fWords = new Set(fixed.toLowerCase().split(/\s+/).filter(w => w.length > 2));
+  if (oWords.length === 0) return 100;
   let common = 0;
-  const chunkSize = 10;
-  const totalChunks = Math.floor(oTokens.length / chunkSize);
-  
-  if (totalChunks === 0) return 100;
-
-  for (let i = 0; i < totalChunks; i++) {
-    const chunk = oTokens.slice(i * chunkSize, (i + 1) * chunkSize);
-    if (fTokens.includes(chunk)) common++;
-  }
-
-  return (common / totalChunks) * 100;
+  for (const w of oWords) { if (fWords.has(w)) common++; }
+  return Math.round((common / oWords.length) * 100);
 };
 
-/**
- * GENERATE SPECULATIVE PROMPT (Predictive Generation)
- */
-const buildSpeculativePrompt = (filePath, content, errorOutput, variantType, predictionHint) => {
-  const types = {
-    simple: "Provide the simplest, most direct fix. Don't refactor.",
-    robust: "Provide a robust fix with error handling and defensive checks.",
-    optimized: "Provide a high-performance fix. Focus on efficiency.",
-    experimental: "Try an experimental or modern approach if possible.",
-    exhaustive: "Analyze the code deeply. Rewrite the broken logic completely if needed.",
+const buildSpeculativePrompt = (filePath, content, errorOutput, variantType) => {
+  const strategies = {
+    simple: "Provide the simplest, most direct fix. Change as little as possible.",
+    robust: "Add null checks, default values, and defensive coding.",
+    optimized: "Fix the bug and also improve performance where possible.",
+    experimental: "Try a creative approach. Restructure the broken logic if needed.",
   };
 
-  const hintBlock = predictionHint ? `\n### PREDICTIVE HINT:\n${predictionHint}\n` : "";
+  return `FIX THE ERROR in ${filePath}:
+ERROR: ${errorOutput.slice(0, 400)}
 
-  return `### TASK: FIX THE ERROR IN ${filePath}
-### RULE: RETURN THE COMPLETE FILE. NO EXPLANATION. NO MARKDOWN CHUNKS.
-### STRATEGY: ${types[variantType]}
-${hintBlock}
-### ERROR:
-${errorOutput.slice(0, 500)}
+STRATEGY: ${strategies[variantType]}
 
-### FILE CONTENT:
+CURRENT CODE:
 ${content}
 
-### FIXED FILE (NO YAPPING):`;
+RULES:
+- Return the COMPLETE fixed file
+- Keep the same purpose and structure
+- Do NOT add dependencies on files that don't exist
+- Do NOT rewrite into a different program
+- NO markdown, NO explanation, ONLY code
+
+FIXED CODE:`;
 };
 
-/**
- * LLM WORKER (Parallelizable & Async-Optimized)
- * In v7.1 we rely heavily on parallel promise dispatching.
- */
-const generateVariant = async (filePath, content, errorOutput, type, predictionHint) => {
-  const prompt = buildSpeculativePrompt(filePath, content, errorOutput, type, predictionHint);
+const generateVariant = async (filePath, content, errorOutput, type) => {
+  const prompt = buildSpeculativePrompt(filePath, content, errorOutput, type);
   try {
-    const startTime = Date.now();
+    const start = Date.now();
     const res = await postJSON(OLLAMA_URL, {
       model: MODEL,
       prompt,
-      stream: false, // Node fetch optimization over full TCP streaming
-      options: { 
-        temperature: 0.3 + (Math.random() * 0.4), 
-        num_predict: 4000 
-      },
+      stream: false,
+      options: { temperature: 0.2 + (Math.random() * 0.3), num_predict: 4000 },
     });
-    let code = cleanCode(res.response || "");
-    const latency = Date.now() - startTime;
-    console.log(`      ⚡ LLM (${type}) generated ${code.length} chars in ${latency}ms`);
-    return { type, code, success: code.length > 20 };
+    const code = cleanCode(res.response || "");
+    console.log(`      ⚡ ${type}: ${code.length} chars, ${Date.now() - start}ms`);
+    return { type, code, success: code.length > 30 };
   } catch (_) {
     return { type, success: false };
   }
 };
 
-/**
- * PROJECT-ADAPTIVE SCORING (Self-Learning)
- * Weighting depends on project type and past successes.
- */
-const getWeights = (filePath) => {
-  const isSecurity = /auth|crypt|vault|login|permission/i.test(filePath);
-  const isPerf     = /engine|core|math|async|sync/i.test(filePath);
-  
-  // Default base weights
-  let weights = {
-    testPass: 100,
-    security: isSecurity ? 40 : 10,
-    perf:     isPerf ? 30 : 10,
-    cleanup:  10,
-  };
-
-  // Merge with learned weights (Reinforcement Loop)
-  try {
-    const memoryPath = path.join(process.cwd(), ".agent-memory", "eval-weights.json");
-    if (fileExists(memoryPath)) {
-      const learned = JSON.parse(readFile(memoryPath));
-      if (learned.testPass) Object.assign(weights, learned);
-    }
-  } catch (_) {}
-
-  return weights;
-};
-
-/**
- * REINFORCEMENT LOOP
- * Adjusts weights slightly based on the winning variant type
- */
-const tuneWeights = (winnerType) => {
-  try {
-    const memoryPath = path.join(process.cwd(), ".agent-memory", "eval-weights.json");
-    let w = getWeights("default");
-    
-    // Nudge weights towards the strategy that worked
-    if (winnerType === "optimized") w.perf += 5;
-    if (winnerType === "robust") w.security += 5;
-    if (winnerType === "simple") w.cleanup += 5;
-
-    // Cap weights so they don't spiral out of control
-    w.perf = Math.min(w.perf, 80);
-    w.security = Math.min(w.security, 80);
-    w.cleanup = Math.min(w.cleanup, 50);
-
-    const fs = require("fs");
-    fs.mkdirSync(path.dirname(memoryPath), { recursive: true });
-    fs.writeFileSync(memoryPath, JSON.stringify(w, null, 2));
-  } catch (_) {}
-};
-
-/**
- * EVALUATE VARIANT (Updated with adaptive scoring)
- */
-const evaluateVariant = async (sbId, filePath, type, weights, originalCode) => {
+// KEY FIX: Evaluate in sandbox properly
+const evaluateVariant = (sbId, filePath, type, originalCode, code) => {
   const sbPath = sandbox.getPath(sbId);
-  const ext = path.extname(filePath);
-  const incTest = require("./incremental-test");
+  if (!sbPath) return { type, score: -999, success: false, similarity: 0 };
 
-  const start = Date.now();
-  // 🔥 Now using the clever Incremental Test Runner 🔥
-  const testRes = incTest.runIncrementalTests(sbId, path.join(sbPath, filePath));
-  const timeMs = Date.now() - start;
-  
+  // Write the variant code
+  sandbox.write(sbId, filePath, code);
+
+  // Calculate similarity BEFORE running
+  const similarity = calculateSimilarity(originalCode, code);
+
+  // Run in sandbox
+  const testResult = sandbox.run(sbId, `node "${filePath}"`, 10000);
   let score = 0;
-  const fixedCode = readFile(path.join(sandbox.getPath(sbId), filePath));
-  const similarity = calculateSimilarity(originalCode, fixedCode);
 
-  if (testRes.success) {
-    score += weights.testPass;
-    // Perf: shorter execution time (hypothetical)
-    score += weights.perf;
-    // Security check
-    if (!/eval\(|new Function\(|innerHTML/i.test(fixedCode)) score += weights.security;
+  if (testResult.success) {
+    score += 100;
+
+    // Validate output quality
+    const output = testResult.output || "";
+    if (/\bNaN\b/.test(output)) score -= 50;
+    if (/\bundefined\b/.test(output) && !/["']undefined["']/.test(output)) score -= 40;
+    if (/\b(Error|TypeError|ReferenceError)\b/.test(output)) score -= 80;
+    if (!output.trim()) score -= 20; // no output at all
   } else {
-    // Partial points if error changed
-    score += 5;
+    score -= 100;
   }
 
-  // MAJOR PENALTY for hallucinations (less than 10% similar to original)
-  // Be more forgiving for very small files where fixes change a high percentage of tokens
-  if (originalCode.length > 50 && similarity < 10) score -= 200;
-  else if (similarity > 50) score += 20; // Bonus for preserving structure
+  // Similarity bonus/penalty
+  if (similarity > 50) score += 20;
+  else if (similarity > 30) score += 10;
+  else if (similarity < 10 && originalCode.length > 100) score -= 200; // hallucination
 
-  return { 
-    type, 
-    score, 
-    success: testRes.success, 
-    similarity,
-    output: testRes.output.slice(0, 100) 
-  };
+  // Reject if code has dangerous patterns the original didn't have
+  if (!/eval\(/.test(originalCode) && /eval\(/.test(code)) score -= 50;
+
+  return { type, score, success: testResult.success, similarity, output: (testResult.output || "").slice(0, 150) };
 };
 
-/**
- * DISPLAY SWARM REPORT
- */
 const displayReport = (results, winner) => {
   console.log(`\n🐝 SWARM REPORT`);
   console.log(`${"═".repeat(60)}`);
   for (const r of results) {
-    const icon = r.success ? "✅" : "❌";
-    const highlight = r.type === winner.type ? " ⭐ WINNER" : "";
-    const sim = `Sim: ${Math.round(r.similarity)}%`.padEnd(10);
-    console.log(`${icon} [${r.type.toUpperCase().padEnd(10)}] Score: ${String(r.score).padStart(3)} | ${sim} | ${r.success ? "PASS" : "FAIL"}${highlight}`);
+    const icon = r.score > 0 ? "✅" : "❌";
+    const star = r === winner ? " ⭐" : "";
+    console.log(`${icon} [${r.type.padEnd(12)}] Score: ${String(r.score).padStart(4)} | Sim: ${String(r.similarity).padStart(3)}% | ${r.success ? "PASS" : "FAIL"}${star}`);
   }
   console.log(`${"═".repeat(60)}\n`);
 };
 
-/**
- * MAIN: SPECULATE FIX (v7.1 Ultra-Optimized)
- */
 const speculateFix = async (filePath, errorOutput, lang = "") => {
   const content = readFile(filePath);
+  if (!content || content.startsWith("ERROR")) return { success: false, variants: [] };
+
   const count = getVariantCount(errorOutput);
-  const weights = getWeights(filePath);
-  
-  console.log(`   🐝 Swarm starting... Speculating ${count} variants.`);
+  console.log(`   🐝 Swarm: ${count} variants`);
 
-  // 1. Predictive Generation: Fetch CCE Hint
-  const { getCompressedContext, logCCEStats } = require("./cce");
-  const cceResult = getCompressedContext(`analyze error in ${filePath}: ${errorOutput.split("\n")[0]}`, MODEL);
-  
-  if (cceResult && cceResult.stats) {
-    logCCEStats(cceResult.stats);
-  }
-
-  // Extract just the architecture and summary parts to keep it lightweight
-  const predictiveHint = cceResult && cceResult.context ? cceResult.context.slice(0, 1500) : null;
-  if (predictiveHint) {
-    console.log(`   🧠 Injected CCE Predictive Hint (${predictiveHint.length} chars)`);
-  }
-
-  // 2. FIS-Aware Filtering: Check if we already know a fix
+  // FIS check
   const known = fis.instantLookup(errorOutput, lang);
-  const initialStrategies = ["simple", "robust", "optimized", "experimental", "exhaustive"].slice(0, count);
-  
-  // 3. Parallel Generation + Parallel Internet Backup (if needed)
-  const llmTasks = initialStrategies.map((s, i) => {
+  const strategies = ["simple", "robust", "optimized", "experimental"].slice(0, count);
+
+  // Generate variants in parallel
+  const tasks = strategies.map((s, i) => {
     if (i === 0 && known && known.codeAfter) {
-      console.log(`   📚 Injecting FIS-Recall as Variant #1`);
       return Promise.resolve({ type: "fis-recall", code: known.codeAfter, success: true });
     }
-    return generateVariant(filePath, content, errorOutput, s, predictiveHint);
+    return generateVariant(filePath, content, errorOutput, s);
   });
 
-  // If error looks tough or we're exhaustive, start internet search in parallel
-  let webTask = null;
-  if (count >= 3 && !known) {
-    console.log(`   🌐 Triggering parallel internet search (Hybrid Fusion)...`);
-    webTask = searchForFix(errorOutput, lang);
-  }
+  const variants = await Promise.all(tasks);
+  let valid = variants.filter(v => v.success && v.code);
 
-  const variants = await Promise.all(llmTasks);
-  const webResult = webTask ? await webTask : null;
-  
-  // 3.5 Hybrid Knowledge Fusion
-  // If internet found a solid snippet, add it as a prime variant
-  if (webResult && webResult.found && webResult.snippets?.[0]) {
-    console.log(`   🌐 Adding internet-sourced variant (Hybrid Knowledge Fusion)...`);
-    // Ensure the snippet is actually code, not just markdown
-    const webCode = cleanCode(webResult.snippets[0].code);
-    if (webCode.length > 20) {
-       variants.push({ type: "web-sourced", code: webCode, success: true });
-    }
-  }
+  if (!valid.length) return { success: false, variants: [] };
 
-  let validVariants = variants.filter(v => v.success);
-  
-  // Early exit if totally failed to generate
-  if (validVariants.length === 0) return { success: false, variants: [] };
-
-  // PREDICTIVE PRUNING (Phase 4): Skip variants that are exactly identical
-  const uniqueCodes = new Set();
-  validVariants = validVariants.filter(v => {
+  // Deduplicate
+  const seen = new Set();
+  valid = valid.filter(v => {
     const hash = v.code.replace(/\s+/g, "");
-    if (uniqueCodes.has(hash)) return false;
-    uniqueCodes.add(hash);
+    if (seen.has(hash)) return false;
+    seen.add(hash);
     return true;
   });
 
-  // 4. Parallel Testing (in Sandboxes)
-  console.log(`   🧪 Testing ${validVariants.length} unique variants in parallel sandboxes...`);
-  
-  const results = await Promise.all(validVariants.map(async (v) => {
-    const sb = await sandbox.checkout(filePath);
-    if (!sb) return { ...v, score: 0, success: false };
+  // Test in sandboxes
+  console.log(`   �� Testing ${valid.length} variants...`);
+  sandbox.initPool();
 
+  const results = [];
+  for (const v of valid) {
+    const sb = await sandbox.checkout(filePath);
+    if (!sb) continue;
     try {
-      console.log(`      • Variant ${v.type.padEnd(10)} | Code preview: ${v.code.slice(0, 50).replace(/\n/g, " ")}...`);
-      sandbox.write(sb.id, filePath, v.code);
-      const evalResult = await evaluateVariant(sb.id, filePath, v.type, weights, content);
-      console.log(`        Result: ${evalResult.success ? "SUCCESS" : "FAIL"} | Sim: ${Math.round(evalResult.similarity)}% | Score: ${evalResult.score}`);
-      return { ...v, ...evalResult };
+      const evalResult = evaluateVariant(sb.id, filePath, v.type, content, v.code);
+      results.push({ ...v, ...evalResult });
     } finally {
       sandbox.release(sb.id);
     }
-  }));
+  }
 
-  // 4. Selection
-  const winner = results.sort((a, b) => b.score - a.score)[0];
+  if (!results.length) return { success: false, variants: [] };
+
+  // Sort by score, pick best
+  results.sort((a, b) => b.score - a.score);
+  const winner = results[0];
   displayReport(results, winner);
 
-  // 5. Reinforcement Learning (Self-Tuning Evaluator)
-  if (winner && winner.success) {
-    tuneWeights(winner.type);
+  // KEY FIX: Only accept winner if score is POSITIVE
+  if (winner.score <= 0) {
+    console.log(`   ⚠️  No variant scored positive — all rejected`);
+    return { success: false, winner: null, allVariants: results, count: results.length };
   }
 
   return {
-    success: winner.success,
+    success: winner.success && winner.score > 0,
     winner,
     allVariants: results,
     count: results.length,
@@ -350,8 +202,4 @@ const speculateFix = async (filePath, errorOutput, lang = "") => {
   };
 };
 
-module.exports = {
-  speculateFix,
-  getVariantCount,
-  displayReport,
-};
+module.exports = { speculateFix, getVariantCount, displayReport };

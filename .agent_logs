@@ -46,3 +46,34 @@
 [2026-03-07T12:14:11.174Z] {"type":"task_start","input":"remove it","usePipeline":false,"complexity":0.1}
 [2026-03-07T12:14:14.748Z] {"type":"task_complete","input":"remove it","summaries":["Written: dummy.js"],"activeFile":"dummy.js"}
 [2026-03-07T12:14:26.799Z] {"type":"user_feedback","input":"remove it","confirmed":true}
+[2026-03-07T13:41:45.241Z] {"timestamp":"2026-03-07T13:41:45.241Z","type":"user_input","input":"create demo.js","intent":"create","confidence":0.85,"complexity":0.1}
+[2026-03-07T13:41:45.242Z] {"type":"task_start","input":"create demo.js","usePipeline":false,"complexity":0.1}
+[2026-03-07T13:41:51.287Z] {"type":"task_complete","input":"create demo.js","summaries":["Written: demo.js"],"activeFile":"demo.js"}
+[2026-03-07T13:42:28.564Z] {"type":"user_feedback","input":"create demo.js","confirmed":true}
+[2026-03-07T13:42:36.863Z] {"timestamp":"2026-03-07T13:42:36.863Z","type":"user_input","input":"fix demo.js","intent":"fix","confidence":0.9,"complexity":0.4}
+[2026-03-07T13:45:36.948Z] {"type":"task_complete","input":"fix demo.js","summaries":["Fixed via ERE: swarm:robust"],"activeFile":"demo.js"}
+[2026-03-07T13:46:00.059Z] {"type":"user_feedback","input":"fix demo.js","confirmed":false}
+[2026-03-07T14:01:09.514Z] {"type":"input","input":"fix demo.js","intent":"fix"}
+[2026-03-07T14:02:00.692Z] {"type":"input","input":"fix demo.js","intent":"fix"}
+[2026-03-07T14:02:31.726Z] {"type":"input","input":"node:internal/fs/promises:636","intent":"fix_error"}
+[2026-03-07T14:12:11.511Z] {"type":"input","input":"fix demo.js","intent":"fix"}
+[2026-03-07T14:12:20.613Z] {"type":"input","input":"fix demo.js","intent":"fix"}
+[2026-03-07T14:17:19.062Z] {"type":"input","input":"fix demo.js","intent":"fix"}
+[2026-03-07T14:31:10.301Z] {"type":"input","input":"fix demo.js","intent":"fix"}
+[2026-03-07T14:32:05.786Z] {"type":"input","input":"fix it","intent":"fix"}
+[2026-03-07T14:32:24.252Z] {"type":"input","input":"fix","intent":"fix"}
+[2026-03-07T14:32:43.760Z] {"type":"input","input":"fix","intent":"fix"}
+[2026-03-07T14:33:14.810Z] {"type":"input","input":"fix","intent":"fix"}
+[2026-03-07T14:33:41.123Z] {"type":"input","input":"fix","intent":"fix"}
+[2026-03-07T14:35:02.259Z] {"type":"input","input":"fix it","intent":"fix"}
+[2026-03-07T14:35:32.862Z] {"type":"input","input":"fix","intent":"fix"}
+[2026-03-07T14:37:42.194Z] {"type":"input","input":"fix demo.js","intent":"fix"}
+[2026-03-07T14:37:56.893Z] {"type":"input","input":"fix demo.js","intent":"fix"}
+[2026-03-07T14:38:21.312Z] {"type":"input","input":"fix demo.js","intent":"fix"}
+[2026-03-07T14:38:38.629Z] {"type":"input","input":"fix demo.js","intent":"fix"}
+[2026-03-07T14:49:04.899Z] {"type":"input","input":"fix demo.js","intent":"fix"}
+[2026-03-07T14:52:29.554Z] {"type":"input","input":"wrong","intent":"clarify"}
+[2026-03-07T14:53:18.566Z] {"type":"input","input":"still error","intent":"clarify"}
+[2026-03-07T14:53:47.764Z] {"type":"input","input":"fix demo.js","intent":"fix"}
+[2026-03-07T14:55:08.879Z] {"type":"input","input":"still error","intent":"clarify"}
+[2026-03-07T14:55:23.748Z] {"type":"input","input":"fix demo.js","intent":"fix"}

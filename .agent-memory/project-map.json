@@ -1,6 +1,6 @@
 {
-  "scannedAt": "2026-03-07T12:13:25.564Z",
-  "totalFiles": 66,
+  "scannedAt": "2026-03-07T14:49:00.683Z",
+  "totalFiles": 68,
   "byExtension": {
     ".docx": [
       "APEX_Upgrade_Roadmap.docx"
@@ -32,12 +32,14 @@
       "core/reviewer.js",
       "core/swarm.js",
       "core/telemetry.js",
+      "demo.js",
       "examples/agent_demo.js",
       "examples/bug.js",
       "examples/filename.js",
       "examples/index.js",
       "examples/legacy/legacy_agent.js",
       "examples/math.js",
+      "file.js",
       "index.js",
       "knowledge/lang-profiles.js",
       "knowledge/pattern-loader.js",
@@ -105,6 +107,7 @@
     "core/reviewer.js",
     "core/swarm.js",
     "core/telemetry.js",
+    "demo.js",
     "docs/for-agent/AGENT_GUIDE.md",
     "examples/agent_demo.js",
     "examples/bug.js",
@@ -113,6 +116,7 @@
     "examples/index.js",
     "examples/legacy/legacy_agent.js",
     "examples/math.js",
+    "file.js",
     "index.js",
     "knowledge/lang-profiles.js",
     "knowledge/pattern-loader.js",
@@ -152,15 +156,15 @@
     "tools/sandbox.js"
   ],
   "recentFiles": [
-    "projectDemo.md",
+    "agent.js",
+    "demo.js",
+    "core/ere.js",
+    "file.js",
+    "core/swarm.js",
+    "config/prompts.js",
+    "core/reviewer.js",
     "package-lock.json",
     "package.json",
-    "tests/selftest.js",
-    "tango.js",
-    "agent.js",
-    "config/prompts.js",
-    "llm/client.js",
-    "APEX_Upgrade_Roadmap.docx",
-    "todo-api/package-lock.json"
+    "projectDemo.md"
   ]
 }

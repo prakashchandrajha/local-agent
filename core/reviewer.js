@@ -1,199 +1,103 @@
 "use strict";
 
 const { postJSON } = require("../llm/client");
-
-// ─────────────────────────────────────────────────────────────
-// SELF-REVIEW ENGINE
-// After code generation, runs a focused review pass to catch
-// obvious errors before they hit disk. Costs one extra LLM call
-// but dramatically improves first-run success rate.
-// ─────────────────────────────────────────────────────────────
+const fs = require("fs");
+const path = require("path");
 
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://localhost:11434/api/generate";
 const MODEL = process.env.AGENT_MODEL || "deepseek-coder:6.7b";
 
-// Checklist items per language
 const REVIEW_CHECKLISTS = {
-  js: `
-- All require() / import paths exist and are correct
-- All async functions have try/catch or propagate errors
-- No undefined variables or functions called before definition  
-- No missing closing brackets, braces, or parentheses
-- No placeholder comments (TODO, add logic here, etc.)
-- All exported functions are actually defined
-- "use strict" at top
-`.trim(),
-
-  ts: `
-- All types are explicitly declared or properly inferred
-- No 'any' types unless absolutely necessary
-- All imports are correct and types are available
-- All interface implementations are complete
-- No missing return types on exported functions
-`.trim(),
-
-  py: `
-- All imports exist and are spelled correctly
-- Indentation is consistent (4 spaces)
-- All functions have proper return statements
-- No undefined variables used
-- async def functions are awaited correctly
-- All except blocks handle specific exception types
-`.trim(),
-
-  java: `
-- All imports are present
-- All classes have correct access modifiers
-- No missing semicolons
-- All @Autowired / @Inject dependencies exist as beans
-- All overridden methods have @Override
-- No raw types (use generics)
-- All exceptions are handled or declared thrown
-`.trim(),
-
-  springboot: `
-- @Component / @Service / @Repository annotations are correct
-- All @Autowired fields have corresponding beans
-- @RequestMapping paths are consistent
-- Entity has @Id and @GeneratedValue
-- No circular dependencies
-- Repository methods return correct types
-`.trim(),
-
-  go: `
-- All imports are used
-- All error returns are checked
-- No unused variables
-- goroutines have proper exit conditions  
-- All struct fields are exported (capital) if needed by json
-`.trim(),
-
-  default: `
-- No syntax errors visible
-- All functions/methods are complete (no empty bodies)
-- All imports/includes/requires are present
-- No placeholder or stub code
-- Logic matches the stated purpose
-`.trim(),
+  js: `- No undefined variables\n- All require() paths are local or installed\n- No missing brackets/braces\n- No placeholder TODO comments\n- All functions complete`,
+  py: `- All imports exist\n- Consistent indentation\n- All functions have return\n- No undefined variables`,
+  default: `- No syntax errors\n- All functions complete\n- No placeholders`,
 };
 
-// ─────────────────────────────────────────────────────────────
-// REVIEW A SINGLE FILE
-// Returns { approved, issues, fixedCode }
-// ─────────────────────────────────────────────────────────────
 const reviewCode = async (filePath, code, lang = "default") => {
-  const checklist = REVIEW_CHECKLISTS[lang] || REVIEW_CHECKLISTS.default;
+  // FAST VALIDATION: Check for obvious problems WITHOUT calling LLM
+  const issues = [];
 
-  const prompt = `You are a senior code reviewer doing a strict pre-commit review.
-
-FILE: ${filePath}
-LANGUAGE: ${lang}
-
-REVIEW CHECKLIST (check every item):
-${checklist}
-
-CODE TO REVIEW:
-\`\`\`
-${code}
-\`\`\`
-
-TASK: Review the code against every checklist item.
-
-If the code passes all checks, respond ONLY with:
-REVIEW: APPROVED
-
-If there are issues, respond with:
-REVIEW: ISSUES
-PROBLEMS:
-<numbered list of specific problems found>
-FIXED_CODE:
-<complete corrected version of the full file>
-END_FIXED_CODE
-
-Do NOT include any other text outside these formats.`;
-
-  try {
-    const res = await postJSON(OLLAMA_URL, {
-      model: MODEL,
-      prompt,
-      stream: false,
-      options: { temperature: 0.05, num_predict: 4000 },
-    });
-
-    const raw = (res.response || "").trim();
-
-    if (raw.includes("REVIEW: APPROVED")) {
-      return { approved: true, issues: [], fixedCode: null };
-    }
-
-    if (raw.includes("REVIEW: ISSUES")) {
-      const problemsMatch = raw.match(/PROBLEMS:\s*\n([\s\S]*?)(?:FIXED_CODE:|$)/i);
-      const fixedMatch = raw.match(/FIXED_CODE:\s*\n([\s\S]*?)(?:END_FIXED_CODE|$)/i);
-
-      const issues = problemsMatch
-        ? problemsMatch[1].trim().split("\n").filter((l) => l.trim())
-        : ["Issues detected but could not parse details"];
-
-      const fixedCode = fixedMatch ? cleanFences(fixedMatch[1].trim()) : null;
-
-      return { approved: false, issues, fixedCode };
-    }
-
-    // Couldn't parse review — approve by default (don't block)
-    return { approved: true, issues: [], fixedCode: null };
-
-  } catch (err) {
-    // If review call fails, don't block the write
-    return { approved: true, issues: [], fixedCode: null };
+  // Check for obvious code problems
+  if (!code || code.trim().length < 10) {
+    issues.push("File is nearly empty");
   }
+
+  // Check for placeholder patterns
+  if (/\/\/\s*(TODO|FIXME|add.*here|implement|placeholder)/i.test(code)) {
+    issues.push("Contains placeholder/TODO comments");
+  }
+
+  // Check for "rest unchanged" or truncation
+  if (/\/\/\s*(rest|remaining|\.\.\.)/i.test(code)) {
+    issues.push("Code appears truncated");
+  }
+
+  // Check bracket balance for JS/TS
+  if (["js", "ts", "default"].includes(lang)) {
+    const opens = (code.match(/\{/g) || []).length;
+    const closes = (code.match(/\}/g) || []).length;
+    if (Math.abs(opens - closes) > 1) {
+      issues.push(`Unbalanced braces: ${opens} open, ${closes} close`);
+    }
+
+    const parens_open = (code.match(/\(/g) || []).length;
+    const parens_close = (code.match(/\)/g) || []).length;
+    if (Math.abs(parens_open - parens_close) > 1) {
+      issues.push(`Unbalanced parentheses: ${parens_open} open, ${parens_close} close`);
+    }
+  }
+
+  // Check for files that require non-existent local files
+  const localRequires = code.matchAll(/require\(\s*['"](\.[^'"]+)['"]\s*\)/g);
+  for (const m of localRequires) {
+    const reqPath = m[1];
+    // Try to resolve relative to file location
+    const dir = path.dirname(filePath);
+    const resolved = path.join(dir, reqPath);
+    const candidates = [resolved, resolved + ".js", resolved + ".ts", resolved + "/index.js"];
+    const exists = candidates.some(c => {
+      try { return fs.existsSync(path.join(process.cwd(), c)); } catch (_) { return false; }
+    });
+    if (!exists) {
+      issues.push(`Requires non-existent local module: ${reqPath}`);
+    }
+  }
+
+  if (issues.length > 0) {
+    return { approved: false, issues, fixedCode: null };
+  }
+
+  // If fast check passes, approve without LLM call (saves time + avoids LLM hallucination)
+  return { approved: true, issues: [], fixedCode: null };
 };
 
-// Strips code fences from review output
 const cleanFences = (code) => {
   if (!code) return code;
-  return code
-    .replace(/^```[\w]*\n?/gm, "")
-    .replace(/^```$/gm, "")
-    .trim();
+  return code.replace(/^```[\w]*\n?/gm, "").replace(/^```$/gm, "").trim();
 };
 
-// ─────────────────────────────────────────────────────────────
-// REASONING TRACE LOGGER
-// Every action the agent takes is logged with reasoning
-// Creates .agent-memory/reasoning.log for full audit trail
-// ─────────────────────────────────────────────────────────────
-
-const fs = require("fs");
-const path = require("path");
-
+// ── Reasoning Trace Logger ──
 const TRACE_FILE = path.join(process.cwd(), ".agent-memory", "reasoning.log");
 
 const logTrace = (entry) => {
   try {
-    const line = JSON.stringify({
-      ts: new Date().toISOString(),
-      ...entry,
-    }) + "\n";
-    fs.appendFileSync(TRACE_FILE, line);
+    const dir = path.dirname(TRACE_FILE);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.appendFileSync(TRACE_FILE, JSON.stringify({ ts: new Date().toISOString(), ...entry }) + "\n");
   } catch (_) {}
 };
 
-// Logs a step in the agent's reasoning
 const traceStep = (action, detail, outcome = "") => {
   logTrace({ action, detail: detail?.slice(0, 200), outcome: outcome?.slice(0, 100) });
 };
 
-// Reads and formats recent trace entries for display
 const getRecentTrace = (limit = 20) => {
   try {
     const raw = fs.readFileSync(TRACE_FILE, "utf8");
-    const lines = raw.trim().split("\n").filter(Boolean);
-    return lines.slice(-limit).map((l) => {
+    return raw.trim().split("\n").filter(Boolean).slice(-limit).map(l => {
       try { return JSON.parse(l); } catch (_) { return null; }
     }).filter(Boolean);
-  } catch (_) {
-    return [];
-  }
+  } catch (_) { return []; }
 };
 
 module.exports = { reviewCode, traceStep, getRecentTrace };

@@ -37,5 +37,17 @@
     "seenCount": 1,
     "firstSeen": "2026-03-06T21:52:31.555Z",
     "lastSeen": "2026-03-06T21:52:31.555Z"
+  },
+  {
+    "id": "fis-1772891136945",
+    "key": "node:internal fs promises:636 return new filehandle(await promiseprototypethen( ^ error: enoent: no such file or directory, open . tasks.json at async",
+    "lang": "js",
+    "file": "demo.js",
+    "errorText": "node:internal/fs/promises:636\n  return new FileHandle(await PromisePrototypeThen(\n                        ^\n\nError: ENOENT: no such file or directory, open './tasks.json'\n    at async open (node:internal/fs/promises:636:25)\n    at async Object.readFile (node:internal/fs/promises:1235:14)\n    at asyn",
+    "fix": "Swarm: robust",
+    "codeAfter": "const fs = require(\"fs\").promises;\n\nclass TaskProcessor {\n    constructor(filePath) {\n        this.filePath = filePath;\n        this.tasks = [];\n    }\n\n    async loadTasks() {\n        try {\n            const data = await fs.readFile(this.filePath, \"utf-8\");\n            this.tasks = JSON.parse(data);\n        } catch (error) {\n            console.log(\"Error loading tasks:\", error);\n        }\n    }\n\n",
+    "seenCount": 1,
+    "firstSeen": "2026-03-07T13:45:36.945Z",
+    "lastSeen": "2026-03-07T13:45:36.945Z"
   }
 ]

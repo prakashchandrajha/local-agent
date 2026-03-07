@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "indexedAt": "2026-03-07T12:13:25.615Z",
-  "totalFiles": 63,
+  "indexedAt": "2026-03-07T14:49:00.696Z",
+  "totalFiles": 65,
   "files": {
     "README.md": {
       "role": "other",
@@ -18,10 +18,11 @@
     },
     "agent.js": {
       "role": "other",
-      "description": "║  SUPERCHARGED LOCAL CODING AGENT  v5                            ║",
+      "description": "── Core tools ───────────────────────────────────────────────",
       "functions": [
         "rememberTurn",
         "formatHistory",
+        "resetSession",
         "loadReadme",
         "cleanFences",
         "extractFilename",
@@ -30,20 +31,22 @@
         "classifyTask",
         "isSolved",
         "isFollowUp",
+        "validateOutput",
         "interceptCapability",
         "tryDirectDelete",
         "tryDirectRename",
         "parseToolBlocks",
         "isLikelyComplete",
         "writeWithReview",
+        "hasWriteOp",
         "runFullPipeline",
-        "timeoutId",
         "blocks",
         "run"
       ],
       "signatures": [
         "rememberTurn(role, content)",
         "formatHistory()",
+        "resetSession()",
         "loadReadme()",
         "cleanFences(s)",
         "extractFilename(input)",
@@ -52,15 +55,16 @@
         "classifyTask(input)",
         "isSolved(s)",
         "isFollowUp(s)",
+        "validateOutput(output)",
         "interceptCapability(input)",
         "tryDirectDelete(input)",
         "tryDirectRename(input)",
         "parseToolBlocks(response)",
         "isLikelyComplete(buffer)",
         "writeWithReview(filePath, code, lang)",
+        "hasWriteOp(result.ops.some(op)",
         "runFullPipeline(userInput, readmeContent, projectContext)",
-        "timeoutId(setTimeout(()",
-        "blocks(t.read.map((r)",
+        "blocks(t.read.map(r)",
         "run()"
       ],
       "exports": [],
@@ -95,10 +99,10 @@
         "path",
         "child_process",
         "|def",
-        "|require|return|if"
+        "|require|return|module\\.exports)\\b/.test(op.content);"
       ],
-      "lineCount": 945,
-      "mtime": 1772884082802
+      "lineCount": 1159,
+      "mtime": 1772894931335
     },
     "agents/architect.js": {
       "role": "other",
@@ -284,16 +288,16 @@
     },
     "config/prompts.js": {
       "role": "config",
-      "description": "PROMPTS — Fixed for 6.7b model reliability",
+      "description": "config — exports: addNumbers, wrapSection, buildRetryPrompt",
       "functions": [
+        "addNumbers",
         "wrapSection",
-        "buildRetryPrompt",
-        "greet"
+        "buildRetryPrompt"
       ],
       "signatures": [
+        "addNumbers(a, b)",
         "wrapSection(title, content)",
-        "buildRetryPrompt(originalPrompt, attempt)",
-        "greet(name)"
+        "buildRetryPrompt(originalPrompt, attempt)"
       ],
       "exports": [
         "buildSystemPrompt",
@@ -306,8 +310,8 @@
       ],
       "imports": [],
       "externalDeps": [],
-      "lineCount": 239,
-      "mtime": 1772883969747
+      "lineCount": 112,
+      "mtime": 1772893578078
     },
     "core/cce.js": {
       "role": "other",
@@ -392,28 +396,30 @@
     },
     "core/ere.js": {
       "role": "other",
-      "description": "EXECUTION & RECOVERY ENGINE (ERE)",
+      "description": "exports: tryQuickFix, loadFixCache, saveFixCache, getCachedFix, cacheFix",
       "functions": [
         "tryQuickFix",
-        "extractErrorLine",
-        "buildErrorOnlyPrompt",
         "loadFixCache",
         "saveFixCache",
-        "sorted",
         "getCachedFix",
         "cacheFix",
-        "displayEREStats"
+        "validateFixOutput",
+        "commonCount",
+        "extractErrorLine",
+        "displayEREStats",
+        "buildErrorOnlyPrompt"
       ],
       "signatures": [
         "tryQuickFix(errorOutput, filePath)",
-        "extractErrorLine(errorOutput)",
-        "buildErrorOnlyPrompt(filePath, errorOutput, fileContent)",
         "loadFixCache()",
         "saveFixCache(cache)",
-        "sorted(keys.sort((a, b)",
-        "getCachedFix(errorFingerprint)",
-        "cacheFix(errorFingerprint, fixCode)",
-        "displayEREStats()"
+        "getCachedFix(fp)",
+        "cacheFix(fp, code)",
+        "validateFixOutput(filePath)",
+        "commonCount(originalTokens.filter(t)",
+        "extractErrorLine(errorOutput)",
+        "displayEREStats()",
+        "buildErrorOnlyPrompt(fp, err, content)"
       ],
       "exports": [
         "executeAndRecover",
@@ -430,8 +436,6 @@
         "../tools/file",
         "../llm/client",
         "../memory/fis",
-        "../browser/search",
-        "../memory/knowledge-store",
         "./swarm"
       ],
       "externalDeps": [
@@ -439,8 +443,8 @@
         "path",
         "child_process"
       ],
-      "lineCount": 523,
-      "mtime": 1772877556117
+      "lineCount": 323,
+      "mtime": 1772894634637
     },
     "core/fileGuard.js": {
       "role": "module",
@@ -569,12 +573,14 @@
     },
     "core/reviewer.js": {
       "role": "other",
-      "description": "After code generation, runs a focused review pass to catch",
+      "description": "FAST VALIDATION: Check for obvious problems WITHOUT calling LLM",
       "functions": [
+        "exists",
         "cleanFences",
         "logTrace"
       ],
       "signatures": [
+        "exists(candidates.some(c)",
         "cleanFences(code)",
         "logTrace(entry)"
       ],
@@ -588,44 +594,35 @@
       ],
       "externalDeps": [
         "fs",
-        "path",
-        "paths"
+        "path"
       ],
-      "lineCount": 200,
-      "mtime": 1772877556118
+      "lineCount": 103,
+      "mtime": 1772893564614
     },
     "core/swarm.js": {
       "role": "other",
-      "description": "Manages parallel speculative fix cycles.",
+      "description": "exports: getVariantCount, cleanCode, calculateSimilarity, buildSpeculativePrompt, generateVariant",
       "functions": [
         "getVariantCount",
         "cleanCode",
         "calculateSimilarity",
         "buildSpeculativePrompt",
         "generateVariant",
-        "getWeights",
-        "tuneWeights",
         "evaluateVariant",
         "displayReport",
-        "llmTasks",
-        "validVariants",
-        "results",
-        "winner"
+        "tasks",
+        "valid"
       ],
       "signatures": [
         "getVariantCount(errorOutput)",
         "cleanCode(text)",
         "calculateSimilarity(original, fixed)",
-        "buildSpeculativePrompt(filePath, content, errorOutput, variantType, predictionHint)",
-        "generateVariant(filePath, content, errorOutput, type, predictionHint)",
-        "getWeights(filePath)",
-        "tuneWeights(winnerType)",
-        "evaluateVariant(sbId, filePath, type, weights, originalCode)",
+        "buildSpeculativePrompt(filePath, content, errorOutput, variantType)",
+        "generateVariant(filePath, content, errorOutput, type)",
+        "evaluateVariant(sbId, filePath, type, originalCode, code)",
         "displayReport(results, winner)",
-        "llmTasks(initialStrategies.map((s, i)",
-        "validVariants(variants.filter(v)",
-        "results(await Promise.all(validVariants.map(async (v)",
-        "winner(results.sort((a, b)"
+        "tasks(strategies.map((s, i)",
+        "valid(variants.filter(v)"
       ],
       "exports": [
         "speculateFix",
@@ -636,17 +633,13 @@
         "../llm/client",
         "../tools/file",
         "../tools/sandbox",
-        "../memory/fis",
-        "../browser/search",
-        "./incremental-test",
-        "./cce"
+        "../memory/fis"
       ],
       "externalDeps": [
-        "path",
-        "fs"
+        "path"
       ],
-      "lineCount": 358,
-      "mtime": 1772877556118
+      "lineCount": 205,
+      "mtime": 1772893590446
     },
     "core/telemetry.js": {
       "role": "module",
@@ -667,6 +660,37 @@
       ],
       "lineCount": 19,
       "mtime": 1772877556118
+    },
+    "demo.js": {
+      "role": "class",
+      "description": "class — exports: constructor, loadTasks, processTasks, executeTask, performMath",
+      "functions": [
+        "constructor",
+        "loadTasks",
+        "processTasks",
+        "executeTask",
+        "performMath",
+        "result",
+        "performString",
+        "run"
+      ],
+      "signatures": [
+        "constructor(filePath)",
+        "loadTasks()",
+        "processTasks()",
+        "executeTask(task)",
+        "performMath(payload)",
+        "result(payload.numbers.reduce((acc, num)",
+        "performString(payload)",
+        "run()"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [
+        "fs"
+      ],
+      "lineCount": 82,
+      "mtime": 1772894669671
     },
     "docs/for-agent/AGENT_GUIDE.md": {
       "role": "other",
@@ -809,6 +833,21 @@
       "externalDeps": [],
       "lineCount": 4,
       "mtime": 1772877556119
+    },
+    "file.js": {
+      "role": "other",
+      "description": "exports: fix",
+      "functions": [
+        "fix"
+      ],
+      "signatures": [
+        "fix()"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 6,
+      "mtime": 1772894111507
     },
     "index.js": {
       "role": "entry",
@@ -1126,7 +1165,7 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 309,
-      "mtime": 1772885521469
+      "mtime": 1772892037956
     },
     "package.json": {
       "role": "other",
@@ -1137,7 +1176,7 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 22,
-      "mtime": 1772885237271
+      "mtime": 1772889858057
     },
     "parsers/tool-parser.js": {
       "role": "other",

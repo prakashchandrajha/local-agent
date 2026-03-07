@@ -9,7 +9,7 @@
     "fact": "Always wrap await calls in try/catch. Unhandled promise rejections crash Node.js.",
     "id": "seed-0",
     "source": "built-in",
-    "useCount": 27,
+    "useCount": 46,
     "createdAt": "2026-03-06T10:54:29.971Z"
   },
   {
@@ -22,7 +22,7 @@
     "fact": "Use optional chaining (?.) and nullish coalescing (??) to safely access nested properties.",
     "id": "seed-1",
     "source": "built-in",
-    "useCount": 10,
+    "useCount": 16,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -35,7 +35,7 @@
     "fact": "In Node.js ESM, use import/export. In CommonJS, use require/module.exports. Never mix them in the same file.",
     "id": "seed-2",
     "source": "built-in",
-    "useCount": 28,
+    "useCount": 42,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -48,7 +48,7 @@
     "fact": "CORS errors: add cors() middleware BEFORE route definitions. Set origin, methods, credentials explicitly.",
     "id": "seed-3",
     "source": "built-in",
-    "useCount": 5,
+    "useCount": 11,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -61,7 +61,7 @@
     "fact": "JWT secrets must be long random strings (32+ chars). Always verify token on every protected route. Store in httpOnly cookies, not localStorage.",
     "id": "seed-4",
     "source": "built-in",
-    "useCount": 6,
+    "useCount": 12,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -74,7 +74,7 @@
     "fact": "Load .env with require('dotenv').config() as the very FIRST line in entry point. Never commit .env to git.",
     "id": "seed-5",
     "source": "built-in",
-    "useCount": 12,
+    "useCount": 18,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -87,7 +87,7 @@
     "fact": "bcrypt.hash() is async. Always await it. Use saltRounds = 12 minimum for production passwords.",
     "id": "seed-6",
     "source": "built-in",
-    "useCount": 7,
+    "useCount": 12,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -126,7 +126,7 @@
     "fact": "Async functions always return Promise<T>. Annotate return type as Promise<void>, Promise<string>, etc.",
     "id": "seed-9",
     "source": "built-in",
-    "useCount": 17,
+    "useCount": 30,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -139,7 +139,7 @@
     "fact": "Use asyncio.run(main()) as entry point. Never call loop.run_until_complete() in newer Python (3.10+).",
     "id": "seed-10",
     "source": "built-in",
-    "useCount": 4,
+    "useCount": 15,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -217,7 +217,7 @@
     "fact": "Use Optional<T> for nullable return values. Never return null from public methods. Use Objects.requireNonNull() for validation.",
     "id": "seed-16",
     "source": "built-in",
-    "useCount": 10,
+    "useCount": 12,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -346,7 +346,7 @@
     "fact": "Wrap errors with fmt.Errorf('context: %w', err). Check with errors.Is() and errors.As() for type-safe error inspection.",
     "id": "seed-26",
     "source": "built-in",
-    "useCount": 15,
+    "useCount": 28,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -398,7 +398,7 @@
     "fact": "Never use .unwrap() in production code. Use ?, match, if let, or .unwrap_or_else() for safe error handling.",
     "id": "seed-30",
     "source": "built-in",
-    "useCount": 4,
+    "useCount": 12,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -411,7 +411,7 @@
     "fact": "Copy package.json and install dependencies BEFORE copying source code. This caches the node_modules layer and speeds up rebuilds.",
     "id": "seed-31",
     "source": "built-in",
-    "useCount": 15,
+    "useCount": 20,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
