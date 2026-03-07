@@ -39,6 +39,8 @@ const { logEvent }                                            = require("./core/
 const { buildRetryPrompt, TOOL_EXAMPLES }                     = require("./config/prompts");
 const { searchForFix }                                        = require("./browser/search");
 const { classify }                                            = require("./core/error-classifier");
+const { buildDependencyGraph }                                = require("./core/project-graph");
+const { analyzeRootCause }                                    = require("./core/root-cause-analyzer");
 const patternLearner                                          = require("./memory/pattern-learner");
 
 // ─────────────────────────────────────────────────────────────
@@ -618,7 +620,7 @@ const runAgentTurn = async (prompt, readmeContent, activeFile = null, errorCtx =
 // FIX PROMPT BUILDER
 // For 6.7B: error → content → WRITE NOW (last instruction wins)
 // ─────────────────────────────────────────────────────────────
-const buildFixPrompt = (filePath, content, errorDesc, userContext = "", errorClass = null) => {
+const buildFixPrompt = (filePath, content, errorDesc, userContext = "", errorClass = null, rootReport = null) => {
   const parts = [];
 
   parts.push(`ERROR in ${filePath}:`);
@@ -626,6 +628,10 @@ const buildFixPrompt = (filePath, content, errorDesc, userContext = "", errorCla
   if (errorClass) {
     const hintDetail = errorClass.detail ? ` (${errorClass.detail})` : "";
     parts.push(`DETECTED ERROR TYPE: ${errorClass.type}${hintDetail} [${Math.round((errorClass.confidence || 0)*100)}%]`);
+  }
+  if (rootReport && !rootReport.error) {
+    const chain = (rootReport.dependencyChain || []).slice(0, 5).map(f => path.basename(f)).join(" → ");
+    parts.push(`ROOT ANALYSIS: Severity=${rootReport.severity}, BlastRadius=${rootReport.blastRadius}${chain ? `, Chain: ${chain}` : ""}`);
   }
   if (userContext) parts.push(`USER FEEDBACK: ${userContext}`);
 
@@ -699,6 +705,7 @@ const runSmartFix = async (filePath, readmeContent, userContext = "") => {
 
   let errorDesc = "";
   let errorClass = null;
+  let rootReport = null;
 
   if (!runResult.success) {
     errorDesc = runResult.output;
@@ -727,6 +734,14 @@ const runSmartFix = async (filePath, readmeContent, userContext = "") => {
   sessionCtx.lastOutput = runResult.output;
   sessionCtx.lastAction = "fix";
 
+  // Root-cause context
+  if (global.projectGraph) {
+    rootReport = analyzeRootCause(global.projectGraph, filePath);
+    if (rootReport && !rootReport.error) {
+      console.log(`🌐 Blast radius: ${rootReport.severity} (edges ${rootReport.blastRadius})`);
+    }
+  }
+
   // Step 1.5: Try pattern learner shortcut with similarity + safe rollback
   const pattern = patternLearner.lookup(errorDesc || "");
   if (pattern && pattern.confidence >= 0.7) {
@@ -753,7 +768,7 @@ const runSmartFix = async (filePath, readmeContent, userContext = "") => {
   }
 
   // Step 2: Build fix prompt and send to LLM
-  const fixPrompt = buildFixPrompt(filePath, content, errorDesc, userContext, errorClass);
+  const fixPrompt = buildFixPrompt(filePath, content, errorDesc, userContext, errorClass, rootReport);
   console.log(`🔧 Fixing ${filePath}...\n`);
 
   let t = await runAgentTurn(fixPrompt, readmeContent, filePath, errorDesc);
@@ -1004,6 +1019,9 @@ const run = async () => {
   memory.init();
   kstore.initAtoms();
   memory.buildProjectMap();
+
+  // Build project dependency graph once at startup
+  global.projectGraph = buildDependencyGraph(process.cwd());
 
   const idx = buildIndex();
   console.log(`📊 Repo indexed: ${idx.totalFiles} files (${idx.updated} updated, ${idx.cached} cached)`);
