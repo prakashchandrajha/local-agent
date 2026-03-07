@@ -9,8 +9,8 @@
     "fact": "Always wrap await calls in try/catch. Unhandled promise rejections crash Node.js.",
     "id": "seed-0",
     "source": "built-in",
-    "useCount": 49,
-    "createdAt": "2026-03-06T10:54:29.971Z"
+    "useCount": 2,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "js",
@@ -22,8 +22,8 @@
     "fact": "Use optional chaining (?.) and nullish coalescing (??) to safely access nested properties.",
     "id": "seed-1",
     "source": "built-in",
-    "useCount": 16,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "useCount": 1,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "js",
@@ -35,8 +35,8 @@
     "fact": "In Node.js ESM, use import/export. In CommonJS, use require/module.exports. Never mix them in the same file.",
     "id": "seed-2",
     "source": "built-in",
-    "useCount": 44,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "useCount": 2,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "js",
@@ -48,8 +48,8 @@
     "fact": "CORS errors: add cors() middleware BEFORE route definitions. Set origin, methods, credentials explicitly.",
     "id": "seed-3",
     "source": "built-in",
-    "useCount": 11,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "useCount": 0,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "js",
@@ -61,8 +61,8 @@
     "fact": "JWT secrets must be long random strings (32+ chars). Always verify token on every protected route. Store in httpOnly cookies, not localStorage.",
     "id": "seed-4",
     "source": "built-in",
-    "useCount": 12,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "useCount": 0,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "js",
@@ -74,8 +74,8 @@
     "fact": "Load .env with require('dotenv').config() as the very FIRST line in entry point. Never commit .env to git.",
     "id": "seed-5",
     "source": "built-in",
-    "useCount": 18,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "useCount": 0,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "js",
@@ -87,8 +87,8 @@
     "fact": "bcrypt.hash() is async. Always await it. Use saltRounds = 12 minimum for production passwords.",
     "id": "seed-6",
     "source": "built-in",
-    "useCount": 12,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "useCount": 2,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "ts",
@@ -100,8 +100,8 @@
     "fact": "Avoid 'any'. Use 'unknown' for truly unknown types — it forces type checking before use.",
     "id": "seed-7",
     "source": "built-in",
-    "useCount": 3,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "useCount": 0,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "ts",
@@ -113,8 +113,8 @@
     "fact": "Use interfaces for object shapes (mergeable), type aliases for unions/intersections/primitives.",
     "id": "seed-8",
     "source": "built-in",
-    "useCount": 2,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "useCount": 1,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "ts",
@@ -126,8 +126,8 @@
     "fact": "Async functions always return Promise<T>. Annotate return type as Promise<void>, Promise<string>, etc.",
     "id": "seed-9",
     "source": "built-in",
-    "useCount": 32,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "useCount": 2,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "py",
@@ -139,8 +139,8 @@
     "fact": "Use asyncio.run(main()) as entry point. Never call loop.run_until_complete() in newer Python (3.10+).",
     "id": "seed-10",
     "source": "built-in",
-    "useCount": 17,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "useCount": 0,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "py",
@@ -152,8 +152,8 @@
     "fact": "Relative imports (from .module import X) only work inside packages. Add __init__.py to make a directory a package.",
     "id": "seed-11",
     "source": "built-in",
-    "useCount": 4,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "useCount": 0,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "py",
@@ -166,7 +166,7 @@
     "id": "seed-12",
     "source": "built-in",
     "useCount": 0,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "py",
@@ -178,8 +178,8 @@
     "fact": "Always close SQLAlchemy sessions. Use context managers (with Session() as session:) or try/finally.",
     "id": "seed-13",
     "source": "built-in",
-    "useCount": 1,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "useCount": 0,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "py",
@@ -191,8 +191,8 @@
     "fact": "FastAPI dependencies with yield are generators. Put cleanup code after yield. Use Depends() in route params.",
     "id": "seed-14",
     "source": "built-in",
-    "useCount": 1,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "useCount": 0,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "py",
@@ -204,8 +204,8 @@
     "fact": "python-jose: use jwt.encode() with algorithm='HS256'. Decode with jwt.decode() passing the secret and algorithms list.",
     "id": "seed-15",
     "source": "built-in",
-    "useCount": 6,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "useCount": 0,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "java",
@@ -217,8 +217,8 @@
     "fact": "Use Optional<T> for nullable return values. Never return null from public methods. Use Objects.requireNonNull() for validation.",
     "id": "seed-16",
     "source": "built-in",
-    "useCount": 12,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "useCount": 2,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "java",
@@ -231,7 +231,7 @@
     "id": "seed-17",
     "source": "built-in",
     "useCount": 0,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "java",
@@ -244,7 +244,7 @@
     "id": "seed-18",
     "source": "built-in",
     "useCount": 0,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "java",
@@ -257,7 +257,7 @@
     "id": "seed-19",
     "source": "built-in",
     "useCount": 0,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "java",
@@ -269,7 +269,7 @@
     "id": "seed-20",
     "source": "built-in",
     "useCount": 0,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "springboot",
@@ -282,7 +282,7 @@
     "id": "seed-21",
     "source": "built-in",
     "useCount": 0,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "springboot",
@@ -295,7 +295,7 @@
     "id": "seed-22",
     "source": "built-in",
     "useCount": 0,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "springboot",
@@ -308,7 +308,7 @@
     "id": "seed-23",
     "source": "built-in",
     "useCount": 0,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "springboot",
@@ -320,8 +320,8 @@
     "fact": "Use @ConfigurationProperties(prefix='app') with a @Configuration class for grouped settings. Type-safe and IDE-friendly.",
     "id": "seed-24",
     "source": "built-in",
-    "useCount": 2,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "useCount": 0,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "springboot",
@@ -333,8 +333,8 @@
     "fact": "Use @Valid on @RequestBody params. Add validation annotations (@NotNull, @Size, @Email) to DTO fields. Handle MethodArgumentNotValidException.",
     "id": "seed-25",
     "source": "built-in",
-    "useCount": 1,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "useCount": 0,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "go",
@@ -346,8 +346,8 @@
     "fact": "Wrap errors with fmt.Errorf('context: %w', err). Check with errors.Is() and errors.As() for type-safe error inspection.",
     "id": "seed-26",
     "source": "built-in",
-    "useCount": 31,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "useCount": 1,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "go",
@@ -359,8 +359,8 @@
     "fact": "Always pass context.Context to goroutines. Use context.WithCancel() to signal shutdown. Goroutines without exit conditions leak.",
     "id": "seed-27",
     "source": "built-in",
-    "useCount": 9,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "useCount": 0,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "go",
@@ -372,8 +372,8 @@
     "fact": "A nil pointer satisfying an interface is NOT nil as an interface. Always return explicit nil for interface return types.",
     "id": "seed-28",
     "source": "built-in",
-    "useCount": 10,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "useCount": 0,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "rust",
@@ -386,7 +386,7 @@
     "id": "seed-29",
     "source": "built-in",
     "useCount": 0,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "rust",
@@ -398,8 +398,8 @@
     "fact": "Never use .unwrap() in production code. Use ?, match, if let, or .unwrap_or_else() for safe error handling.",
     "id": "seed-30",
     "source": "built-in",
-    "useCount": 12,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "useCount": 1,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "docker",
@@ -411,8 +411,8 @@
     "fact": "Copy package.json and install dependencies BEFORE copying source code. This caches the node_modules layer and speeds up rebuilds.",
     "id": "seed-31",
     "source": "built-in",
-    "useCount": 22,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "useCount": 0,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "docker",
@@ -425,7 +425,7 @@
     "id": "seed-32",
     "source": "built-in",
     "useCount": 0,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "general",
@@ -438,7 +438,7 @@
     "id": "seed-33",
     "source": "built-in",
     "useCount": 0,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "general",
@@ -450,8 +450,8 @@
     "fact": ".env files must be in .gitignore. Rotate any secrets that were ever committed to git history.",
     "id": "seed-34",
     "source": "built-in",
-    "useCount": 1,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "useCount": 0,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   },
   {
     "lang": "general",
@@ -463,7 +463,7 @@
     "fact": "After every code generation: check that all imports resolve, all functions are called with correct argument counts, and no logic is left as pseudocode.",
     "id": "seed-35",
     "source": "built-in",
-    "useCount": 23,
-    "createdAt": "2026-03-06T10:54:29.972Z"
+    "useCount": 0,
+    "createdAt": "2026-03-07T18:09:56.847Z"
   }
 ]

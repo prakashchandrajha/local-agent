@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "indexedAt": "2026-03-07T15:26:42.993Z",
-  "totalFiles": 71,
+  "indexedAt": "2026-03-07T18:16:58.677Z",
+  "totalFiles": 82,
   "files": {
     "README.md": {
       "role": "other",
@@ -92,7 +92,13 @@
         "./core/fileGuard",
         "./core/telemetry",
         "./config/prompts",
-        "./browser/search"
+        "./browser/search",
+        "./core/error-classifier",
+        "./core/project-graph",
+        "./core/root-cause-analyzer",
+        "./core/fix-planner",
+        "./core/regression-guard",
+        "./memory/pattern-learner"
       ],
       "externalDeps": [
         "fs",
@@ -101,8 +107,8 @@
         "|def",
         "|require|return|module\\.exports)\\b/.test(op.content);"
       ],
-      "lineCount": 1159,
-      "mtime": 1772894931335
+      "lineCount": 1242,
+      "mtime": 1772907410500
     },
     "agents/architect.js": {
       "role": "other",
@@ -396,9 +402,10 @@
     },
     "core/ere.js": {
       "role": "other",
-      "description": "exports: tryQuickFix, loadFixCache, saveFixCache, getCachedFix, cacheFix",
+      "description": "exports: tryQuickFix, targeted, loadFixCache, saveFixCache, getCachedFix",
       "functions": [
         "tryQuickFix",
+        "targeted",
         "loadFixCache",
         "saveFixCache",
         "getCachedFix",
@@ -411,6 +418,7 @@
       ],
       "signatures": [
         "tryQuickFix(errorOutput, filePath)",
+        "targeted(QUICK_FIX_PATTERNS.filter((p)",
         "loadFixCache()",
         "saveFixCache(cache)",
         "getCachedFix(fp)",
@@ -436,6 +444,7 @@
         "../tools/file",
         "../llm/client",
         "../memory/fis",
+        "./error-classifier",
         "./swarm"
       ],
       "externalDeps": [
@@ -443,8 +452,21 @@
         "path",
         "child_process"
       ],
-      "lineCount": 378,
-      "mtime": 1772896877344
+      "lineCount": 403,
+      "mtime": 1772903807338
+    },
+    "core/error-classifier.js": {
+      "role": "other",
+      "description": "Fast, regex-based error classifier. Pure and side-effect free.",
+      "functions": [],
+      "signatures": [],
+      "exports": [
+        "classify"
+      ],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 64,
+      "mtime": 1772898579200
     },
     "core/fileGuard.js": {
       "role": "module",
@@ -467,6 +489,27 @@
       ],
       "lineCount": 19,
       "mtime": 1772877556117
+    },
+    "core/fix-planner.js": {
+      "role": "other",
+      "description": "Context-Aware Fix Planner",
+      "functions": [
+        "buildFixStrategy"
+      ],
+      "signatures": [
+        "buildFixStrategy(rootReport)"
+      ],
+      "exports": [
+        "buildFixStrategy",
+        "formatPlanForPrompt",
+        "simulateFix"
+      ],
+      "imports": [
+        "./regression-guard"
+      ],
+      "externalDeps": [],
+      "lineCount": 54,
+      "mtime": 1772903457653
     },
     "core/incremental-test.js": {
       "role": "test",
@@ -528,6 +571,71 @@
       ],
       "lineCount": 233,
       "mtime": 1772877556118
+    },
+    "core/project-graph.js": {
+      "role": "other",
+      "description": "Project Graph Engine (scaffold)",
+      "functions": [
+        "walk",
+        "parseImports",
+        "normalizeImport",
+        "findDependents",
+        "findDependencies"
+      ],
+      "signatures": [
+        "walk(dir)",
+        "parseImports(content)",
+        "normalizeImport(fromFile, spec)",
+        "findDependents(graph, targetPath)",
+        "findDependencies(graph, sourcePath)"
+      ],
+      "exports": [
+        "collectFiles",
+        "parseImports",
+        "normalizeImport",
+        "buildDependencyGraph",
+        "findDependents",
+        "findDependencies"
+      ],
+      "imports": [],
+      "externalDeps": [
+        "fs",
+        "path",
+        "graph"
+      ],
+      "lineCount": 112,
+      "mtime": 1772902462135
+    },
+    "core/regression-guard.js": {
+      "role": "middleware",
+      "description": "Regression Guard (scaffold)",
+      "functions": [
+        "ensureSnapDir",
+        "timestamp",
+        "snapshotFile",
+        "restoreSnapshot"
+      ],
+      "signatures": [
+        "ensureSnapDir()",
+        "timestamp()",
+        "snapshotFile(filePath)",
+        "restoreSnapshot(filePath, snapContent)"
+      ],
+      "exports": [
+        "scoreRisk",
+        "snapshotFile",
+        "restoreSnapshot",
+        "runGuardedFix"
+      ],
+      "imports": [
+        "./core/regression-guard"
+      ],
+      "externalDeps": [
+        "fs",
+        "path"
+      ],
+      "lineCount": 92,
+      "mtime": 1772903145661
     },
     "core/repo-indexer.js": {
       "role": "repository",
@@ -599,6 +707,30 @@
       "lineCount": 103,
       "mtime": 1772893564614
     },
+    "core/root-cause-analyzer.js": {
+      "role": "other",
+      "description": "Uses project dependency graph to trace how an error in a file",
+      "functions": [
+        "dfs",
+        "estimateImpact"
+      ],
+      "signatures": [
+        "dfs(file, depth)",
+        "estimateImpact(chainLength)"
+      ],
+      "exports": [
+        "analyzeRootCause",
+        "traceDependents",
+        "estimateImpact"
+      ],
+      "imports": [],
+      "externalDeps": [
+        "path",
+        "it)."
+      ],
+      "lineCount": 71,
+      "mtime": 1772902048121
+    },
     "core/swarm.js": {
       "role": "other",
       "description": "exports: getVariantCount, cleanCode, calculateSimilarity, buildSpeculativePrompt, generateVariant",
@@ -611,7 +743,8 @@
         "evaluateVariant",
         "displayReport",
         "tasks",
-        "valid"
+        "valid",
+        "results"
       ],
       "signatures": [
         "getVariantCount(errorOutput)",
@@ -622,7 +755,8 @@
         "evaluateVariant(sbId, filePath, type, originalCode, code)",
         "displayReport(results, winner)",
         "tasks(strategies.map((s, i)",
-        "valid(variants.filter(v)"
+        "valid(variants.filter(v)",
+        "results(await Promise.all(valid.map(async (v)"
       ],
       "exports": [
         "speculateFix",
@@ -639,7 +773,7 @@
         "path"
       ],
       "lineCount": 205,
-      "mtime": 1772893590446
+      "mtime": 1772898037712
     },
     "core/telemetry.js": {
       "role": "module",
@@ -662,35 +796,19 @@
       "mtime": 1772877556118
     },
     "demo.js": {
-      "role": "class",
-      "description": "class — exports: constructor, loadTasks, processTasks, executeTask, performMath",
+      "role": "other",
+      "description": "Prints the multiplication table of 2 (1–10) to stdout.",
       "functions": [
-        "constructor",
-        "loadTasks",
-        "processTasks",
-        "executeTask",
-        "performMath",
-        "result",
-        "performString",
-        "run"
+        "printTableOfTwo"
       ],
       "signatures": [
-        "constructor(filePath)",
-        "loadTasks()",
-        "processTasks()",
-        "executeTask(task)",
-        "performMath(payload)",
-        "result(payload.numbers.reduce((acc, num)",
-        "performString(payload)",
-        "run()"
+        "printTableOfTwo(limit = 10)"
       ],
       "exports": [],
       "imports": [],
-      "externalDeps": [
-        "fs"
-      ],
-      "lineCount": 82,
-      "mtime": 1772895550782
+      "externalDeps": [],
+      "lineCount": 13,
+      "mtime": 1772907149505
     },
     "docs/for-agent/AGENT_GUIDE.md": {
       "role": "other",
@@ -1028,7 +1146,7 @@
         "load()",
         "save(entries)",
         "fingerprint(errorText)",
-        "recordFailure({ lang, file, errorText, cause, fix, codeAfter })",
+        "recordFailure({ lang, file, errorText, cause, fix, codeAfter, errorType })",
         "existing(entries.find((e)",
         "scored(entries.map((e)",
         "best(scored.sort((a, b)",
@@ -1045,8 +1163,8 @@
         "fs",
         "path"
       ],
-      "lineCount": 157,
-      "mtime": 1772877556120
+      "lineCount": 158,
+      "mtime": 1772898699521
     },
     "memory/index.js": {
       "role": "entry",
@@ -1155,6 +1273,44 @@
       ],
       "lineCount": 361,
       "mtime": 1772877556120
+    },
+    "memory/pattern-learner.js": {
+      "role": "other",
+      "description": "Lightweight pattern learner for recurring errors → fixes.",
+      "functions": [
+        "fingerprint",
+        "load",
+        "save",
+        "fingerprintSimilarity",
+        "existing",
+        "scored",
+        "stats"
+      ],
+      "signatures": [
+        "fingerprint(errorText)",
+        "load()",
+        "save(entries)",
+        "fingerprintSimilarity(a, b)",
+        "existing(entries.find((p)",
+        "scored(entries.map((p)",
+        "stats()"
+      ],
+      "exports": [
+        "learn",
+        "lookup",
+        "stats",
+        "load",
+        "save",
+        "fingerprint",
+        "fingerprintSimilarity"
+      ],
+      "imports": [],
+      "externalDeps": [
+        "fs",
+        "path"
+      ],
+      "lineCount": 127,
+      "mtime": 1772899614229
     },
     "package-lock.json": {
       "role": "other",
@@ -1315,7 +1471,7 @@
     },
     "swarm_demo.js": {
       "role": "other",
-      "description": "exports: main",
+      "description": "TYPO in variable name and missing close bracket",
       "functions": [
         "main"
       ],
@@ -1328,7 +1484,7 @@
         "fs"
       ],
       "lineCount": 9,
-      "mtime": 1772877556121
+      "mtime": 1772898367118
     },
     "swarm_test_simple.js": {
       "role": "other",
@@ -1466,6 +1622,23 @@
       "lineCount": 53,
       "mtime": 1772885229826
     },
+    "tests/swarm_demo.js": {
+      "role": "other",
+      "description": "exports: main",
+      "functions": [
+        "main"
+      ],
+      "signatures": [
+        "main()"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [
+        "fs"
+      ],
+      "lineCount": 10,
+      "mtime": 1772898428949
+    },
     "tests/test-cce.js": {
       "role": "test",
       "description": "Tests the Context Compression Engine against its own codebase",
@@ -1542,23 +1715,117 @@
       ],
       "exports": [],
       "imports": [
-        "../core/ere"
+        "../core/ere",
+        "../core/error-classifier"
       ],
       "externalDeps": [
         "path",
         "fs"
       ],
-      "lineCount": 152,
-      "mtime": 1772877556121
+      "lineCount": 157,
+      "mtime": 1772898609090
+    },
+    "tests/test-error-classifier.js": {
+      "role": "test",
+      "description": "test",
+      "functions": [],
+      "signatures": [],
+      "exports": [],
+      "imports": [
+        "../core/error-classifier"
+      ],
+      "externalDeps": [
+        "assert"
+      ],
+      "lineCount": 41,
+      "mtime": 1772898588109
+    },
+    "tests/test-pattern-learner.js": {
+      "role": "test",
+      "description": "Backup existing patterns to avoid polluting real memory",
+      "functions": [
+        "record",
+        "failed"
+      ],
+      "signatures": [
+        "record(name, fn)",
+        "failed(cases.filter(c)"
+      ],
+      "exports": [],
+      "imports": [
+        "../memory/pattern-learner"
+      ],
+      "externalDeps": [
+        "fs",
+        "path",
+        "assert"
+      ],
+      "lineCount": 81,
+      "mtime": 1772901069419
+    },
+    "tests/test-regression-guard.js": {
+      "role": "test",
+      "description": "test — exports: write, read, record, failed",
+      "functions": [
+        "write",
+        "read",
+        "record",
+        "failed"
+      ],
+      "signatures": [
+        "write(c)",
+        "read()",
+        "record(name, fn)",
+        "failed(cases.filter(c)"
+      ],
+      "exports": [],
+      "imports": [
+        "../core/regression-guard"
+      ],
+      "externalDeps": [
+        "fs",
+        "path",
+        "assert"
+      ],
+      "lineCount": 74,
+      "mtime": 1772903181090
+    },
+    "tests/test-root-cause.js": {
+      "role": "test",
+      "description": "Build a tiny synthetic graph",
+      "functions": [
+        "record",
+        "files",
+        "failed"
+      ],
+      "signatures": [
+        "record(name, fn)",
+        "files(chain.map(c)",
+        "failed(tests.filter(t)"
+      ],
+      "exports": [],
+      "imports": [
+        "../core/root-cause-analyzer"
+      ],
+      "externalDeps": [
+        "assert",
+        "path"
+      ],
+      "lineCount": 58,
+      "mtime": 1772902472070
     },
     "tests/test-swarm-integration.js": {
       "role": "test",
-      "description": "TYPO in variable name and missing close bracket",
+      "description": "test — exports: llmAvailable, req, test, main",
       "functions": [
+        "llmAvailable",
+        "req",
         "test",
         "main"
       ],
       "signatures": [
+        "llmAvailable()",
+        "req(http.get(OLLAMA_URL, { timeout: 1500 }, (res)",
         "test()",
         "main()"
       ],
@@ -1568,12 +1835,13 @@
         "../tools/file"
       ],
       "externalDeps": [
+        "http",
         "fs",
         "path",
         "fs"
       ],
-      "lineCount": 47,
-      "mtime": 1772877556121
+      "lineCount": 68,
+      "mtime": 1772898384439
     },
     "todo-api/package-lock.json": {
       "role": "other",

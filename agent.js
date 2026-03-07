@@ -62,6 +62,7 @@ const DEBUG              = process.env.AGENT_DEBUG      === "1";
 const ENABLE_STREAM      = process.env.AGENT_STREAM     !== "0";
 const MAX_TOKENS         = Number(process.env.AGENT_MAX_TOKENS || 1200);
 const LLM_TIMEOUT_MS     = Number(process.env.AGENT_TIMEOUT_MS || 65000);
+const ALLOW_SHORT_WRITES = process.env.AGENT_ALLOW_SHORT_WRITES === "1";
 
 // ─────────────────────────────────────────────────────────────
 // SESSION STATE
@@ -520,18 +521,25 @@ const runAgentTurn = async (prompt, readmeContent, activeFile = null, errorCtx =
           continue;
         }
 
-        const ok = await keyInYN(`\n⚠️  ${op.path} exists. Overwrite?`);
+        const oldLen = before.length;
+        const newLen = op.content.length;
+        const ratio  = oldLen ? Math.round((newLen / oldLen) * 100) : 100;
+        const ok = await keyInYN(
+          `\n⚠️  ${op.path} exists (current ${oldLen} chars, new ${newLen} chars ≈ ${ratio}%). Overwrite with the agent-generated change?`
+        );
         if (!ok) { console.log("⏭️  Skipped"); continue; }
 
         // Hallucination guard
-        const ratio = op.content.length / before.length;
-        if (ratio < 0.3) {
-          console.log(`\n⚠️  Rejected write to ${op.path} — too short (${Math.round(ratio*100)}% of original)`);
-          continue;
-        }
-        if (ratio > 5 && before.length > 100) {
-          console.log(`\n⚠️  Rejected write to ${op.path} — suspiciously large (${Math.round(ratio*100)}%)`);
-          continue;
+        if (!ALLOW_SHORT_WRITES) {
+          const ratio = op.content.length / before.length;
+          if (ratio < 0.3) {
+            console.log(`\n⚠️  Rejected write to ${op.path} — too short (${Math.round(ratio*100)}% of original)`);
+            continue;
+          }
+          if (ratio > 5 && before.length > 100) {
+            console.log(`\n⚠️  Rejected write to ${op.path} — suspiciously large (${Math.round(ratio*100)}%)`);
+            continue;
+          }
         }
 
         const hasCode = /\b(function|const|let|var|def |class |import |require|return|module\.exports)\b/.test(op.content);
@@ -702,6 +710,8 @@ const runSmartFix = async (filePath, readmeContent, userContext = "") => {
     sessionCtx.originalContent = content;
   }
 
+  const lang = detectLangFromFile(filePath) || "";
+
   // Step 1: RUN the file to capture ACTUAL error
   console.log(`\n🔍 Running ${filePath} to see what happens...`);
   const runResult = runFile(filePath);
@@ -731,7 +741,6 @@ const runSmartFix = async (filePath, readmeContent, userContext = "") => {
     console.log(`\n⚠️  Output issues: ${outputIssues}\n`);
   }
 
-  const lang = detectLangFromFile(filePath) || "";
   sessionCtx.lastFile = filePath;
   sessionCtx.lastError = errorDesc;
   sessionCtx.lastOutput = runResult.output;
