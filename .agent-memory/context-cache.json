@@ -1,32 +1,4 @@
 {
-  "create_demoncdc.js_write_promise_code_inside_it": {
-    "context": "PROJECT OVERVIEW:\n[ENTRY] index.js, index.js, index.js, index.js, server.js, server.js\n[REPOSITORY] repo-indexer.js\n[CONFIG] prompts.js\n[TEST] test-cce.js, test-ere.js, test-swarm-integration.js, test.js\n[MODULE] calculator.js, math.js, client.js, knowledge-store.js, input.js\n[CLASS] DEMOVEMO.js\n[OTHER] README.md, agent.js, architect.js, ceo.js, integrator.js, optimizer.js, qa.js, speculative.js, search.js, cce.js, clc.js, ere.js, planner.js, reviewer.js, swarm.js, demo.js, demojs.js, AGENT_GUIDE.md, agent_demo.js, bug.js, demo_agent.js, demo_complete_flow.js, democalc.js, demojango.js, filename.js, legacy_agent.js, lang-profiles.js, pattern-loader.js, node-patterns.json, python-patterns.json, springboot-patterns.json, fis.js, package-lock.json, package.json, tool-parser.js, demoncdc.js, demovemo.py, research.md, swarm_demo.js, swarm_test_simple.js, package-lock.json, package.json, file.js, sandbox.js\n\nDEPENDENCIES:\n  agent.js → client.js, input.js, file.js, lang-profiles.js, pattern-loader.js, index.js, knowledge-store.js, fis.js, ceo.js, architect.js, integrator.js, qa.js, optimizer.js, speculative.js, planner.js, reviewer.js, clc.js, repo-indexer.js, cce.js, ere.js, search.js\n  architect.js → client.js\n  ceo.js → client.js\n  integrator.js → client.js, file.js\n  optimizer.js → client.js, file.js\n  qa.js → client.js, file.js\n  speculative.js → client.js, file.js\n  search.js → knowledge-store.js\n  cce.js → repo-indexer.js, file.js\n  clc.js → cce.js, file.js\n  ere.js → file.js, client.js, fis.js, search.js, knowledge-store.js, swarm.js\n  reviewer.js → client.js\n  swarm.js → client.js, file.js, sandbox.js, fis.js, search.js, cce.js\n  democalc.js → calculator.js\n  index.js → math.js\n  test-cce.js → repo-indexer.js, cce.js\n  test-ere.js → ere.js\n  test-swarm-integration.js → ere.js, file.js\n  test.js → server.js",
-    "stats": {
-      "totalFiles": 62,
-      "relevant": 0,
-      "full": 0,
-      "summarized": 62,
-      "ignored": 0,
-      "usedTokens": 456,
-      "budget": 1400,
-      "fromCache": false
-    },
-    "ts": 1772830955346
-  },
-  "create_src/demoncdc.js._role:_main_module_that_includes_promise_code.._exports:_": {
-    "context": "PROJECT OVERVIEW:\n[ENTRY] index.js, index.js, index.js, index.js, server.js, server.js\n[REPOSITORY] repo-indexer.js\n[CONFIG] prompts.js\n[TEST] test-cce.js, test-ere.js, test-swarm-integration.js, test.js\n[MODULE] calculator.js, math.js, client.js, knowledge-store.js, input.js\n[CLASS] DEMOVEMO.js\n[OTHER] README.md, agent.js, architect.js, ceo.js, integrator.js, optimizer.js, qa.js, speculative.js, search.js, cce.js, clc.js, ere.js, planner.js, reviewer.js, swarm.js, demo.js, demojs.js, AGENT_GUIDE.md, agent_demo.js, bug.js, demo_agent.js, demo_complete_flow.js, democalc.js, demojango.js, filename.js, legacy_agent.js, lang-profiles.js, pattern-loader.js, node-patterns.json, python-patterns.json, springboot-patterns.json, fis.js, package-lock.json, package.json, tool-parser.js, demoncdc.js, demovemo.py, research.md, demoncdc.js, swarm_demo.js, swarm_test_simple.js, package-lock.json, package.json, file.js, sandbox.js\n\nDEPENDENCIES:\n  agent.js → client.js, input.js, file.js, lang-profiles.js, pattern-loader.js, index.js, knowledge-store.js, fis.js, ceo.js, architect.js, integrator.js, qa.js, optimizer.js, speculative.js, planner.js, reviewer.js, clc.js, repo-indexer.js, cce.js, ere.js, search.js\n  architect.js → client.js\n  ceo.js → client.js\n  integrator.js → client.js, file.js\n  optimizer.js → client.js, file.js\n  qa.js → client.js, file.js\n  speculative.js → client.js, file.js\n  search.js → knowledge-store.js\n  cce.js → repo-indexer.js, file.js\n  clc.js → cce.js, file.js\n  ere.js → file.js, client.js, fis.js, search.js, knowledge-store.js, swarm.js\n  reviewer.js → client.js\n  swarm.js → client.js, file.js, sandbox.js, fis.js, search.js, cce.js\n  democalc.js → calculator.js\n  index.js → math.js\n  test-cce.js → repo-indexer.js, cce.js\n  test-ere.js → ere.js\n  test-swarm-integration.js → ere.js, file.js\n  test.js → server.js",
-    "stats": {
-      "totalFiles": 63,
-      "relevant": 0,
-      "full": 0,
-      "summarized": 63,
-      "ignored": 0,
-      "usedTokens": 459,
-      "budget": 1400,
-      "fromCache": false
-    },
-    "ts": 1772831134966
-  },
   "create_agent.js._role:_handles_the_agent-related_functionalities_and_interaction": {
     "context": "PROJECT OVERVIEW:\n[ENTRY] index.js, index.js, index.js, index.js, server.js, server.js\n[REPOSITORY] repo-indexer.js\n[CONFIG] prompts.js\n[TEST] test-cce.js, test-ere.js, test-swarm-integration.js, test.js\n[MODULE] calculator.js, math.js, client.js, knowledge-store.js, input.js\n[CLASS] DEMOVEMO.js\n[OTHER] README.md, agent.js, architect.js, ceo.js, integrator.js, optimizer.js, qa.js, speculative.js, search.js, cce.js, clc.js, ere.js, planner.js, reviewer.js, swarm.js, demo.js, demojs.js, AGENT_GUIDE.md, agent_demo.js, bug.js, demo_agent.js, demo_complete_flow.js, democalc.js, demojango.js, filename.js, legacy_agent.js, lang-profiles.js, pattern-loader.js, node-patterns.json, python-patterns.json, springboot-patterns.json, fis.js, package-lock.json, package.json, tool-parser.js, demoncdc.js, demovemo.py, research.md, demoncdc.js, swarm_demo.js, swarm_test_simple.js, package-lock.json, package.json, file.js, sandbox.js\n\nDEPENDENCIES:\n  agent.js → client.js, input.js, file.js, lang-profiles.js, pattern-loader.js, index.js, knowledge-store.js, fis.js, ceo.js, architect.js, integrator.js, qa.js, optimizer.js, speculative.js, planner.js, reviewer.js, clc.js, repo-indexer.js, cce.js, ere.js, search.js\n  architect.js → client.js\n  ceo.js → client.js\n  integrator.js → client.js, file.js\n  optimizer.js → client.js, file.js\n  qa.js → client.js, file.js\n  speculative.js → client.js, file.js\n  search.js → knowledge-store.js\n  cce.js → repo-indexer.js, file.js\n  clc.js → cce.js, file.js\n  ere.js → file.js, client.js, fis.js, search.js, knowledge-store.js, swarm.js\n  reviewer.js → client.js\n  swarm.js → client.js, file.js, sandbox.js, fis.js, search.js, cce.js\n  democalc.js → calculator.js\n  index.js → math.js\n  test-cce.js → repo-indexer.js, cce.js\n  test-ere.js → ere.js\n  test-swarm-integration.js → ere.js, file.js\n  test.js → server.js",
     "stats": {
@@ -278,5 +250,33 @@
       "fromCache": false
     },
     "ts": 1772872998855
+  },
+  "create_a_file_projectover.md_write_in_detail_about_all_files_inside_this_repo": {
+    "context": "PROJECT OVERVIEW:\n[ENTRY] index.js, index.js, index.js, index.js, server.js, server.js\n[REPOSITORY] repo-indexer.js\n[CONFIG] prompts.js\n[TEST] incremental-test.js, test-cce.js, test-ere.js, test-swarm-integration.js, test.js\n[MODULE] fileGuard.js, telemetry.js, math.js, client.js, knowledge-store.js, agent.js, input.js\n[OTHER] README.md, agent.js, architect.js, ceo.js, integrator.js, optimizer.js, qa.js, speculative.js, search.js, cce.js, clc.js, ere.js, planner.js, reviewer.js, swarm.js, AGENT_GUIDE.md, agent_demo.js, bug.js, filename.js, legacy_agent.js, lang-profiles.js, pattern-loader.js, node-patterns.json, python-patterns.json, springboot-patterns.json, fis.js, package-lock.json, package.json, tool-parser.js, demovemo.py, research.md, demoncdc.js, swarm_demo.js, swarm_test_simple.js, test_complex_python.py, package-lock.json, package.json, file.js, sandbox.js\n\nDEPENDENCIES:\n  agent.js → client.js, input.js, file.js, lang-profiles.js, pattern-loader.js, index.js, knowledge-store.js, fis.js, ceo.js, architect.js, integrator.js, qa.js, optimizer.js, speculative.js, planner.js, reviewer.js, clc.js, repo-indexer.js, cce.js, ere.js, fileGuard.js, telemetry.js, search.js\n  architect.js → client.js\n  ceo.js → client.js\n  integrator.js → client.js, file.js\n  optimizer.js → client.js, file.js\n  qa.js → client.js, file.js\n  speculative.js → client.js, file.js\n  search.js → knowledge-store.js\n  cce.js → repo-indexer.js, file.js\n  clc.js → cce.js, file.js\n  ere.js → file.js, client.js, fis.js, search.js, knowledge-store.js, swarm.js\n  incremental-test.js → ere.js\n  reviewer.js → client.js\n  swarm.js → client.js, file.js, sandbox.js, fis.js, search.js, incremental-test.js, cce.js\n  index.js → math.js\n  test-cce.js → repo-indexer.js, cce.js\n  test-ere.js → ere.js\n  test-swarm-integration.js → ere.js, file.js\n  test.js → server.js",
+    "stats": {
+      "totalFiles": 59,
+      "relevant": 0,
+      "full": 0,
+      "summarized": 59,
+      "ignored": 0,
+      "usedTokens": 459,
+      "budget": 1400,
+      "fromCache": false
+    },
+    "ts": 1772873107325
+  },
+  "original:_\"create_a_file_projectover.md_write_in_detail_about_all_files_inside_t": {
+    "context": "PROJECT OVERVIEW:\n[ENTRY] index.js, index.js, index.js, index.js, server.js, server.js\n[REPOSITORY] repo-indexer.js\n[CONFIG] prompts.js\n[TEST] incremental-test.js, test-cce.js, test-ere.js, test-swarm-integration.js, test.js\n[MODULE] fileGuard.js, telemetry.js, math.js, client.js, knowledge-store.js, agent.js, input.js\n[OTHER] README.md, agent.js, architect.js, ceo.js, integrator.js, optimizer.js, qa.js, speculative.js, search.js, cce.js, clc.js, ere.js, planner.js, reviewer.js, swarm.js, AGENT_GUIDE.md, agent_demo.js, bug.js, filename.js, legacy_agent.js, lang-profiles.js, pattern-loader.js, node-patterns.json, python-patterns.json, springboot-patterns.json, fis.js, package-lock.json, package.json, tool-parser.js, demovemo.py, research.md, demoncdc.js, swarm_demo.js, swarm_test_simple.js, test_complex_python.py, package-lock.json, package.json, file.js, sandbox.js\n\nDEPENDENCIES:\n  agent.js → client.js, input.js, file.js, lang-profiles.js, pattern-loader.js, index.js, knowledge-store.js, fis.js, ceo.js, architect.js, integrator.js, qa.js, optimizer.js, speculative.js, planner.js, reviewer.js, clc.js, repo-indexer.js, cce.js, ere.js, fileGuard.js, telemetry.js, search.js\n  architect.js → client.js\n  ceo.js → client.js\n  integrator.js → client.js, file.js\n  optimizer.js → client.js, file.js\n  qa.js → client.js, file.js\n  speculative.js → client.js, file.js\n  search.js → knowledge-store.js\n  cce.js → repo-indexer.js, file.js\n  clc.js → cce.js, file.js\n  ere.js → file.js, client.js, fis.js, search.js, knowledge-store.js, swarm.js\n  incremental-test.js → ere.js\n  reviewer.js → client.js\n  swarm.js → client.js, file.js, sandbox.js, fis.js, search.js, incremental-test.js, cce.js\n  index.js → math.js\n  test-cce.js → repo-indexer.js, cce.js\n  test-ere.js → ere.js\n  test-swarm-integration.js → ere.js, file.js\n  test.js → server.js",
+    "stats": {
+      "totalFiles": 59,
+      "relevant": 0,
+      "full": 0,
+      "summarized": 59,
+      "ignored": 0,
+      "usedTokens": 459,
+      "budget": 1400,
+      "fromCache": false
+    },
+    "ts": 1772873547975
   }
 }

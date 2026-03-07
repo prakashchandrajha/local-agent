@@ -13,7 +13,7 @@ function calculate(operation, a, b) {
         return "Error: Division by zero is not allowed";
     default:
       return "Error: Invalid operation";
-  }
+   }
 }
 
 console.log('Addition of 5 and 3: ' + calculate('add', 5, 3)); // Outputs: Addition of 5 and 3: 8
@@ -21,3 +21,5 @@ console.log('Subtraction of 5 from 3: ' + calculate('subtract', 5, 3)); // Outpu
 console.log('Multiplication of 5 and 3: ' + calculate('multiply', 5, 3)); // Outputs: Multiplication of 5 and 3: 15
 console.log('Division of 6 by 3: ' + calculate('divide', 6, 3)); // Outputs: Division of 6 by 3: 2
 console.log(calculate('divide', 6, 0)); // Outputs: Error: Division by zero is not allowed
+console.log(calculate('modulus', 5, 3)); // Outputs: Error: Invalid operation
+        
