@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "indexedAt": "2026-03-06T22:00:10.151Z",
-  "totalFiles": 68,
+  "indexedAt": "2026-03-07T08:42:47.091Z",
+  "totalFiles": 59,
   "files": {
     "README.md": {
       "role": "other",
@@ -27,6 +27,7 @@
         "cleanFences",
         "extractFilename",
         "detectIntent",
+        "detectComplexity",
         "isSolved",
         "isFollowUp",
         "interceptCapability",
@@ -35,6 +36,7 @@
         "parseToolBlocks",
         "writeWithReview",
         "runFullPipeline",
+        "timeoutId",
         "blocks",
         "run"
       ],
@@ -46,6 +48,7 @@
         "cleanFences(s)",
         "extractFilename(input)",
         "detectIntent(input)",
+        "detectComplexity(input)",
         "isSolved(s)",
         "isFollowUp(s)",
         "interceptCapability(input)",
@@ -54,6 +57,7 @@
         "parseToolBlocks(response)",
         "writeWithReview(filePath, code, lang)",
         "runFullPipeline(userInput, readmeContent, projectContext)",
+        "timeoutId(setTimeout(()",
         "blocks(t.read.map((r)",
         "run()"
       ],
@@ -79,16 +83,19 @@
         "./core/repo-indexer",
         "./core/cce",
         "./core/ere",
+        "./core/fileGuard",
+        "./core/telemetry",
         "./browser/search"
       ],
       "externalDeps": [
         "fs",
         "path",
+        "child_process",
         "|def",
         "|require|return|if"
       ],
-      "lineCount": 722,
-      "mtime": 1772833130202
+      "lineCount": 861,
+      "mtime": 1772872756500
     },
     "agents/architect.js": {
       "role": "other",
@@ -418,6 +425,28 @@
       "lineCount": 523,
       "mtime": 1772831725895
     },
+    "core/fileGuard.js": {
+      "role": "module",
+      "description": "module — exports: isSafePath, enforceSafePath",
+      "functions": [
+        "isSafePath",
+        "enforceSafePath"
+      ],
+      "signatures": [
+        "isSafePath(targetPath)",
+        "enforceSafePath(targetPath)"
+      ],
+      "exports": [
+        "isSafePath",
+        "enforceSafePath"
+      ],
+      "imports": [],
+      "externalDeps": [
+        "path"
+      ],
+      "lineCount": 19,
+      "mtime": 1772872679373
+    },
     "core/incremental-test.js": {
       "role": "test",
       "description": "INCREMENTAL TEST RUNNER (v8)",
@@ -476,8 +505,8 @@
         "and",
         "or"
       ],
-      "lineCount": 219,
-      "mtime": 1772792926000
+      "lineCount": 233,
+      "mtime": 1772872630744
     },
     "core/repo-indexer.js": {
       "role": "repository",
@@ -602,60 +631,25 @@
       "lineCount": 358,
       "mtime": 1772832801504
     },
-    "demo.js": {
-      "role": "other",
-      "description": "demo module",
-      "functions": [],
-      "signatures": [],
-      "exports": [],
-      "imports": [],
-      "externalDeps": [],
-      "lineCount": 12,
-      "mtime": 1772832868817
-    },
-    "demojs.js": {
-      "role": "other",
-      "description": "exports: validateInput, add, multiply, divide",
+    "core/telemetry.js": {
+      "role": "module",
+      "description": "Silently ignore telemetry write errors",
       "functions": [
-        "validateInput",
-        "add",
-        "multiply",
-        "divide"
+        "logEvent"
       ],
       "signatures": [
-        "validateInput(a, b)",
-        "add(a, b)",
-        "multiply(a, b)",
-        "divide(a, b)"
+        "logEvent(event)"
       ],
-      "exports": [],
+      "exports": [
+        "logEvent"
+      ],
       "imports": [],
-      "externalDeps": [],
-      "lineCount": 30,
-      "mtime": 1772833592395
-    },
-    "demojs2.js": {
-      "role": "other",
-      "description": "exports: validateInput, add, subtract, multiply, divide",
-      "functions": [
-        "validateInput",
-        "add",
-        "subtract",
-        "multiply",
-        "divide"
+      "externalDeps": [
+        "fs",
+        "path"
       ],
-      "signatures": [
-        "validateInput(a, b)",
-        "add(a, b)",
-        "subtract(a, b)",
-        "multiply(a, b)",
-        "divide(a, b)"
-      ],
-      "exports": [],
-      "imports": [],
-      "externalDeps": [],
-      "lineCount": 30,
-      "mtime": 1772833670245
+      "lineCount": 19,
+      "mtime": 1772872739322
     },
     "docs/for-agent/AGENT_GUIDE.md": {
       "role": "other",
@@ -704,102 +698,6 @@
       "externalDeps": [],
       "lineCount": 3,
       "mtime": 1772778834230
-    },
-    "examples/calculator.js": {
-      "role": "module",
-      "description": "module — exports: add, subtract, divide",
-      "functions": [
-        "add",
-        "subtract",
-        "divide"
-      ],
-      "signatures": [
-        "add(a, b)",
-        "subtract(a, b)",
-        "divide(a, b)"
-      ],
-      "exports": [
-        "add",
-        "subtract",
-        "divide"
-      ],
-      "imports": [],
-      "externalDeps": [],
-      "lineCount": 27,
-      "mtime": 1772771898390
-    },
-    "examples/demo_agent.js": {
-      "role": "other",
-      "description": "Quick demo of the enhanced agent with planner",
-      "functions": [
-        "demonstrateAgent"
-      ],
-      "signatures": [
-        "demonstrateAgent()"
-      ],
-      "exports": [],
-      "imports": [
-        "./tools/simple_planner"
-      ],
-      "externalDeps": [],
-      "lineCount": 52,
-      "mtime": 1772775574500
-    },
-    "examples/demo_complete_flow.js": {
-      "role": "other",
-      "description": "Demonstration of the complete enhanced agent flow with Self-Refinement Loop:",
-      "functions": [
-        "demonstrateCompleteFlow"
-      ],
-      "signatures": [
-        "demonstrateCompleteFlow()"
-      ],
-      "exports": [],
-      "imports": [
-        "./tools/simple_planner",
-        "./tools/refiner"
-      ],
-      "externalDeps": [],
-      "lineCount": 71,
-      "mtime": 1772776730266
-    },
-    "examples/democalc.js": {
-      "role": "other",
-      "description": "Usage: node democalc.js add 2 3",
-      "functions": [
-        "parseArguments",
-        "main"
-      ],
-      "signatures": [
-        "parseArguments(args)",
-        "main()"
-      ],
-      "exports": [],
-      "imports": [
-        "./calculator"
-      ],
-      "externalDeps": [],
-      "lineCount": 28,
-      "mtime": 1772775475099
-    },
-    "examples/demojango.js": {
-      "role": "other",
-      "description": "Usage: node demojango.js",
-      "functions": [
-        "convertMarkdownToJS",
-        "htmlToJsComments"
-      ],
-      "signatures": [
-        "convertMarkdownToJS(filename)",
-        "htmlToJsComments(html)"
-      ],
-      "exports": [],
-      "imports": [],
-      "externalDeps": [
-        "fs"
-      ],
-      "lineCount": 31,
-      "mtime": 1772722109233
     },
     "examples/filename.js": {
       "role": "other",
@@ -1208,7 +1106,7 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 309,
-      "mtime": 1772832185837
+      "mtime": 1772872964084
     },
     "package.json": {
       "role": "other",
@@ -1237,44 +1135,6 @@
       "externalDeps": [],
       "lineCount": 102,
       "mtime": 1772788109564
-    },
-    "path/to/DEMOVEMO.js": {
-      "role": "class",
-      "description": "class — exports: add, subtract, multiply, divide",
-      "functions": [
-        "add",
-        "subtract",
-        "multiply",
-        "divide"
-      ],
-      "signatures": [
-        "add(a, b)",
-        "subtract(a, b)",
-        "multiply(a, b)",
-        "divide(a, b)"
-      ],
-      "exports": [],
-      "imports": [],
-      "externalDeps": [],
-      "lineCount": 34,
-      "mtime": 1772826373069
-    },
-    "path/to/demoncdc.js": {
-      "role": "other",
-      "description": "exports: fetchData, calculateTotal",
-      "functions": [
-        "fetchData",
-        "calculateTotal"
-      ],
-      "signatures": [
-        "fetchData(url)",
-        "calculateTotal(items)"
-      ],
-      "exports": [],
-      "imports": [],
-      "externalDeps": [],
-      "lineCount": 25,
-      "mtime": 1772830334133
     },
     "path/to/demovemo.py": {
       "role": "other",
@@ -1354,52 +1214,6 @@
       ],
       "lineCount": 17,
       "mtime": 1772831284826
-    },
-    "src/demojs.js": {
-      "role": "module",
-      "description": "module — exports: init, readMem, writeMem, scored, recordPattern",
-      "functions": [
-        "init",
-        "readMem",
-        "writeMem",
-        "scored",
-        "recordPattern",
-        "existing",
-        "buildProjectMap",
-        "getProjectMap",
-        "buildProjectBlock",
-        "getFilesByExt"
-      ],
-      "signatures": [
-        "init()",
-        "readMem(key)",
-        "writeMem(key, data)",
-        "scored(fixes)",
-        "recordPattern(lang, errorSnippet)",
-        "existing(patterns, p)",
-        "buildProjectMap()",
-        "getProjectMap()",
-        "buildProjectBlock()",
-        "getFilesByExt(ext)"
-      ],
-      "exports": [
-        "init",
-        "readMem",
-        "writeMem",
-        "scored",
-        "recordPattern",
-        "existing",
-        "buildProjectMap",
-        "getProjectMap",
-        "buildProjectBlock",
-        "getFilesByExt"
-      ],
-      "imports": [],
-      "externalDeps": [
-        "fs"
-      ],
-      "lineCount": 58,
-      "mtime": 1772833951553
     },
     "src/demoncdc.js": {
       "role": "other",

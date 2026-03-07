@@ -53,6 +53,12 @@ const { getCompressedContext, logCCEStats, displayCCEInfo }    = require("./core
 // ── Execution & Recovery Engine ──────────────────────────────
 const { executeAndRecover, displayEREStats }                   = require("./core/ere");
 
+// ── File Guard & Security ────────────────────────────────────
+const { isSafePath, enforceSafePath }                         = require("./core/fileGuard");
+
+// ── Telemetry ────────────────────────────────────────────────
+const { logEvent }                                            = require("./core/telemetry");
+
 // ── Browser ──────────────────────────────────────────────────
 const { searchForFix, crystallizeSolution, isOnline }         = require("./browser/search");
 
@@ -217,14 +223,41 @@ const extractFilename = (input) => {
 
 const detectIntent = (input) => {
   const lo = input.toLowerCase();
-  if (/\b(run|execute|test|launch)\b/.test(lo))                                   return "run";
-  if (/\b(fix|debug|repair|error|broken|crash|fail|wrong|bug)\b/.test(lo))        return "fix";
-  if (/\b(review|check|analyze|audit|inspect)\b/.test(lo))                        return "review";
-  if (/\b(delete|remove|erase|trash)\b/.test(lo))                                 return "delete";
-  if (/\b(rename|move)\b/.test(lo))                                               return "rename";
-  if (/\b(create|make|write|generate|build|scaffold|implement|new)\b/.test(lo))   return "create";
-  if (/\b(improve|optimize|refactor|clean|enhance|upgrade)\b/.test(lo))           return "improve";
-  return "general";
+  
+  const chat = /\b(hi|hello|hey|how are you|thanks|good morning|hi there)\b/;
+  const coding = /\b(create|build|write|fix|implement|generate|make|scaffold|new)\b/;
+  const analysis = /\b(explain|why|review|analyze|audit|inspect|debug)\b/;
+  const fileOp = /\b(run|execute|test|launch|delete|remove|erase|trash|rename|move)\b/;
+  const improve = /\b(improve|optimize|refactor|clean|enhance|upgrade)\b/;
+
+  let intent = "clarify";
+  let confidence = 0.3;
+
+  if (chat.test(lo)) { intent = "chat"; confidence = 0.9; }
+  else if (coding.test(lo)) { intent = "coding_task"; confidence = 0.85; }
+  else if (analysis.test(lo)) { intent = "analysis"; confidence = 0.8; }
+  else if (improve.test(lo)) { intent = "improve"; confidence = 0.8; }
+  else if (fileOp.test(lo)) { intent = "file_op"; confidence = 0.7; }
+  else if (/\b(fixed|done|works)\b/.test(lo)) { intent = "chat"; confidence = 0.6; }
+
+  return { intent, confidence };
+};
+
+const detectComplexity = (input) => {
+  const lo = input.toLowerCase();
+  let complexity = 0.1; // Default low complexity
+  
+  if (/\b(oauth|jwt|auth|spring boot|fastapi|kubernetes|microservice|architecture|full stack|database|schema|migration|docker)\b/.test(lo)) {
+    complexity = 0.9;
+  } else if (/\b(api|server|crud|refactor|optimize|test suite)\b/.test(lo)) {
+    complexity = 0.6;
+  } else if (/\b(fix|bug|issue|error|broken)\b/.test(lo)) {
+    complexity = 0.4;
+  }
+  
+  return Object.assign(Number(complexity.toFixed(1)), {
+      value: complexity
+  }).value;
 };
 
 const isSolved   = (s) => /\b(done|fixed|good|great|perfect|ok|works?( now)?|looks good|yeah|sweet|correct)\b/i.test(s);
@@ -367,12 +400,20 @@ const runAgentTurn = async (prompt, readmeContent, activeFile = null, errorCtx =
       console.log(`\n📂 Project:\n${listFiles()}\n`); terminated = true;
 
     } else if (op.tool === "read_file") {
+      try { enforceSafePath(op.path); } catch (e) {
+        console.log(`\n❌ Access denied: ${op.path}`);
+        read.push({ path: op.path, content: "ERROR: Access denied by File Guard." });
+        continue;
+      }
       const content = readFile(op.path);
       console.log(`\n📖 Reading: ${op.path}`);
       read.push({ path: op.path, content });
       kstore.updateGraph(op.path, content);
 
     } else if (op.tool === "write_file") {
+      try { enforceSafePath(op.path); } catch (e) {
+        console.log(`\n❌ Write denied: ${op.path}`); continue;
+      }
       const before = fileExists(op.path) ? readFile(op.path) : "";
       if (before && !before.startsWith("ERROR")) {
         const ok = await keyInYN(`\n⚠️  ${op.path} exists. Overwrite?`);
@@ -410,18 +451,42 @@ const runAgentTurn = async (prompt, readmeContent, activeFile = null, errorCtx =
       kstore.updateGraph(op.path, final);
 
     } else if (op.tool === "delete_file") {
+      try { enforceSafePath(op.path); } catch (e) {
+        console.log(`\n❌ Delete denied: ${op.path}`); continue;
+      }
       if (!fileExists(op.path)) { console.log(`\n❌ Not found: ${op.path}`); continue; }
       const ok = await keyInYN(`\n⚠️  Delete ${op.path}?`);
       if (ok) { const r = deleteFile(op.path); console.log(r.success ? `\n🗑️  ${r.message}` : `\n❌ ${r.message}`); }
       terminated = true;
 
     } else if (op.tool === "rename_file") {
+      try { enforceSafePath(op.from); enforceSafePath(op.to); } catch (e) {
+        console.log(`\n❌ Rename denied.`); continue;
+      }
       const ok = await keyInYN(`\n⚠️  Rename ${op.from} → ${op.to}?`);
       if (ok) { const r = renameFile(op.from, op.to); console.log(r.success ? `\n✏️  ${r.message}` : `\n❌ ${r.message}`); }
       terminated = true;
 
     } else if (op.tool === "run_file") {
+      try { enforceSafePath(op.path); } catch (e) {
+        console.log(`\n❌ Run denied: ${op.path}`); continue;
+      }
       console.log(`\n▶️  Running: ${op.path}...`);
+      
+      // Static Validation for JS
+      if (op.path.endsWith('.js')) {
+        const { execSync } = require('child_process');
+        try {
+          execSync(`node -c ${op.path}`, { stdio: 'ignore' });
+        } catch (syntaxErr) {
+          console.log(`\n💥 Syntax Error (Static Check Failed)`);
+          const r = { success: false, output: `Syntax Error: node -c check failed for ${op.path}. Please fix syntax structure before trying to execute logic.` };
+          const lang = detectLangFromFile(op.path) || "";
+          runError = { path: op.path, output: r.output, lang };
+          return { written, read, terminated: false, runError };
+        }
+      }
+
       const r = runFile(op.path);
       if (r.success) { console.log(`\n✅ Output:\n${r.output || "(no output)"}\n`); terminated = true; }
       else {
@@ -438,7 +503,13 @@ const runAgentTurn = async (prompt, readmeContent, activeFile = null, errorCtx =
       terminated = true;
 
     } else if (op.tool === "_raw_code") {
-      const fname = extractFilename("output") || "output.txt";
+      let fname = extractFilename("output");
+      if (!fname) {
+         fname = "output.txt";
+         console.log(`\n⚠️  Model generated code without a target file.`);
+         const providedName = await question(`   Where should this be saved? (Press Enter for output.txt): `);
+         if (providedName.trim()) fname = providedName.trim();
+      }
       const lang  = detectLangFromFile(fname) || "default";
       await writeWithReview(fname, op.content, lang);
       console.log(`\n✅ Written: ${fname}`); written.push(fname);
@@ -552,11 +623,17 @@ const runFullPipeline = async (userInput, readmeContent, projectContext) => {
 // ─────────────────────────────────────────────────────────────
 // STANDARD AGENT LOOP (for non-pipeline tasks)
 // ─────────────────────────────────────────────────────────────
-const runAgentLoop = async (userInput, readmeContent, contextFile = null) => {
-  const intent     = detectIntent(userInput);
-  const allWritten = [];
+const runAgentLoop = async (userInput, readmeContent, contextFile = null, taskContext = {}) => {
+  const intentObj  = detectIntent(userInput);
+  const intent     = intentObj.intent;
+  const complexity = detectComplexity(userInput);
+  
+  const allWritten = taskContext.files ? Object.keys(taskContext.files) : [];
   let lastFile     = contextFile;
   let fixAttempts  = 0;
+
+  // Dynamic Speculative threshold
+  const useSpeculative = ENABLE_SPECULATIVE || complexity > 0.7;
 
   let currentPrompt = userInput;
   if (contextFile && fileExists(contextFile)) {
@@ -567,11 +644,36 @@ const runAgentLoop = async (userInput, readmeContent, contextFile = null) => {
   }
 
   for (let turn = 0; turn < MAX_AGENT_TURNS; turn++) {
-    const t = await runAgentTurn(currentPrompt, readmeContent, lastFile || contextFile);
+    // Inject error context for retry
+    if (taskContext.failures && taskContext.failures.length > 0) {
+       const lastError = taskContext.failures[taskContext.failures.length - 1];
+       currentPrompt += `\n\nPREVIOUS ERROR:\n${lastError}`;
+    }
 
-    if (t.written.length) {
+    // Timeout protection for runAgentTurn
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => abortController.abort(), 60000); // 1 minute timeout
+    
+    let t;
+    try {
+      t = await runAgentTurn(currentPrompt, readmeContent, lastFile || contextFile);
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        console.log(`\n⏱️ Execution timeout reached. Recovering...`);
+        t = { written: [], read: [], terminated: true, runError: null };
+      } else {
+        throw err;
+      }
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
+    if (t.written && t.written.length) {
       allWritten.push(...t.written);
       lastFile = t.written[t.written.length - 1];
+      if (taskContext.files) {
+        t.written.forEach(f => taskContext.files[f] = true);
+      }
       if (intent === "fix" || intent === "improve") {
         const lang = detectLangFromFile(lastFile) || "unknown";
         memory.recordFix({ file: lastFile, lang, errorType: intent, description: userInput.slice(0, 150) });
@@ -591,18 +693,19 @@ const runAgentLoop = async (userInput, readmeContent, contextFile = null) => {
         console.log(`   ✅ ERE recovered via ${ereResult.fixSource} in ${ereResult.attempts} attempt(s)`);
       } else {
         console.log(`   💀 ERE: Could not recover. Error: ${ereResult.error?.split("\n")[0]?.slice(0, 80)}`);
+        if (taskContext.failures) taskContext.failures.push(ereResult.error);
       }
       return { summaries: [`ERE: ${ereResult.fixSource} (${ereResult.attempts} attempts)`], activeFile: lastFile };
     }
 
-    if (t.read.length) {
+    if (t.read && t.read.length) {
       const blocks  = t.read.map((r) => `FILE: ${r.path}\n---\n${r.content}\n---`).join("\n\n");
       currentPrompt = `Original: "${userInput}"\n\n${blocks}\n\nComplete with write_file or chat.`;
       if (!lastFile) lastFile = t.read[0].path;
       continue;
     }
 
-    if (t.terminated || t.written.length) break;
+    if (t.terminated || (t.written && t.written.length)) break;
     break;
   }
 
@@ -635,6 +738,9 @@ const run = async () => {
   console.log("\n  exit · history · clear · memory · atoms · trace · scan · fis · index · cce · ere\n");
 
   let activeFile = null;
+  
+  // Task Context Memory
+  let globalTaskContext = { history: [], files: {}, failures: [] };
 
   while (true) {
     const input = await question("You: ");
@@ -642,7 +748,7 @@ const run = async () => {
     const lo = input.toLowerCase().trim();
 
     if (lo === "exit")    { console.log("\n👋 Bye!\n"); break; }
-    if (lo === "clear")   { history.length = 0; activeFile = null; console.log("\n🧹 Cleared.\n"); continue; }
+    if (lo === "clear")   { history.length = 0; activeFile = null; globalTaskContext = { history: [], files: {}, failures: [] }; console.log("\n🧹 Cleared.\n"); continue; }
     if (lo === "scan")    { const m = memory.buildProjectMap(); console.log(`\n✅ ${m.totalFiles} files mapped\n`); continue; }
     if (lo === "index")   { const r = buildIndex(true); console.log(`\n✅ ${r.totalFiles} files indexed (${r.updated} updated)\n`); continue; }
     if (lo === "cce")     { displayCCEInfo(); continue; }
@@ -693,24 +799,57 @@ const run = async () => {
       if (r.handled) { console.log(`\n${r.message}\n`); rememberTurn("user", input); rememberTurn("agent", r.message); continue; }
     }
 
-    // Decide: full pipeline vs standard loop
+    // Intent Classifier & Task Planner
+    const intentData = detectIntent(input);
+    const complexity = detectComplexity(input);
+    
+    // Telemetry
+    if (DEBUG) console.log(`[TELEMETRY] Intent: ${intentData.intent} (${intentData.confidence.toFixed(2)}), Complexity: ${complexity}`);
+    logEvent({ timestamp: new Date().toISOString(), type: "user_input", input, intent: intentData.intent, confidence: intentData.confidence, complexity });
+
+    if (intentData.intent === "chat" || intentData.confidence < 0.5) {
+      if (intentData.confidence < 0.5) {
+        console.log(`\n🤖 I'm not entirely sure what you want me to do. Could you clarify?\n`);
+      } else {
+        console.log(`\n🤖 Hello! What would you like me to do?\n\nYou can ask me to:\n• create files\n• fix bugs\n• optimize code\n• analyze project\n`);
+      }
+      rememberTurn("user", input);
+      rememberTurn("agent", "Chat / Clarification");
+      continue;
+    }
+
     console.log("\n🤔 Thinking...\n");
     rememberTurn("user", input);
     traceStep("input", input);
+    
+    globalTaskContext.history.push({ input, intent: intentData });
 
-    const usePipeline = detectIntent(input) === "create" && input.split(" ").length >= 4;
+    const usePipeline = (intentData.intent === "create" && input.split(" ").length >= 4) || complexity > 0.6;
+    
+    logEvent({ type: "task_start", input, usePipeline, complexity });
+    
     const { summaries, activeFile: newFile } = usePipeline
       ? await runFullPipeline(input, readmeContent, projectContext)
-      : await runAgentLoop(input, readmeContent, isFollowUp(input) ? activeFile : null);
+      : await runAgentLoop(input, readmeContent, isFollowUp(input) ? activeFile : null, globalTaskContext);
 
     if (newFile) activeFile = newFile;
     rememberTurn("agent", summaries.join(" | "));
     traceStep("done", summaries.join(", "), activeFile || "");
+    
+    logEvent({ type: "task_complete", input, summaries, activeFile });
 
-    if (activeFile) {
-      const p = getProfile(activeFile);
-      console.log(`\n💬 On ${activeFile}${p ? ` (${p.name})` : ""} — looks good?\n`);
-    } else { console.log(); }
+    // Human Feedback Loop
+    const confirm = await keyInYN(`\n🤖 I've completed the task. Is this correct?`);
+    if (!confirm) {
+      console.log(`\n🤖 Understood. Tell me what needs to be changed next.\n`);
+      logEvent({ type: "user_feedback", input, confirmed: false });
+    } else {
+      logEvent({ type: "user_feedback", input, confirmed: true });
+      if (activeFile) {
+        const p = getProfile(activeFile);
+        console.log(`\n💬 On ${activeFile}${p ? ` (${p.name})` : ""} — looks good?\n`);
+      } else { console.log(); }
+    }
   }
 };
 

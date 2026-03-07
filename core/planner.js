@@ -24,6 +24,7 @@ const TASK_BLUEPRINTS = {
   oauth2_node: {
     label: "OAuth2 / JWT Auth (Node.js)",
     match: (q) => /(oauth|jwt|auth)/i.test(q) && /(node|express|js)/i.test(q),
+    files: ["jwt.js", "user-model.js", "auth-service.js", "auth-middleware.js", "auth-routes.js", "app.js"],
     steps: [
       { id: 1, title: "Create JWT utility",         focus: "Create a jwt.js utility with sign, verify, and refresh token functions using the jsonwebtoken package." },
       { id: 2, title: "Create User model",           focus: "Create a user model/schema with fields: id, email, passwordHash, role, refreshToken, createdAt." },
@@ -37,6 +38,7 @@ const TASK_BLUEPRINTS = {
   oauth2_spring: {
     label: "OAuth2 / Spring Security (Spring Boot)",
     match: (q) => /(oauth|jwt|auth|spring security)/i.test(q) && /(spring|java|boot)/i.test(q),
+    files: ["SecurityConfig.java", "JwtUtil.java", "CustomUserDetailsService.java", "JwtRequestFilter.java", "AuthController.java", "AuthRequest.java", "AuthResponse.java", "User.java"],
     steps: [
       { id: 1, title: "Security config",             focus: "Create SecurityConfig.java with @EnableWebSecurity, JWT filter chain, CORS config, and endpoint authorization rules." },
       { id: 2, title: "JWT utility class",           focus: "Create JwtUtil.java with generateToken, validateToken, extractUsername, and extractExpiration methods." },
@@ -50,6 +52,7 @@ const TASK_BLUEPRINTS = {
   oauth2_fastapi: {
     label: "OAuth2 / JWT Auth (FastAPI / Python)",
     match: (q) => /(oauth|jwt|auth)/i.test(q) && /(python|fastapi|flask)/i.test(q),
+    files: ["jwt_handler.py", "security.py", "models.py", "schemas.py", "dependencies.py", "routers/auth.py", "main.py"],
     steps: [
       { id: 1, title: "JWT utility",                 focus: "Create jwt_handler.py with create_access_token, decode_token, and create_refresh_token using python-jose." },
       { id: 2, title: "Password hashing",            focus: "Create security.py with hash_password and verify_password using passlib[bcrypt]." },
@@ -63,6 +66,7 @@ const TASK_BLUEPRINTS = {
   rest_api_node: {
     label: "REST API (Node.js / Express)",
     match: (q) => /(rest api|express|server|api)/i.test(q) && /(node|js|express)/i.test(q),
+    files: ["config.js", "db.js", "model.js", "service.js", "routes.js", "app.js"],
     steps: [
       { id: 1, title: "Project config",             focus: "Create config.js with environment variables for PORT, DB_URL, JWT_SECRET with sensible defaults." },
       { id: 2, title: "Database connection",        focus: "Create db.js with database connection logic. Use environment-based config." },
@@ -76,6 +80,7 @@ const TASK_BLUEPRINTS = {
   rest_api_spring: {
     label: "REST API (Spring Boot)",
     match: (q) => /(rest api|controller|crud|service)/i.test(q) && /(spring|java|boot)/i.test(q),
+    files: ["Entity.java", "Repository.java", "RequestDTO.java", "ResponseDTO.java", "Service.java", "Controller.java", "GlobalExceptionHandler.java"],
     steps: [
       { id: 1, title: "Entity model",              focus: "Create the JPA @Entity class with all fields, @Id, @GeneratedValue, and validation annotations." },
       { id: 2, title: "Repository",                focus: "Create a JpaRepository interface with any custom query methods needed." },
@@ -89,6 +94,7 @@ const TASK_BLUEPRINTS = {
   crud_python: {
     label: "CRUD App (Python / FastAPI)",
     match: (q) => /(crud|api|rest)/i.test(q) && /(python|fastapi)/i.test(q),
+    files: ["database.py", "models.py", "schemas.py", "crud.py", "routers/items.py", "main.py"],
     steps: [
       { id: 1, title: "Database setup",            focus: "Create database.py with SQLAlchemy engine, SessionLocal, and Base setup." },
       { id: 2, title: "Models",                    focus: "Create models.py with all SQLAlchemy models and relationships." },
@@ -102,6 +108,7 @@ const TASK_BLUEPRINTS = {
   websocket_node: {
     label: "WebSocket Server (Node.js)",
     match: (q) => /(websocket|socket\.io|realtime|real-time|chat)/i.test(q),
+    files: ["socket-server.js", "events.js", "room-manager.js", "app.js"],
     steps: [
       { id: 1, title: "Socket server setup",       focus: "Create socket-server.js with socket.io initialization, CORS config, and connection handler." },
       { id: 2, title: "Event handlers",            focus: "Create events.js with all socket event handlers: message, join-room, leave-room, disconnect." },
@@ -113,6 +120,7 @@ const TASK_BLUEPRINTS = {
   docker_setup: {
     label: "Docker / Container Setup",
     match: (q) => /docker/i.test(q),
+    files: ["Dockerfile", "docker-compose.yml", ".dockerignore", ".env.example"],
     steps: [
       { id: 1, title: "Dockerfile",                focus: "Create a production-optimized multi-stage Dockerfile for the detected language/framework." },
       { id: 2, title: "docker-compose.yml",        focus: "Create docker-compose.yml with app service, database service, volumes, and environment variables." },
@@ -156,6 +164,7 @@ const buildGenericPlan = (input) => {
   if (isFix) {
     return {
       label: "Complex Bug Fix",
+      files: [], // determined dynamically
       steps: [
         { id: 1, title: "Read and analyze all affected files", focus: `Read every file mentioned or related to: "${input}". Map the error to its root cause.` },
         { id: 2, title: "Fix root cause",                     focus: `Fix the core issue identified. Do not patch symptoms — fix the root cause completely.` },
@@ -168,6 +177,7 @@ const buildGenericPlan = (input) => {
   if (isCreate) {
     return {
       label: "New Module / Feature",
+      files: ["main.js", "utils.js"], // Placeholder, agent should adapt
       steps: [
         { id: 1, title: "Design and plan files",              focus: `List every file needed for: "${input}". Explain what each file does before writing any.` },
         { id: 2, title: "Create core logic",                  focus: `Create the main logic file(s). Include all business logic, no placeholders.` },
@@ -181,6 +191,7 @@ const buildGenericPlan = (input) => {
   if (isRefactor) {
     return {
       label: "Refactor / Improve",
+      files: [],
       steps: [
         { id: 1, title: "Audit current code",                 focus: `Read all files involved in: "${input}". List all issues, code smells, and improvements needed.` },
         { id: 2, title: "Refactor core logic",                focus: `Apply improvements: extract functions, fix naming, add error handling, improve types.` },
@@ -208,6 +219,9 @@ const planTask = (input) => {
 // Formats a plan for display in the terminal
 const displayPlan = (plan) => {
   console.log(`\n📋 TASK PLAN: ${plan.label}`);
+  if (plan.files && plan.files.length) {
+    console.log(`📁 Target Files: ${plan.files.join(", ")}`);
+  }
   console.log("═".repeat(50));
   plan.steps.forEach((s) => {
     console.log(`  Step ${s.id}: ${s.title}`);

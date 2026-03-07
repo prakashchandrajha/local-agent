@@ -92,5 +92,28 @@
     "exports": [],
     "role": "module",
     "updatedAt": "2026-03-06T21:51:25.756Z"
+  },
+  "index.js": {
+    "imports": [],
+    "exports": [
+      "init",
+      "recordFix",
+      "searchFixes",
+      "buildMemoryBlock",
+      "recordPattern",
+      "getTopPatterns",
+      "buildProjectMap",
+      "getProjectMap",
+      "buildProjectBlock",
+      "getFilesByExt"
+    ],
+    "role": "entry",
+    "updatedAt": "2026-03-07T08:18:57.110Z"
+  },
+  "tango.js": {
+    "imports": [],
+    "exports": [],
+    "role": "module",
+    "updatedAt": "2026-03-07T08:43:43.533Z"
   }
 }

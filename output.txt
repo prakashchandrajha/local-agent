@@ -1,0 +1,61 @@
+# This is a Python script that provides functions for managing and analyzing the project structure and error patterns in a codebase. 
+# It uses the built-in os and path libraries to interact with the file system, and the json library to handle JSON data.
+
+import os
+import pathlib
+import json
+from typing import List
+
+class CodebaseManager:
+    def __init__(self):
+        self._project_map = None
+
+    @property
+    def project_map(self) -> dict:
+        if not self._project_map or (self._project_map and self.is_outdated()):
+            self._project_map = self.build_project_map()
+        return self._project_map
+
+    @staticmethod
+    def is_outdated(scan_time: str) -> bool:
+        # Check if the project map has been scanned more than 5 minutes ago
+        elapsed_time = (datetime.now() - datetime.strptime(scan_time, "%Y-%m-%d %H:%M:%S.%f")).total_seconds()
+        return elapsed_time > 300
+
+    def build_project_map(self) -> dict:
+        # Scan the project and store structure + metadata
+        project_map = self._scan_project()
+        with open("project_map.json", "w") as file:
+            json.dump(project_map, file)
+        return project_map
+
+    def _scan_project(self, directory: str = os.getcwd(), depth: int = 0) -> dict:
+        if depth > 6:
+            return {}
+        results = []
+        try:
+            for entry in os.scandir(directory):
+                if self._should_skip(entry):
+                    continue
+                full_path = os.path.join(directory, entry.name)
+                if entry.is_dir():
+                    results.extend(self._scan_project(full_path, depth + 1))
+                else:
+                    # Include file size and last modified for context
+                    try:
+                        stat = os.stat(full_path)
+                        results.append({"path": full_path, "size": stat.st_size, "modified": datetime.fromtimestamp(stat.st_mtime).strftime("%Y-%m-%d %H:%M:%S")})
+                    except Exception as e:
+                        print(f"Failed to get stats for {full_path}: {e}")
+        except Exception as e:
+            print(f"Failed to scan directory {directory}: {e}")
+        return results
+
+    @staticmethod
+    def _should_skip(entry: os.DirEntry) -> bool:
+        # Skip directories starting with a dot, common files like .json and .lock, or files without an extension
+        return entry.name.startswith(".") or any(ext in entry.name for ext in [".json", ".lock", ".log"]) or not os.path.splitext(entry.name)[1]
+
+    def get_files_by_extension(self, extension: str) -> List[str]:
+        # Returns a list of all source files for a given extension
+        return self.project_map["byExtension"].get(extension, []) if "byExtension" in self.project_map else []

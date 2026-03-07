@@ -35,7 +35,7 @@
     "fact": "In Node.js ESM, use import/export. In CommonJS, use require/module.exports. Never mix them in the same file.",
     "id": "seed-2",
     "source": "built-in",
-    "useCount": 27,
+    "useCount": 28,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -113,7 +113,7 @@
     "fact": "Use interfaces for object shapes (mergeable), type aliases for unions/intersections/primitives.",
     "id": "seed-8",
     "source": "built-in",
-    "useCount": 1,
+    "useCount": 2,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -126,7 +126,7 @@
     "fact": "Async functions always return Promise<T>. Annotate return type as Promise<void>, Promise<string>, etc.",
     "id": "seed-9",
     "source": "built-in",
-    "useCount": 15,
+    "useCount": 16,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -217,7 +217,7 @@
     "fact": "Use Optional<T> for nullable return values. Never return null from public methods. Use Objects.requireNonNull() for validation.",
     "id": "seed-16",
     "source": "built-in",
-    "useCount": 8,
+    "useCount": 9,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -346,7 +346,7 @@
     "fact": "Wrap errors with fmt.Errorf('context: %w', err). Check with errors.Is() and errors.As() for type-safe error inspection.",
     "id": "seed-26",
     "source": "built-in",
-    "useCount": 13,
+    "useCount": 14,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -372,7 +372,7 @@
     "fact": "A nil pointer satisfying an interface is NOT nil as an interface. Always return explicit nil for interface return types.",
     "id": "seed-28",
     "source": "built-in",
-    "useCount": 8,
+    "useCount": 9,
     "createdAt": "2026-03-06T10:54:29.972Z"
   },
   {
@@ -463,7 +463,7 @@
     "fact": "After every code generation: check that all imports resolve, all functions are called with correct argument counts, and no logic is left as pseudocode.",
     "id": "seed-35",
     "source": "built-in",
-    "useCount": 20,
+    "useCount": 21,
     "createdAt": "2026-03-06T10:54:29.972Z"
   }
 ]
