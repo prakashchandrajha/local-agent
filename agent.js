@@ -18,7 +18,7 @@ const fs   = require("fs");
 const path = require("path");
 
 // ── Core tools ───────────────────────────────────────────────
-const { postJSON }                                             = require("./llm/client");
+const { postJSON, postJSONStream }                             = require("./llm/client");
 const { question, keyInYN }                                    = require("./tools/input");
 const { readFile, writeFile, listFiles, runFile,
         getDiffSummary, fileExists,
@@ -59,23 +59,32 @@ const { isSafePath, enforceSafePath }                         = require("./core/
 // ── Telemetry ────────────────────────────────────────────────
 const { logEvent }                                            = require("./core/telemetry");
 
+// ── Prompts ──────────────────────────────────────────────────
+const { buildRetryPrompt, TOOL_EXAMPLES }                     = require("./config/prompts");
+
 // ── Browser ──────────────────────────────────────────────────
 const { searchForFix, crystallizeSolution, isOnline }         = require("./browser/search");
 
 // ─────────────────────────────────────────────────────────────
 // CONFIG
 // ─────────────────────────────────────────────────────────────
-const OLLAMA_URL        = process.env.OLLAMA_URL    || "http://localhost:11434/api/generate";
-const MODEL             = process.env.AGENT_MODEL   || "deepseek-coder:6.7b";
-const MAX_RETRIES       = 3;
-const MAX_HISTORY       = 30;
-const MAX_AGENT_TURNS   = 8;
-const MAX_FIX_ATTEMPTS  = 3;
-const ENABLE_REVIEW     = process.env.AGENT_REVIEW     !== "0";
+const OLLAMA_URL         = process.env.OLLAMA_URL    || "http://localhost:11434/api/generate";
+const MODEL              = process.env.AGENT_MODEL   || "deepseek-coder:6.7b";
+const FAST_MODEL         = process.env.AGENT_FAST_MODEL || MODEL;
+const MAX_RETRIES        = 3;
+const MAX_HISTORY        = 30;
+const MAX_AGENT_TURNS    = 8;
+const MAX_FIX_ATTEMPTS   = 3;
+const ENABLE_REVIEW      = process.env.AGENT_REVIEW     !== "0";
 const ENABLE_SPECULATIVE = process.env.AGENT_SPECULATIVE === "1"; // opt-in (slower)
-const ENABLE_QA         = process.env.AGENT_QA         !== "0";
-const ENABLE_OPTIMIZE   = process.env.AGENT_OPTIMIZE   !== "0";
-const DEBUG             = process.env.AGENT_DEBUG      === "1";
+const ENABLE_QA          = process.env.AGENT_QA         !== "0";
+const ENABLE_OPTIMIZE    = process.env.AGENT_OPTIMIZE   !== "0";
+const DEBUG              = process.env.AGENT_DEBUG      === "1";
+const ENABLE_STREAM      = process.env.AGENT_STREAM     !== "0";
+
+// Keep LLM responses snappy: cap generation and enforce request timeout
+const MAX_TOKENS         = Number(process.env.AGENT_MAX_TOKENS || 1200);
+const LLM_TIMEOUT_MS     = Number(process.env.AGENT_TIMEOUT_MS || 65000); // align with runAgentLoop timeout
 
 // ─────────────────────────────────────────────────────────────
 // SESSION HISTORY
@@ -91,40 +100,72 @@ const formatHistory = () => !history.length ? "" :
 // ─────────────────────────────────────────────────────────────
 // LLM CALL
 // ─────────────────────────────────────────────────────────────
-const callLLM = async (prompt, systemPrompt) => {
-  let lastRaw = null;
-  let cur = prompt;
+
+const callLLM = async (prompt, systemPrompt, { tier = "NORMAL", numPredict = MAX_TOKENS, model = MODEL } = {}) => {
+  let lastRaw  = null;
+  // systemPrompt is passed in — built ONCE before this call, never rebuilt here
+  const temps = [0.1, 0.2, 0.3];
+  
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    // On retry, use a concrete example prompt — not a scolding
+    const userTurn = attempt === 1
+      ? prompt
+      : buildRetryPrompt(prompt, attempt - 1);
+
     try {
-      const promptText = formatHistory() + `\n\nUser: ${cur}\n\nRespond with ONLY valid TOOL blocks.`;
-      const res  = await postJSON(OLLAMA_URL, { 
-        model: MODEL, 
-        system: systemPrompt,
-        prompt: promptText, 
-        stream: false, 
-        options: { temperature: 0.1, num_predict: 8000 } 
-      });
-      const raw  = (res.response || "").trim();
-      if (DEBUG) console.log(`\n[DEBUG #${attempt}]:\n${raw.slice(0, 500)}\n`);
-      const ops  = parseToolBlocks(raw);
+      const promptText = formatHistory() + `\n\nUser: ${userTurn}\n\nRespond with ONLY valid TOOL blocks.`;
+      const temperature = temps[Math.min(attempt - 1, temps.length - 1)];
+      const body = {
+        model,
+        system:  systemPrompt,   // stable — not rebuilt per attempt
+        prompt:  promptText,
+        stream:  ENABLE_STREAM,
+        options: { temperature, num_predict: numPredict },
+      };
+
+      let raw = "";
+      if (ENABLE_STREAM) {
+        const res = await postJSONStream(OLLAMA_URL, body, {
+          timeoutMs: LLM_TIMEOUT_MS,
+          onToken: (t) => { raw += t; },
+          shouldStop: (buf) => {
+            const ops = parseToolBlocks(buf);
+            return ops.length && isLikelyComplete(buf);
+          },
+        });
+        raw = (res.response || raw || "").trim();
+      } else {
+        const res = await postJSON(OLLAMA_URL, body, LLM_TIMEOUT_MS);
+        raw = (res.response || "").trim();
+      }
+
+      if (DEBUG) console.log(`\n[DEBUG attempt ${attempt}]:\n${raw.slice(0, 500)}\n`);
+
+      const ops = parseToolBlocks(raw);
       if (ops.length) return { raw, ops };
+
       lastRaw = raw;
-      console.log(`⚠️  Attempt ${attempt}/${MAX_RETRIES}: bad format, retrying...`);
-      cur = `WRONG FORMAT. Only TOOL blocks. Original: ${prompt}`;
+      console.log(`⚠️  Attempt ${attempt}/${MAX_RETRIES}: bad format, retrying with example...`);
+
     } catch (err) {
       console.error(`❌ LLM error (attempt ${attempt}):`, err.message);
       if (attempt === MAX_RETRIES) return null;
       await new Promise((r) => setTimeout(r, 1000));
     }
   }
-  if (lastRaw) { const ops = parseToolBlocks(lastRaw); if (ops.length) return { raw: lastRaw, ops }; }
+
+  // Last-chance parse of whatever we got
+  if (lastRaw) {
+    const ops = parseToolBlocks(lastRaw);
+    if (ops.length) return { raw: lastRaw, ops };
+  }
   return null;
 };
 
 // ─────────────────────────────────────────────────────────────
 // SYSTEM PROMPT
 // ─────────────────────────────────────────────────────────────
-const buildSystemPrompt = ({ langProfile, atomBlock, memoryBlock, projectBlock, patternBlock, fisBlock, readmeContent } = {}) => {
+const buildSystemPrompt = ({ langProfile, atomBlock, memoryBlock, projectBlock, patternBlock, fisBlock, readmeContent } = {}, { includeExamples = true } = {}) => {
   const base = `You are an elite coding agent — part of a full software engineering team. You write complete, production-ready code in any language. You never truncate, never use placeholders.`;
 
   const tools = `
@@ -154,24 +195,32 @@ TOOL: search_web
 ERROR: <error>
 LANG: <language>`.trim();
 
-  const parts = [base, tools];
+  const toolSection = includeExamples && TOOL_EXAMPLES
+    ? `${tools}\n\n${TOOL_EXAMPLES}`
+    : tools;
+
+  // Context blocks injected BEFORE rules — rules stay freshest in model memory
+  const parts = [base];
+  if (readmeContent) parts.push(`CUSTOM INSTRUCTIONS:\n${readmeContent}`);
   if (patternBlock)  parts.push(patternBlock);
-  if (fisBlock)      parts.push(fisBlock);
   if (langProfile)   parts.push(langProfile);
   if (atomBlock)     parts.push(atomBlock);
+  if (fisBlock)      parts.push(fisBlock);
   if (memoryBlock)   parts.push(memoryBlock);
   if (projectBlock)  parts.push(projectBlock);
-  if (readmeContent) parts.push(`CUSTOM INSTRUCTIONS:\n${readmeContent}`);
 
+  // RULES always second-to-last, TOOL FORMAT always last
+  // Small models follow the most recent instruction — put format last
   parts.push(`RULES:
 1. Read file BEFORE writing it (unless brand new).
 2. 100% complete code — no truncation, no TODO, no placeholders.
 3. Fix ALL errors in one pass.
-4. No text outside TOOL blocks.
-5. Answer capability questions directly in TOOL: chat — YES or NO.
-6. NEVER list_files when user asked a question.
-7. Write multi-file dependencies in order: imports first.
-8. NEVER use literal placeholder paths like 'path/to/file'. ALWAYS use actual project paths.`);
+4. Respond using ONLY TOOL blocks. No prose outside them.
+5. NEVER use list_files when the user asked you to create or write something.
+6. Write multi-file dependencies in order: imports first.
+7. NEVER use placeholder paths like 'path/to/file' — use actual project paths.`);
+
+  parts.push(toolSection);
 
   return parts.join("\n\n");
 };
@@ -179,26 +228,38 @@ LANG: <language>`.trim();
 // ─────────────────────────────────────────────────────────────
 // DYNAMIC PROMPT (v2 — with Context Compression Engine)
 // ─────────────────────────────────────────────────────────────
-const buildDynamicPrompt = (userInput, readmeContent, activeFile = null, errorContext = "") => {
-  const content    = activeFile && fileExists(activeFile) ? readFile(activeFile) : "";
-  const profile    = activeFile ? getProfile(activeFile, content) : null;
-  const lang       = activeFile ? (detectLangFromFile(activeFile) || "") : "";
-  const fisBlock   = errorContext ? fis.buildFISBlock(errorContext, lang) : "";
-  const patternBlock = buildPatternBlock(lang, userInput);
 
-  // CCE: inject compressed repo context instead of raw project block
-  const { context: cceContext, stats: cceStats } = getCompressedContext(userInput, MODEL);
-  if (cceStats && cceStats.totalFiles > 0) logCCEStats(cceStats);
+const buildDynamicPrompt = (userInput, readmeContent, activeFile = null, errorContext = "", tier = "NORMAL") => {
+  const content     = activeFile && fileExists(activeFile) ? readFile(activeFile) : "";
+  const profile     = activeFile ? getProfile(activeFile, content) : null;
+  const lang        = activeFile ? (detectLangFromFile(activeFile) || "") : "";
+  const includeMem  = tier === "FULL";
+  const includeProj = tier === "FULL";
+  const includeCtx  = tier !== "INSTANT";
 
+  const fisBlock    = errorContext && tier !== "INSTANT" ? fis.buildFISBlock(errorContext, lang) : "";
+  const patternBlock = includeCtx ? buildPatternBlock(lang, userInput) : "";
+  const atomBlock    = includeCtx ? kstore.buildAtomBlock(userInput, lang) : "";
+  const memoryBlock  = includeMem ? memory.buildMemoryBlock(lang, userInput) : "";
+
+  let projectBlock = includeProj ? memory.buildProjectBlock() : "";
+  if (includeProj) {
+    const { context: cceContext, stats: cceStats } = getCompressedContext(userInput, MODEL);
+    if (cceStats && cceStats.totalFiles > 0) logCCEStats(cceStats);
+    projectBlock = cceContext || projectBlock;
+  }
+
+  // Build ONCE — this result is passed to callLLM and reused
+  // for ALL retry attempts without rebuilding
   return buildSystemPrompt({
-    langProfile:   profile ? buildKnowledgeBlock(profile) : "",
-    atomBlock:     kstore.buildAtomBlock(userInput, lang),
-    memoryBlock:   memory.buildMemoryBlock(lang, userInput),
-    projectBlock:  cceContext || memory.buildProjectBlock(),
+    langProfile:   profile && includeCtx ? buildKnowledgeBlock(profile) : "",
+    atomBlock,
+    memoryBlock,
+    projectBlock,
     patternBlock,
     fisBlock,
-    readmeContent,
-  });
+    readmeContent: includeCtx ? readmeContent : "",
+  }, { includeExamples: tier !== "INSTANT" });
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -225,10 +286,10 @@ const detectIntent = (input) => {
   const lo = input.toLowerCase();
   
   const chat = /\b(hi|hello|hey|how are you|thanks|good morning|hi there)\b/;
-  const coding = /\b(create|build|write|fix|implement|generate|make|scaffold|new)\b/;
+const coding = /\b(create|build|write|fix|implement|generate|make|scaffold|new|add|convert|change|update|rewrite)\b/;
   const analysis = /\b(explain|why|review|analyze|audit|inspect|debug)\b/;
   const fileOp = /\b(run|execute|test|launch|delete|remove|erase|trash|rename|move)\b/;
-  const improve = /\b(improve|optimize|refactor|clean|enhance|upgrade)\b/;
+const improve = /\b(improve|optimize|refactor|clean|enhance|upgrade|modify|edit|transform)\b/;
 
   let intent = "clarify";
   let confidence = 0.3;
@@ -258,6 +319,21 @@ const detectComplexity = (input) => {
   return Object.assign(Number(complexity.toFixed(1)), {
       value: complexity
   }).value;
+};
+
+const classifyTask = (input) => {
+  const lo        = input.toLowerCase();
+  const wordCount = input.trim().split(/\s+/).length;
+  const complexRx = /(server|api|auth|crud|pipeline|architect|architecture|database|docker|kubernetes|microservice|full stack|graphql|queue|kafka)/i;
+  const complexity = detectComplexity(input);
+
+  if (wordCount <= 12 && !complexRx.test(lo)) {
+    return { tier: "INSTANT", numPredict: 1500, model: FAST_MODEL, complexity };
+  }
+  if (complexity > 0.6 || complexRx.test(lo)) {
+    return { tier: "FULL", numPredict: 4000, model: MODEL, complexity };
+  }
+  return { tier: "NORMAL", numPredict: 3000, model: MODEL, complexity };
 };
 
 const isSolved   = (s) => /\b(done|fixed|good|great|perfect|ok|works?( now)?|looks good|yeah|sweet|correct)\b/i.test(s);
@@ -307,9 +383,12 @@ const tryDirectDelete = async (input) => {
 };
 
 const tryDirectRename = async (input) => {
-  const m = input.match(/\b(?:rename|move)\s+["']?([\w\-\.\/]+\.[\w]+)["']?\s+to\s+["']?([\w\-\.\/]+\.[\w]+)["']?/i);
+  // Match: rename/move X to Y  OR  change X to Y (when both are filenames)
+  const m = input.match(/\b(?:rename|move|change|convert)\s+["']?([\w\-\.\/]+\.[\w]+)["']?\s+to\s+["']?([\w\-\.\/]+\.[\w]+)["']?/i);
   if (!m) return { handled: false };
   const [, from, to] = m;
+  // Only handle if source file actually exists — otherwise let LLM handle it
+  if (!fileExists(from)) return { handled: false };
   const ok = await keyInYN(`\n⚠️  Rename ${from} → ${to}?`);
   if (!ok) return { handled: true, message: "⏭️  Cancelled." };
   const r = renameFile(from, to);
@@ -360,6 +439,8 @@ const parseToolBlocks = (response) => {
   return ops;
 };
 
+const isLikelyComplete = (buffer) => /END_(CONTENT|MESSAGE)\s*$/m.test(buffer.trim());
+
 // ─────────────────────────────────────────────────────────────
 // WRITE WITH OPTIONAL SELF-REVIEW
 // Keeps original as backup — restores if review output looks wrong
@@ -385,8 +466,9 @@ const writeWithReview = async (filePath, code, lang) => {
 // SINGLE AGENT TURN
 // ─────────────────────────────────────────────────────────────
 const runAgentTurn = async (prompt, readmeContent, activeFile = null, errorCtx = "") => {
-  const sysPrompt = buildDynamicPrompt(prompt, readmeContent, activeFile, errorCtx);
-  const result    = await callLLM(prompt, sysPrompt);
+  const taskProfile = classifyTask(prompt);
+  const sysPrompt   = buildDynamicPrompt(prompt, readmeContent, activeFile, errorCtx, taskProfile.tier);
+  const result      = await callLLM(prompt, sysPrompt, taskProfile);
   if (!result) return { written: [], read: [], terminated: false, runError: null };
 
   const written = [], read = [];
@@ -462,6 +544,12 @@ const runAgentTurn = async (prompt, readmeContent, activeFile = null, errorCtx =
     } else if (op.tool === "rename_file") {
       try { enforceSafePath(op.from); enforceSafePath(op.to); } catch (e) {
         console.log(`\n❌ Rename denied.`); continue;
+      }
+      // Guard: if source no longer exists (already renamed by direct interceptor), skip
+      if (!fileExists(op.from)) {
+        console.log(`\n⚠️  Skipped rename — ${op.from} not found (already renamed?)`);
+        terminated = true;
+        continue;
       }
       const ok = await keyInYN(`\n⚠️  Rename ${op.from} → ${op.to}?`);
       if (ok) { const r = renameFile(op.from, op.to); console.log(r.success ? `\n✏️  ${r.message}` : `\n❌ ${r.message}`); }
@@ -632,8 +720,8 @@ const runAgentLoop = async (userInput, readmeContent, contextFile = null, taskCo
   let lastFile     = contextFile;
   let fixAttempts  = 0;
 
-  // Dynamic Speculative threshold
-  const useSpeculative = ENABLE_SPECULATIVE || complexity > 0.7;
+  // Dynamic Speculative threshold — kicks in at medium complexity
+  const useSpeculative = ENABLE_SPECULATIVE || complexity > 0.4;
 
   let currentPrompt = userInput;
   if (contextFile && fileExists(contextFile)) {
@@ -794,7 +882,7 @@ const run = async () => {
       const r = await tryDirectDelete(input);
       if (r.handled) { console.log(`\n${r.message}\n`); rememberTurn("user", input); rememberTurn("agent", r.message); continue; }
     }
-    if (/\b(?:rename|move)\s+["']?[\w\-\.\/]+\.[\w]+["']?\s+to\s+/i.test(input)) {
+    if (/\b(?:rename|move|change|convert)\s+["']?[\w\-\.\/]+\.[\w]+["']?\s+to\s+["']?[\w\-\.\/]+\.[\w]+/i.test(input)) {
       const r = await tryDirectRename(input);
       if (r.handled) { console.log(`\n${r.message}\n`); rememberTurn("user", input); rememberTurn("agent", r.message); continue; }
     }
@@ -807,16 +895,12 @@ const run = async () => {
     if (DEBUG) console.log(`[TELEMETRY] Intent: ${intentData.intent} (${intentData.confidence.toFixed(2)}), Complexity: ${complexity}`);
     logEvent({ timestamp: new Date().toISOString(), type: "user_input", input, intent: intentData.intent, confidence: intentData.confidence, complexity });
 
-    if (intentData.intent === "chat" || intentData.confidence < 0.5) {
-      if (intentData.confidence < 0.5) {
-        console.log(`\n🤖 I'm not entirely sure what you want me to do. Could you clarify?\n`);
-      } else {
-        console.log(`\n🤖 Hello! What would you like me to do?\n\nYou can ask me to:\n• create files\n• fix bugs\n• optimize code\n• analyze project\n`);
-      }
-      rememberTurn("user", input);
-      rememberTurn("agent", "Chat / Clarification");
-      continue;
-    }
+   if (intentData.intent === "chat") {
+  console.log(`\n🤖 Hello! What would you like me to build?\n`);
+  rememberTurn("user", input);
+  rememberTurn("agent", "Chat");
+  continue;
+}
 
     console.log("\n🤔 Thinking...\n");
     rememberTurn("user", input);

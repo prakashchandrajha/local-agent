@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "indexedAt": "2026-03-07T08:42:47.091Z",
-  "totalFiles": 59,
+  "indexedAt": "2026-03-07T11:48:58.272Z",
+  "totalFiles": 61,
   "files": {
     "README.md": {
       "role": "other",
@@ -14,7 +14,7 @@
         "relationships"
       ],
       "lineCount": 204,
-      "mtime": 1772773752000
+      "mtime": 1772877556116
     },
     "agent.js": {
       "role": "other",
@@ -22,18 +22,19 @@
       "functions": [
         "rememberTurn",
         "formatHistory",
-        "callLLM",
         "loadReadme",
         "cleanFences",
         "extractFilename",
         "detectIntent",
         "detectComplexity",
+        "classifyTask",
         "isSolved",
         "isFollowUp",
         "interceptCapability",
         "tryDirectDelete",
         "tryDirectRename",
         "parseToolBlocks",
+        "isLikelyComplete",
         "writeWithReview",
         "runFullPipeline",
         "timeoutId",
@@ -43,18 +44,19 @@
       "signatures": [
         "rememberTurn(role, content)",
         "formatHistory()",
-        "callLLM(prompt, systemPrompt)",
         "loadReadme()",
         "cleanFences(s)",
         "extractFilename(input)",
         "detectIntent(input)",
         "detectComplexity(input)",
+        "classifyTask(input)",
         "isSolved(s)",
         "isFollowUp(s)",
         "interceptCapability(input)",
         "tryDirectDelete(input)",
         "tryDirectRename(input)",
         "parseToolBlocks(response)",
+        "isLikelyComplete(buffer)",
         "writeWithReview(filePath, code, lang)",
         "runFullPipeline(userInput, readmeContent, projectContext)",
         "timeoutId(setTimeout(()",
@@ -85,6 +87,7 @@
         "./core/ere",
         "./core/fileGuard",
         "./core/telemetry",
+        "./config/prompts",
         "./browser/search"
       ],
       "externalDeps": [
@@ -94,8 +97,8 @@
         "|def",
         "|require|return|if"
       ],
-      "lineCount": 861,
-      "mtime": 1772872756500
+      "lineCount": 945,
+      "mtime": 1772884082802
     },
     "agents/architect.js": {
       "role": "other",
@@ -120,7 +123,7 @@
       ],
       "externalDeps": [],
       "lineCount": 112,
-      "mtime": 1772795568000
+      "mtime": 1772877556116
     },
     "agents/ceo.js": {
       "role": "other",
@@ -143,7 +146,7 @@
       ],
       "externalDeps": [],
       "lineCount": 99,
-      "mtime": 1772795568000
+      "mtime": 1772877556116
     },
     "agents/integrator.js": {
       "role": "other",
@@ -172,7 +175,7 @@
         "|require|return)\\b/.test(fixedCode);"
       ],
       "lineCount": 151,
-      "mtime": 1772797136000
+      "mtime": 1772877556116
     },
     "agents/optimizer.js": {
       "role": "other",
@@ -195,7 +198,7 @@
         "|require|return|if"
       ],
       "lineCount": 167,
-      "mtime": 1772797136000
+      "mtime": 1772877556117
     },
     "agents/qa.js": {
       "role": "other",
@@ -221,7 +224,7 @@
         "path"
       ],
       "lineCount": 130,
-      "mtime": 1772795568000
+      "mtime": 1772877556117
     },
     "agents/speculative.js": {
       "role": "other",
@@ -246,7 +249,7 @@
         "fs"
       ],
       "lineCount": 143,
-      "mtime": 1772795568000
+      "mtime": 1772877556117
     },
     "browser/search.js": {
       "role": "other",
@@ -277,20 +280,34 @@
         "http"
       ],
       "lineCount": 249,
-      "mtime": 1772792926000
+      "mtime": 1772877556117
     },
     "config/prompts.js": {
       "role": "config",
-      "description": "config",
-      "functions": [],
-      "signatures": [],
+      "description": "PROMPTS — Fixed for 6.7b model reliability",
+      "functions": [
+        "wrapSection",
+        "buildRetryPrompt",
+        "greet"
+      ],
+      "signatures": [
+        "wrapSection(title, content)",
+        "buildRetryPrompt(originalPrompt, attempt)",
+        "greet(name)"
+      ],
       "exports": [
-        "SYSTEM_PROMPT"
+        "buildSystemPrompt",
+        "buildRetryPrompt",
+        "SYSTEM_PROMPT",
+        "IDENTITY",
+        "RULES",
+        "TOOL_FORMAT",
+        "TOOL_EXAMPLES"
       ],
       "imports": [],
       "externalDeps": [],
-      "lineCount": 45,
-      "mtime": 1772787895649
+      "lineCount": 239,
+      "mtime": 1772883969747
     },
     "core/cce.js": {
       "role": "other",
@@ -344,7 +361,7 @@
         "path"
       ],
       "lineCount": 468,
-      "mtime": 1772821949890
+      "mtime": 1772877556117
     },
     "core/clc.js": {
       "role": "other",
@@ -371,7 +388,7 @@
         "path"
       ],
       "lineCount": 65,
-      "mtime": 1772821129615
+      "mtime": 1772877556117
     },
     "core/ere.js": {
       "role": "other",
@@ -423,7 +440,7 @@
         "child_process"
       ],
       "lineCount": 523,
-      "mtime": 1772831725895
+      "mtime": 1772877556117
     },
     "core/fileGuard.js": {
       "role": "module",
@@ -445,7 +462,7 @@
         "path"
       ],
       "lineCount": 19,
-      "mtime": 1772872679373
+      "mtime": 1772877556117
     },
     "core/incremental-test.js": {
       "role": "test",
@@ -473,7 +490,7 @@
         "child_process"
       ],
       "lineCount": 113,
-      "mtime": 1772831788074
+      "mtime": 1772877556118
     },
     "core/planner.js": {
       "role": "other",
@@ -506,7 +523,7 @@
         "or"
       ],
       "lineCount": 233,
-      "mtime": 1772872630744
+      "mtime": 1772877556118
     },
     "core/repo-indexer.js": {
       "role": "repository",
@@ -548,7 +565,7 @@
         "to"
       ],
       "lineCount": 432,
-      "mtime": 1772821483622
+      "mtime": 1772877556118
     },
     "core/reviewer.js": {
       "role": "other",
@@ -575,7 +592,7 @@
         "paths"
       ],
       "lineCount": 200,
-      "mtime": 1772792926000
+      "mtime": 1772877556118
     },
     "core/swarm.js": {
       "role": "other",
@@ -629,7 +646,7 @@
         "fs"
       ],
       "lineCount": 358,
-      "mtime": 1772832801504
+      "mtime": 1772877556118
     },
     "core/telemetry.js": {
       "role": "module",
@@ -649,7 +666,7 @@
         "path"
       ],
       "lineCount": 19,
-      "mtime": 1772872739322
+      "mtime": 1772877556118
     },
     "docs/for-agent/AGENT_GUIDE.md": {
       "role": "other",
@@ -664,7 +681,7 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 358,
-      "mtime": 1772718905849
+      "mtime": 1772877556118
     },
     "examples/agent_demo.js": {
       "role": "other",
@@ -682,7 +699,7 @@
         "child_process"
       ],
       "lineCount": 70,
-      "mtime": 1772779687241
+      "mtime": 1772877556118
     },
     "examples/bug.js": {
       "role": "other",
@@ -697,7 +714,7 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 3,
-      "mtime": 1772778834230
+      "mtime": 1772877556118
     },
     "examples/filename.js": {
       "role": "other",
@@ -708,7 +725,7 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 1,
-      "mtime": 1772721571212
+      "mtime": 1772877556118
     },
     "examples/index.js": {
       "role": "entry",
@@ -721,7 +738,7 @@
       ],
       "externalDeps": [],
       "lineCount": 3,
-      "mtime": 1772778950224
+      "mtime": 1772877556118
     },
     "examples/legacy/legacy_agent.js": {
       "role": "other",
@@ -776,7 +793,7 @@
         "path"
       ],
       "lineCount": 901,
-      "mtime": 1772776004904
+      "mtime": 1772877556119
     },
     "examples/math.js": {
       "role": "module",
@@ -791,7 +808,7 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 4,
-      "mtime": 1772778943687
+      "mtime": 1772877556119
     },
     "index.js": {
       "role": "entry",
@@ -838,7 +855,7 @@
         "path"
       ],
       "lineCount": 282,
-      "mtime": 1772773752000
+      "mtime": 1772877556119
     },
     "knowledge/lang-profiles.js": {
       "role": "other",
@@ -866,7 +883,7 @@
         "paths"
       ],
       "lineCount": 319,
-      "mtime": 1772792926000
+      "mtime": 1772877556119
     },
     "knowledge/pattern-loader.js": {
       "role": "other",
@@ -895,7 +912,7 @@
         "path"
       ],
       "lineCount": 101,
-      "mtime": 1772795568000
+      "mtime": 1772877556119
     },
     "knowledge/patterns/node-patterns.json": {
       "role": "other",
@@ -908,7 +925,7 @@
         "dotenv"
       ],
       "lineCount": 150,
-      "mtime": 1772795568000
+      "mtime": 1772877556119
     },
     "knowledge/patterns/python-patterns.json": {
       "role": "other",
@@ -919,7 +936,7 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 73,
-      "mtime": 1772795568000
+      "mtime": 1772877556120
     },
     "knowledge/patterns/springboot-patterns.json": {
       "role": "other",
@@ -930,27 +947,30 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 97,
-      "mtime": 1772795568000
+      "mtime": 1772877556120
     },
     "llm/client.js": {
-      "role": "module",
+      "role": "other",
       "description": "LLM CLIENT — uses Node.js built-in http/https only",
       "functions": [
+        "req",
         "req"
       ],
       "signatures": [
+        "req(lib.request(options, (res)",
         "req(lib.request(options, (res)"
       ],
       "exports": [
-        "postJSON"
+        "postJSON",
+        "postJSONStream"
       ],
       "imports": [],
       "externalDeps": [
         "http",
         "https"
       ],
-      "lineCount": 46,
-      "mtime": 1772830717345
+      "lineCount": 104,
+      "mtime": 1772883938213
     },
     "memory/fis.js": {
       "role": "other",
@@ -987,7 +1007,7 @@
         "path"
       ],
       "lineCount": 157,
-      "mtime": 1772827577962
+      "mtime": 1772877556120
     },
     "memory/index.js": {
       "role": "entry",
@@ -1034,7 +1054,7 @@
         "path"
       ],
       "lineCount": 282,
-      "mtime": 1772792926000
+      "mtime": 1772877556120
     },
     "memory/knowledge-store.js": {
       "role": "module",
@@ -1095,7 +1115,7 @@
         "const"
       ],
       "lineCount": 361,
-      "mtime": 1772821223517
+      "mtime": 1772877556120
     },
     "package-lock.json": {
       "role": "other",
@@ -1106,7 +1126,7 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 309,
-      "mtime": 1772872964084
+      "mtime": 1772882577360
     },
     "package.json": {
       "role": "other",
@@ -1117,7 +1137,7 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 21,
-      "mtime": 1772792926000
+      "mtime": 1772877556121
     },
     "parsers/tool-parser.js": {
       "role": "other",
@@ -1134,7 +1154,7 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 102,
-      "mtime": 1772788109564
+      "mtime": 1772877556121
     },
     "path/to/demovemo.py": {
       "role": "other",
@@ -1149,7 +1169,7 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 3,
-      "mtime": 1772826373069
+      "mtime": 1772877556121
     },
     "path/to/index.js": {
       "role": "entry",
@@ -1164,7 +1184,7 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 5,
-      "mtime": 1772829925390
+      "mtime": 1772877556121
     },
     "path/to/server.js": {
       "role": "entry",
@@ -1181,7 +1201,18 @@
         "paths"
       ],
       "lineCount": 9,
-      "mtime": 1772829933862
+      "mtime": 1772877556121
+    },
+    "projectover.md": {
+      "role": "other",
+      "description": "projectover module",
+      "functions": [],
+      "signatures": [],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 16,
+      "mtime": 1772877556121
     },
     "research.md": {
       "role": "other",
@@ -1192,7 +1223,7 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 13,
-      "mtime": 1772829861565
+      "mtime": 1772877556121
     },
     "src/agent.js": {
       "role": "module",
@@ -1213,7 +1244,7 @@
         "fs"
       ],
       "lineCount": 17,
-      "mtime": 1772831284826
+      "mtime": 1772877556121
     },
     "src/demoncdc.js": {
       "role": "other",
@@ -1230,7 +1261,7 @@
         "fs"
       ],
       "lineCount": 34,
-      "mtime": 1772831292879
+      "mtime": 1772877556121
     },
     "swarm_demo.js": {
       "role": "other",
@@ -1247,7 +1278,7 @@
         "fs"
       ],
       "lineCount": 9,
-      "mtime": 1772829533366
+      "mtime": 1772877556121
     },
     "swarm_test_simple.js": {
       "role": "other",
@@ -1258,7 +1289,22 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 1,
-      "mtime": 1772829455637
+      "mtime": 1772877556121
+    },
+    "tango.js": {
+      "role": "other",
+      "description": "exports: calculate",
+      "functions": [
+        "calculate"
+      ],
+      "signatures": [
+        "calculate(operation, a, b)"
+      ],
+      "exports": [],
+      "imports": [],
+      "externalDeps": [],
+      "lineCount": 25,
+      "mtime": 1772877556121
     },
     "test_complex_python.py": {
       "role": "other",
@@ -1276,7 +1322,7 @@
         "json"
       ],
       "lineCount": 12,
-      "mtime": 1772831864599
+      "mtime": 1772877556121
     },
     "tests/test-cce.js": {
       "role": "test",
@@ -1309,7 +1355,7 @@
         "path"
       ],
       "lineCount": 189,
-      "mtime": 1772821981164
+      "mtime": 1772877556121
     },
     "tests/test-ere.js": {
       "role": "test",
@@ -1341,7 +1387,7 @@
         "fs"
       ],
       "lineCount": 152,
-      "mtime": 1772823655599
+      "mtime": 1772877556121
     },
     "tests/test-swarm-integration.js": {
       "role": "test",
@@ -1365,7 +1411,7 @@
         "fs"
       ],
       "lineCount": 47,
-      "mtime": 1772827061000
+      "mtime": 1772877556121
     },
     "todo-api/package-lock.json": {
       "role": "other",
@@ -1376,7 +1422,7 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 856,
-      "mtime": 1772779794086
+      "mtime": 1772877556122
     },
     "todo-api/package.json": {
       "role": "other",
@@ -1387,7 +1433,7 @@
       "imports": [],
       "externalDeps": [],
       "lineCount": 18,
-      "mtime": 1772779794063
+      "mtime": 1772877556122
     },
     "todo-api/server.js": {
       "role": "entry",
@@ -1408,7 +1454,7 @@
         "body-parser"
       ],
       "lineCount": 93,
-      "mtime": 1772779794226
+      "mtime": 1772877556122
     },
     "todo-api/test.js": {
       "role": "test",
@@ -1423,7 +1469,7 @@
         "supertest"
       ],
       "lineCount": 24,
-      "mtime": 1772779794226
+      "mtime": 1772877556122
     },
     "tools/file.js": {
       "role": "other",
@@ -1467,7 +1513,7 @@
         "child_process"
       ],
       "lineCount": 152,
-      "mtime": 1772792926000
+      "mtime": 1772877556122
     },
     "tools/input.js": {
       "role": "module",
@@ -1491,7 +1537,7 @@
         "readline"
       ],
       "lineCount": 32,
-      "mtime": 1772792926000
+      "mtime": 1772877556122
     },
     "tools/sandbox.js": {
       "role": "other",
@@ -1537,7 +1583,7 @@
         "child_process"
       ],
       "lineCount": 186,
-      "mtime": 1772831773828
+      "mtime": 1772877556122
     }
   }
 }
